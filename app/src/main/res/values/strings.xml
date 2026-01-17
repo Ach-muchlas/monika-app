@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">MonikaApps</string>
+    <string name="title_activity_home_screen">HomeScreen</string>
+    <string name="text_feature_activity">Aktivitas</string>
+    <string name="text_desc_feature_activity">Fitur untuk mencatat aktivitas harian sebagai dokumentasi dan laporan kegiatan.</string>
+    <string name="text_feature_visited">Kunjungan</string>
+    <string name="text_desc_feature_visited">Daftar kunjungan yang dilakukan pada hari ini.</string>
+    <string name="text_feature_mission">Misi</string>
+    <string name="text_desc_feature_mission">Daftar target kerja yang harus diselesaikan.</string>
+    <string name="text_feature_expanses">Pengeluaran</string>
+    <string name="text_desc_feature_expanses">Daftar pengajuan klaim dan penggantian biaya.</string>
+    <string name="text_feature_master_data">Master Data</string>
+    <string name="text_desc_feature_master_data">Kumpulan data master yang digunakan sebagai referensi dalam pengajuan dan kunjungan.</string>
+    <string name="text_full_name_apps">Monitoring Absensi Karyawan</string>
+    <string name="text_input_imei">Masukan IMEI</string>
+    <string name="text_input_employee_id">Masukan id karyawan anda.</string>
+    <string name="text_copy_right">Copyright © 2025 PT Saktisetia Santosa. All rights reserved</string>
+    <string name="text_employee_id">ID Karyawan</string>
+    <string name="list_activity">List Aktivitas</string>
+    <string name="text_detail_activity">Detail Aktivitas</string>
+    <string name="text_checkout_activity">Checkout Aktivitas</string>
+    <string name="list_expanses">List Pengeluaran</string>
+    <string name="text_create_activity">Buat Aktivitas</string>
+    <string name="text_input_title_activity">Masukan judul aktivitas</string>
+    <string name="text_input_desc">Masukan deskripsi aktivitas</string>
+    <string name="text_title_activity">Judul Aktivitas</string>
+    <string name="text_description_activity">Deskripsi Aktivitas</string>
+
+    <string name="title_create_activity">Form Aktivitas Baru</string>
+    <string name="title_finish_activity">Form Penyelesaian Aktivitas</string>
+
+    <string name="text_photo_activity">Foto Aktivitas</string>
+    <string name="text_add_activity">Tambah Aktivitas</string>
+    <string name="text_check_out_activity">Check Out Aktivitas</string>
+    <string name="text_detail_expanse">Detail Pengeluaran</string>
+
+</resources>

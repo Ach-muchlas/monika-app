@@ -1,0 +1,41 @@
+package com.sss.monikaapps.common.component
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Primary
+import com.sss.monikaapps.common.theme.TitlePopBold
+
+@Composable
+fun CustomOutlineButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        shape = RoundedCornerShape(Dimens.SmallCornerRadius),
+        border = BorderStroke(1.dp, Primary),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = Primary
+        )
+    ) {
+        Text(
+            text = text,
+            color = Primary,
+            style = TitlePopBold.copy(fontSize = 16.sp)
+        )
+    }
+}
