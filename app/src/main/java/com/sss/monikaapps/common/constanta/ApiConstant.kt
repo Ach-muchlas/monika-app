@@ -27,7 +27,10 @@ object ApiConstant {
 
     private const val ACTIVITIES = "aktivitas"
     private const val EXPANSE = "pengeluaran"
+    private const val VISIT = "kunjungan"
     private const val MASTER = "master"
+    private const val HEADER = "hdr"
+    private const val DETAIL = "dtl"
 
     const val AUTH = "user-login"
     const val FETCH_DATA_ACTIVITIES = "${ACTIVITIES}-get"
@@ -35,9 +38,16 @@ object ApiConstant {
     const val CHECK_IN_ACTIVITY = "${ACTIVITIES}-checkin"
     const val CHECK_OUT_ACTIVITY = "${ACTIVITIES}-checkout"
 
-    const val FETCH_DATA_EXPANSES = "${EXPANSE}-get"
-    const val FETCH_DETAIL_EXPANSE = "${EXPANSE}-detail"
+    const val FETCH_DATA_EXPENSES = "${EXPANSE}-get"
+    const val FETCH_DETAIL_EXPENSE = "${EXPANSE}-detail"
+    const val CREATE_HEADER_EXPENSE = "${EXPANSE}-${HEADER}-add"
+    const val DELETE_HEADER_EXPENSE = "${EXPANSE}-${HEADER}-delete"
+    const val CREATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-add"
+    const val UPDATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-edit"
+    const val DELETE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-delete"
 
-    const val FETCH_MASTERING_EXPANSE = "${MASTER}-${EXPANSE}-get"
+    const val FETCH_DOWNLOAD_VISIT = "${VISIT}-download"
+
+    const val FETCH_MASTERING_EXPENSE = "${MASTER}-${EXPANSE}-get"
 
 }

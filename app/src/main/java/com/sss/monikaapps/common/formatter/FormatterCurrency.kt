@@ -15,4 +15,13 @@ object FormatterCurrency {
         return formatter.format(amount)
     }
 
+    fun formatThousands(input: String): String {
+        if (input.isBlank()) return ""
+
+        val number = input.replace(".", "").toLongOrNull() ?: return input
+
+        val formatter = java.text.NumberFormat.getInstance(Locale("in", "ID"))
+        return formatter.format(number)
+    }
+
 }

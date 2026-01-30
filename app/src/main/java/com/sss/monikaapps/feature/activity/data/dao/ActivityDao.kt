@@ -25,6 +25,7 @@ interface ActivityDao {
     @Query("SELECT count(*) from activity_table WHERE activityStatus = 1")
     suspend fun countStillCheckIn(): Int
 
+
     // checkout
     @Query(
         """

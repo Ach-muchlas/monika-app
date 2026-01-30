@@ -22,11 +22,11 @@ import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomMultiPhotoCard
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTextField
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.theme.BodyBitterBold
 import com.sss.monikaapps.common.theme.BodyPopBold
 import com.sss.monikaapps.common.theme.BodyPopRegular
 import com.sss.monikaapps.common.theme.Dimens
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_IN
 
 @Composable
 fun ActivityForm(
@@ -157,7 +157,6 @@ fun ActivityForm(
             )
         }
 
-
         Spacer(Modifier.height(Dimens.ExtraExtraLargeMargin))
 
         CustomPrimaryButton(
@@ -175,6 +174,12 @@ fun ActivityForm(
                         descError = "Deskripsi tidak boleh kosong"
                         hasError = true
                     }
+                    if (photos.isEmpty()) {
+                        photoError = "Minimal 1 foto harus ditambahkan"
+                        hasError = true
+                    }
+                }
+                if (!isCheckIn) {
                     if (photos.isEmpty()) {
                         photoError = "Minimal 1 foto harus ditambahkan"
                         hasError = true

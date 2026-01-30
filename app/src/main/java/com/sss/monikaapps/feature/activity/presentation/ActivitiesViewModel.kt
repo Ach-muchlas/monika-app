@@ -4,18 +4,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sss.monikaapps.common.data.StatusNetwork
+import androidx.lifecycle.viewModelScope
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
+import com.sss.monikaapps.common.manager.SessionManager
+import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
-import com.sss.monikaapps.feature.activity.data.repository.ActivitiesRepository
 import com.sss.monikaapps.feature.activity.data.response.DataItemActivities
 import com.sss.monikaapps.feature.activity.data.response.DataItemDetailActivity
-import com.sss.monikaapps.common.manager.SessionManager
-import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
-import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.activity.domain.usecase.CreateActivityUseCase
+import com.sss.monikaapps.feature.activity.domain.usecase.FetchActivitiesUseCase
+import com.sss.monikaapps.feature.activity.domain.usecase.FetchDetailActivityUseCase
+import kotlinx.coroutines.launch
 
-class ActivitiesViewModel(private val repository: ActivitiesRepository) : ViewModel() {
-    private val sessionManager = SessionManager.getInstance()
-    private val user = sessionManager.getDataUser()
+class ActivitiesViewModel(
+    private val createActivityUseCase: CreateActivityUseCase,
+    private val fetchActivitiesUseCase: FetchActivitiesUseCase,
+    private val fetchDetailActivityUseCase: FetchDetailActivityUseCase,
+) : ViewModel() {
 
     private val _activitiesResult = MutableLiveData<Result<List<DataItemActivities>>>()
     val activitiesResult: LiveData<Result<List<DataItemActivities>>> = _activitiesResult
@@ -29,50 +34,60 @@ class ActivitiesViewModel(private val repository: ActivitiesRepository) : ViewMo
     private val _updateResult = MediatorLiveData<Result<String>>()
     val updateResult: LiveData<Result<String>> = _updateResult
 
-    fun fetchActivities() {
-        repository.fetchDataActivities()
-            .observeForever {
-                _activitiesResult.value = it
-            }
+    private val _syncManualResult = MediatorLiveData<Result<String>?>()
+    val syncManualResult: LiveData<Result<String>?> = _syncManualResult
+
+    fun fetchActivities() = viewModelScope.launch {
+        _activitiesResult.value = Result.loading(null)
+        _activitiesResult.value = fetchActivitiesUseCase.execute()
     }
 
-    fun fetchDetailActivity(trno: String, locationData: Int) {
-        if (locationData == 0) {
-            repository.fetchDetailActivityLocalDatabase(trno, user.employeeName ?: "-")
-                .observeForever {
-                    _detailActivityResult.value = it
-                }
-        } else {
-            repository.fetchDetailActivity(trno)
-                .observeForever {
-                    _detailActivityResult.value = it
-                }
+    fun fetchDetailActivity(trno: String, locationData: Int) =
+        viewModelScope.launch {
+
+            _detailActivityResult.value = Result.loading(null)
+
+            val result = if (locationData == 0) {
+                fetchDetailActivityUseCase.fetchLocal(trno)
+            } else {
+                fetchDetailActivityUseCase.fetchRemote(trno)
+            }
+
+            _detailActivityResult.value = result
+        }
+
+
+    fun checkIn(payload: ActivityEntity) {
+        viewModelScope.launch {
+            _createResult.value = Result.loading(null)
+            val result = createActivityUseCase.checkIn(payload)
+            _createResult.value = result
         }
     }
 
-    fun createActivity(payload: ActivityEntity) {
-        val source = repository.createActivity(payload)
-        _createResult.addSource(source) {
-            _createResult.value = it
-            if (it.status != StatusNetwork.LOADING) {
-                _createResult.removeSource(source)
-            }
+    fun checkOut(idMobile: String, lat: String, lng: String) {
+        viewModelScope.launch {
+            _updateResult.value = Result.loading(null)
+            val result = createActivityUseCase.checkOut(
+                idMobile = idMobile,
+                latitude = lat,
+                longitude = lng,
+                timeEnd = getCurrentDateTime()
+            )
+            _updateResult.value = result
         }
     }
 
-    fun updateActivity(trno: String, idMobile: String, lat: String, lng: String) {
-        val source = repository.checkOutActivity(
-            trno = trno,
-            idMobile = idMobile,
-            endTime = getCurrentDateTime(),
-            latitude = lat,
-            longitude = lng,
-        )
-        _updateResult.addSource(source) {
-            _updateResult.value = it
-            if (it.status != StatusNetwork.LOADING) {
-                _updateResult.removeSource(source)
-            }
+    fun syncManual(){
+        viewModelScope.launch {
+            _syncManualResult.value = Result.loading(null)
+            val result = createActivityUseCase.syncManualDataActivity()
+            _syncManualResult.value= result
         }
     }
+
+    fun clearSyncState() {
+        _syncManualResult.value = null
+    }
+
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import com.sss.monikaapps.common.component.CustomCardListHeader
 import com.sss.monikaapps.common.component.CustomFloatingActionButton
+import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomSearch
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.theme.BackgroundLayout
@@ -49,10 +51,42 @@ fun ActivitiesScreen(
     var searchQuery by remember { mutableStateOf("") }
 
     val result by viewModel.activitiesResult.observeAsState()
+    val resultSyncManual by viewModel.syncManualResult.observeAsState()
+
+    val isSyncing = resultSyncManual?.status == StatusNetwork.LOADING
 
     LaunchedEffect(Unit) {
         viewModel.fetchActivities()
     }
+
+    LaunchedEffect(resultSyncManual?.status) {
+        when (resultSyncManual?.status) {
+            StatusNetwork.SUCCESS -> {
+                SnackbarManager.showSnackbar(
+                    SnackbarData(
+                        resultSyncManual?.data.toString(),
+                        SnackbarType.SUCCESS
+                    )
+                )
+                viewModel.fetchActivities()
+                viewModel.clearSyncState()
+            }
+
+            StatusNetwork.ERROR -> {
+                SnackbarManager.showSnackbar(
+                    SnackbarData(
+                        resultSyncManual?.message ?: "Gagal sinkronisasi",
+                        SnackbarType.ERROR
+                    )
+                )
+                viewModel.clearSyncState()
+            }
+
+            else -> Unit
+        }
+    }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,13 +99,17 @@ fun ActivitiesScreen(
                 .fillMaxSize()
                 .padding(Dimens.MediumMargin)
         ) {
-
             CustomTopBar(
                 title = stringResource(R.string.list_activity),
                 showRightIcon = true,
                 iconRight = R.drawable.icon_sync2,
                 iconSize = 30,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onRightIconClick = {
+                    if (!isSyncing) {
+                        viewModel.syncManual()
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(Dimens.MediumMargin))
@@ -144,5 +182,9 @@ fun ActivitiesScreen(
                     end = 20.dp, bottom = 20.dp
                 )
         )
+
+        if (isSyncing) {
+            CustomLoadingDialog(message = "Menyinkronkan data...")
+        }
     }
 }

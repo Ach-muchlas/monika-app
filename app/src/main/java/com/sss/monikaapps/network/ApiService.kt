@@ -1,22 +1,31 @@
 package com.sss.monikaapps.network
 
-import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
+import com.sss.monikaapps.common.constanta.ApiConstant.AUTH
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_ACTIVITY
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_ACTIVITY
+import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_DETAIL_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_HEADER_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_DETAIL_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_HEADER_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_ACTIVITIES
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_EXPENSES
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_ACTIVITY
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_VISIT
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_MASTERING_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
+import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
 import com.sss.monikaapps.feature.activity.data.response.DetailActivityResponse
-import com.sss.monikaapps.feature.expanse.data.response.DetailExpanseResponse
-import com.sss.monikaapps.feature.expanse.data.response.ExpansesResponse
+import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
+import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
-import com.sss.monikaapps.utils.constanta.ApiConstant.AUTH
-import com.sss.monikaapps.utils.constanta.ApiConstant.CHECK_IN_ACTIVITY
-import com.sss.monikaapps.utils.constanta.ApiConstant.CHECK_OUT_ACTIVITY
-import com.sss.monikaapps.utils.constanta.ApiConstant.FETCH_DATA_ACTIVITIES
-import com.sss.monikaapps.utils.constanta.ApiConstant.FETCH_DATA_EXPANSES
-import com.sss.monikaapps.utils.constanta.ApiConstant.FETCH_DETAIL_ACTIVITY
-import com.sss.monikaapps.utils.constanta.ApiConstant.FETCH_DETAIL_EXPANSE
-import com.sss.monikaapps.utils.constanta.ApiConstant.FETCH_MASTERING_EXPANSE
+import com.sss.monikaapps.feature.mastering.data.response.MasteringExpenseResponse
+import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -51,14 +60,14 @@ interface ApiService {
 
 
     // fetch data expanses
-    @GET("${FETCH_DATA_EXPANSES}/{status}")
+    @GET("${FETCH_DATA_EXPENSES}/{status}")
     suspend fun fetchDataExpanses(
         @Path("status") status: Int,
         @Query("page") page: Int,
         @Query("limit") limit: Int,
     ): Response<ExpansesResponse>
 
-    @GET("${FETCH_DETAIL_EXPANSE}/{trno}")
+    @GET("${FETCH_DETAIL_EXPENSE}/{trno}")
     suspend fun fetchDetailExpanse(
         @Path("trno") trno: String,
     ): Response<DetailExpanseResponse>
@@ -80,8 +89,47 @@ interface ApiService {
         @Part photos: List<MultipartBody.Part>?,
     ): Response<DefaultAddResponse>
 
+    // tambah pengeluaran header
+    @FormUrlEncoded
+    @POST(CREATE_HEADER_EXPENSE)
+    suspend fun createExpenseHeader(
+        @Field("tanggal") date: String,
+        @Field("note") note: String,
+    ): Response<DefaultAddResponse>
 
-    @GET(FETCH_MASTERING_EXPANSE)
-    suspend fun fetchDetailExpanse(
-    ): Response<DetailExpanseResponse>
+    @DELETE("${DELETE_HEADER_EXPENSE}/{trno}")
+    suspend fun deleteExpenseHeader(
+        @Path("trno") trno: String,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST("${CREATE_DETAIL_EXPENSE}/{trno}")
+    suspend fun createExpenseDetail(
+        @Path("trno") trno: String,
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part photos: List<MultipartBody.Part>?,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST("${UPDATE_DETAIL_EXPENSE}/{trno}/{id}")
+    suspend fun updateExpenseDetail(
+        @Path("trno") trno: String,
+        @Path("id") idExpense: String,
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part photos: List<MultipartBody.Part>?,
+    ): Response<DefaultAddResponse>
+
+    @DELETE("${DELETE_DETAIL_EXPENSE}/{trno}/{id}")
+    suspend fun deleteExpenseDetail(
+        @Path("trno") trno: String,
+        @Path("id") idDetail: String,
+    ): Response<DefaultAddResponse>
+
+    @GET(FETCH_DOWNLOAD_VISIT)
+    suspend fun fetchDownloadVisit(): Response<VisitDownloadResponse>
+
+
+    @GET(FETCH_MASTERING_EXPENSE)
+    suspend fun fetchMasteringExpense(): Response<MasteringExpenseResponse>
+
 }

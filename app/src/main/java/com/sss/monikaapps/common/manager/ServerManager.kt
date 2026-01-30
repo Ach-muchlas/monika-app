@@ -3,7 +3,7 @@ package com.sss.monikaapps.common.manager
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.sss.monikaapps.utils.constanta.ServerConstant
+import com.sss.monikaapps.common.constanta.ServerConstant
 
 class ServerManager private constructor() {
     private lateinit var sharePref: SharedPreferences

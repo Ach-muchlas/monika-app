@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-object  FormatterDate {
+object FormatterDate {
 
     fun getCurrentDate(): String {
         val date = Date()
@@ -60,4 +60,34 @@ object  FormatterDate {
             ""
         }
     }
+
+    //    kamis, 01 sept 2025
+    fun formatTimestampToIndoDisplay(timestampMillis: Long?): String {
+        return try {
+            if (timestampMillis == null) return ""
+
+            val date = Date(timestampMillis)
+            val formatter = SimpleDateFormat(
+                "EEEE, dd MMM yyyy",
+                Locale("id", "ID")
+            )
+            formatter.format(date)
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    //    yyyy-mm-dd
+    fun formatTimestampToDateString(timestampMillis: Long?): String {
+        return try {
+            if (timestampMillis == null) return ""
+
+            val date = Date(timestampMillis)
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            formatter.format(date)
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
 }

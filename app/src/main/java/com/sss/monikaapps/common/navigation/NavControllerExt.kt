@@ -22,6 +22,10 @@ fun NavController.navigateToDestination(
             navigate(Routes.EXPANSES) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToDownload -> {
+            navigate(Routes.DOWNLOAD) { launchSingleTop = true }
+        }
+
 
         is RouteDestination.ActivityToCreateActivity -> {
             navigate(Routes.createActivityOrUpdate(destination.typeActivity)) {
@@ -53,10 +57,29 @@ fun NavController.navigateToDestination(
             }
         }
 
-        is RouteDestination.ExpansesToDetailExpanse -> {
-            navigate(Routes.expanseToDetailExpanse(destination.trno)) {
+        is RouteDestination.ExpensesToExpenseDetail -> {
+            navigate(Routes.expenseToDetailExpense(destination.trno, destination.status)) {
                 launchSingleTop = true
             }
+        }
+
+        RouteDestination.ExpenseToCreateHeaderExpense -> {
+            navigate(Routes.CREATE_EXPENSE_HEADER) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ExpenseDetailToCreateExpenseDetail -> {
+            navigate(Routes.createExpenseDetail(destination.trno)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ExpenseDetailToUpdateExpenseDetail -> {
+            navigate(
+                Routes.updateExpenseDetail(
+                    destination.trno,
+                    destination.idExpense,
+                    destination.netAmount,
+                    destination.note
+                )
+            ) { launchSingleTop = true }
         }
     }
 }

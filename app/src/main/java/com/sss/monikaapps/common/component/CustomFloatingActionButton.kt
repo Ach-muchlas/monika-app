@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.PeachDark
@@ -30,8 +31,12 @@ import com.sss.monikaapps.common.theme.PeachMid
 
 @Composable
 fun CustomFloatingActionButton(
-    onClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    imageVector: ImageVector = Icons.Default.Add,
+    gradientLight: Color = PeachLight,
+    gradientMid: Color = PeachMid,
+    gradientDark: Color = PeachDark,
+    onClick: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -65,9 +70,9 @@ fun CustomFloatingActionButton(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            PeachLight,
-                            PeachMid,
-                            PeachDark
+                            gradientLight,
+                            gradientMid,
+                            gradientDark
                         ),
                         center = Offset(0.35f, 0.25f),
                         radius = 280f
@@ -95,7 +100,7 @@ fun CustomFloatingActionButton(
             )
 
             Icon(
-                imageVector = Icons.Default.Add,
+                imageVector = imageVector,
                 contentDescription = null,
                 modifier = Modifier.size(30.dp),
                 tint = Color.White

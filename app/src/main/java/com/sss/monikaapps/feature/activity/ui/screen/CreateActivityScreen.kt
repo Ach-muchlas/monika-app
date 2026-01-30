@@ -25,24 +25,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.sss.monikaapps.common.data.SnackbarType
-import com.sss.monikaapps.common.data.StatusNetwork
-import com.sss.monikaapps.common.model.SnackbarData
-import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
-import com.sss.monikaapps.common.viewmodel.LocationViewModel
-import com.sss.monikaapps.common.viewmodel.PhotoViewModel
 import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomTopBar
-import com.sss.monikaapps.feature.activity.ui.component.ActivityForm
-import com.sss.monikaapps.feature.activity.utils.ActivitySubmitHandler
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
+import com.sss.monikaapps.common.constanta.NameFeatureConstant.ACTIVITY
+import com.sss.monikaapps.common.data.SnackbarType
+import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.helper.GenerateRandomTextHelper.generateRandomId
+import com.sss.monikaapps.common.helper.PhotoHelper
+import com.sss.monikaapps.common.model.SnackbarData
+import com.sss.monikaapps.common.result.LocationError
+import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_OUT
-import com.sss.monikaapps.utils.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
-import com.sss.monikaapps.utils.helper.GenerateRandomTextHelper.generateRandomId
-import com.sss.monikaapps.utils.helper.PhotoHelper
-import com.sss.monikaapps.utils.result.LocationError
-import com.sss.monikaapps.common.snackbar.SnackbarManager
+import com.sss.monikaapps.common.viewmodel.LocationViewModel
+import com.sss.monikaapps.common.viewmodel.PhotoViewModel
+import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
+import com.sss.monikaapps.feature.activity.ui.component.ActivityForm
+import com.sss.monikaapps.feature.activity.utils.ActivitySubmitHandler
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -67,7 +68,7 @@ fun CreateActivityScreen(
     var desc by remember { mutableStateOf("") }
 
     val photoHelper = remember {
-        PhotoHelper(context, "activity", typeActivity) { newPhoto ->
+        PhotoHelper(context, ACTIVITY, typeActivity) { newPhoto ->
             photoViewModel.addPhoto(
                 parentId = parentIdPhoto,
                 parentType = typeActivity,
@@ -143,7 +144,6 @@ fun CreateActivityScreen(
 
                     ActivitySubmitHandler.submit(
                         isCheckOut = isCheckOut,
-                        trno = trno.toString(),
                         idMobile = idMobile.toString(),
                         activityId = parentId,
                         title = title,
@@ -177,12 +177,14 @@ fun CreateActivityScreen(
         }
 
         if (locationState?.status == StatusNetwork.LOADING) {
-            CustomLoadingDialog("Mengambil lokasi...")
+            CustomLoadingDialog("Mengambil lokasi")
         }
 
         activeResult?.let { result ->
             when (result.status) {
-                StatusNetwork.LOADING -> {}
+                StatusNetwork.LOADING -> {
+                    CustomLoadingDialog("Loading mengirim ke server")
+                }
 
                 StatusNetwork.SUCCESS -> {
                     LaunchedEffect(result) {
