@@ -6,6 +6,7 @@ sealed class RouteDestination {
 
     data object HomeToActivities : RouteDestination()
     data object HomeToExpanses : RouteDestination()
+    data object HomeToVisit : RouteDestination()
     data object HomeToDownload : RouteDestination()
 
     data class ActivityToCreateActivity(val typeActivity: String) : RouteDestination()
@@ -30,5 +31,9 @@ sealed class RouteDestination {
         val idExpense: String,
         val netAmount: String,
         val note: String,
+    ) : RouteDestination()
+
+    data class VisitToDetailVisit(
+        val idVisit: String,
     ) : RouteDestination()
 }

@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
-import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.feature.activity.data.response.DataItemActivities
@@ -39,7 +38,7 @@ class ActivitiesViewModel(
 
     fun fetchActivities() = viewModelScope.launch {
         _activitiesResult.value = Result.loading(null)
-        _activitiesResult.value = fetchActivitiesUseCase.execute()
+        _activitiesResult.value = fetchActivitiesUseCase()
     }
 
     fun fetchDetailActivity(trno: String, locationData: Int) =
@@ -78,11 +77,11 @@ class ActivitiesViewModel(
         }
     }
 
-    fun syncManual(){
+    fun syncManual() {
         viewModelScope.launch {
             _syncManualResult.value = Result.loading(null)
             val result = createActivityUseCase.syncManualDataActivity()
-            _syncManualResult.value= result
+            _syncManualResult.value = result
         }
     }
 

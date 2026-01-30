@@ -10,6 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
@@ -22,6 +23,7 @@ import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_DOWNLOAD
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.feature.activity.ui.screen.ActivitiesScreen
 import com.sss.monikaapps.feature.activity.ui.screen.ActivityDetailScreen
@@ -33,6 +35,8 @@ import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScree
 import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
 import com.sss.monikaapps.feature.home.ui.screen.HomeScreen
 import com.sss.monikaapps.feature.login.ui.screen.LoginScreen
+import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailScreen
+import com.sss.monikaapps.feature.visit.presentation.list.VisitListScreen
 
 
 @Composable
@@ -71,6 +75,7 @@ fun AppNavGraph(
                     )
 
                     FEATURE_DOWNLOAD -> navController.navigateToDestination(RouteDestination.HomeToDownload)
+                    FEATURE_VISIT -> navController.navigateToDestination(RouteDestination.HomeToVisit)
                 }
             }
         }
@@ -92,6 +97,12 @@ fun AppNavGraph(
 
         composable(Routes.DOWNLOAD) {
             DownloadScreen(navController = navController)
+        }
+
+        composable(Routes.VISIT) {
+            VisitListScreen(navController = navController, onclickDetail = { id ->
+                navController.navigateToDestination(RouteDestination.VisitToDetailVisit(id))
+            })
         }
 
         composable(Routes.EXPANSES) {
@@ -220,6 +231,15 @@ fun AppNavGraph(
                 dataNetAmount = netAmount,
                 dataNote = note
             )
+        }
+        composable(
+            Routes.DETAIL_VISIT, arguments = listOf(
+                navArgument(ID_VISIT) { type = NavType.StringType }
+            )
+        ) { navBackStackEntry ->
+            val trnoMobile = navBackStackEntry.arguments?.getString(ID_VISIT).orEmpty()
+
+            VisitDetailScreen(idVisit = trnoMobile, navController = navController)
         }
     }
 }

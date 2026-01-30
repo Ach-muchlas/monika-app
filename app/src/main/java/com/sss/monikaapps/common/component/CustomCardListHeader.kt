@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.model.Status
 import com.sss.monikaapps.common.theme.BodyBitterMedium
+import com.sss.monikaapps.common.theme.BodyPopBold
 import com.sss.monikaapps.common.theme.BodyPopMedium
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Gray
@@ -102,7 +103,7 @@ fun CustomCardListHeader(
 
             Text(
                 text = status?.title ?: "-",
-                style = BodyPopMedium.copy(color = Gray, fontSize = Dimens.MediumFont)
+                style = BodyPopBold.copy(color = Gray, fontSize = Dimens.MediumFont)
             )
         }
     }

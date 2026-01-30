@@ -35,5 +35,9 @@
     <string name="text_detail_expanse">Detail Pengeluaran</string>
     <string name="text_feature_download">"Download"</string>
     <string name="text_desc_feature_download">Fitur untuk download data master. Seperti data custom, dll</string>
+    <string name="list_visit">List Kunjungan</string>
+    <string name="text_detail_visit">Detail Kunjungan</string>
+    <string name="text_checkout_visit">Checkout Kunjungan</string>
+    <string name="text_checkin_visit">Checkin Kunjungan</string>
 
 </resources>

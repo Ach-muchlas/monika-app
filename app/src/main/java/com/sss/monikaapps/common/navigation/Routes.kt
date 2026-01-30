@@ -2,6 +2,7 @@ package com.sss.monikaapps.common.navigation
 
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
@@ -31,6 +32,8 @@ object Routes {
     const val UPDATE_EXPENSE_DETAIL =
         "update_expense_detail/{$TRNO_EXPENSE}/{$ID_EXPENSE}/{$NET_AMOUNT}/{$NOTE}"
 
+    const val DETAIL_VISIT = "detail_visit/{$ID_VISIT}"
+
     fun detailActivities(trno: String, idMobile: String, locationData: Int): String {
         return "detail_activities/$trno/$idMobile/$locationData"
     }
@@ -49,4 +52,6 @@ object Routes {
     fun createExpenseDetail(trno: String) = "create_expense_detail/$trno"
     fun updateExpenseDetail(trno: String, idExpense: String, netAmount: String, note: String) =
         "update_expense_detail/$trno/$idExpense/$netAmount/$note"
+
+    fun detailVisit(idVisit: String): String = "detail_visit/$idVisit"
 }

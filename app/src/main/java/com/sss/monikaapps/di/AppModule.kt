@@ -65,6 +65,14 @@ import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepos
 import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepositoryImpl
 import com.sss.monikaapps.feature.utils.device.domain.usecase.GetAppVersionUseCase
 import com.sss.monikaapps.feature.utils.device.domain.usecase.GetDeviceIdUseCase
+import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSource
+import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSourceImpl
+import com.sss.monikaapps.feature.visit.domain.repository.VisitRepository
+import com.sss.monikaapps.feature.visit.domain.repository.VisitRepositoryImpl
+import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitDetailUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitLocalDatabaseUseCase
+import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailViewModel
+import com.sss.monikaapps.feature.visit.presentation.list.VisitViewModel
 import com.sss.monikaapps.network.ApiConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -99,6 +107,7 @@ object AppModule {
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
         single<DownloadRepository> { DownloadRepositoryImpl(get(), get()) }
+        single<VisitRepository> { VisitRepositoryImpl(get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -117,6 +126,7 @@ object AppModule {
         single<MasteringRemoteSource> { MasteringRemoteSourceImpl(get()) }
         single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get()) }
         single<DownloadRemoteDataSource> { DownloadRemoteDataSourceImpl(get()) }
+        single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get()) }
     }
 
     val useCase = module {
@@ -142,6 +152,8 @@ object AppModule {
         single { DeleteExpenseDetailUseCase(get()) }
         single { DownloadUseCase(get()) }
         single { FetchConfigDownloadUseCase(get()) }
+        single { FetchVisitLocalDatabaseUseCase(get()) }
+        single { FetchVisitDetailUseCase(get()) }
     }
 
     val viewModelModule = module {
@@ -154,6 +166,8 @@ object AppModule {
         viewModel { PhotoViewModel(get()) }
         viewModel { LocationViewModel(get()) }
         viewModel { MasteringViewModel(get()) }
-        viewModel { DownloadViewModel(get(),get()) }
+        viewModel { DownloadViewModel(get(), get()) }
+        viewModel { VisitViewModel(get()) }
+        viewModel { VisitDetailViewModel(get()) }
     }
 }

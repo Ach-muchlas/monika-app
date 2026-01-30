@@ -78,4 +78,7 @@ class DownloadRepositoryImpl(
         }
     }
 
+    override suspend fun countDataPending(): Int {
+        return local.countPendingDownload()
+    }
 }

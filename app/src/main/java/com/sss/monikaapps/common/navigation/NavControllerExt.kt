@@ -26,6 +26,10 @@ fun NavController.navigateToDestination(
             navigate(Routes.DOWNLOAD) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToVisit -> {
+            navigate(Routes.VISIT) { launchSingleTop = true }
+        }
+
 
         is RouteDestination.ActivityToCreateActivity -> {
             navigate(Routes.createActivityOrUpdate(destination.typeActivity)) {
@@ -80,6 +84,10 @@ fun NavController.navigateToDestination(
                     destination.note
                 )
             ) { launchSingleTop = true }
+        }
+
+        is RouteDestination.VisitToDetailVisit -> {
+            navigate(Routes.detailVisit(destination.idVisit)) { launchSingleTop = true }
         }
     }
 }

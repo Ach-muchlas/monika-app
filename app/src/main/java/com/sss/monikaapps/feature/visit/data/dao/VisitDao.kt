@@ -13,6 +13,12 @@ interface VisitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCustomerVisit(data: List<VisitEntity>)
 
+    @Query("SELECT * FROM visit_table")
+    suspend fun fetchVisitLocalDatabase(): List<VisitEntity>
+
+    @Query("SELECT * FROM visit_table WHERE id = :idVisit")
+    suspend fun fetchVisitDetail(idVisit: String): VisitEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLogActivity(data: LogEntity)
 

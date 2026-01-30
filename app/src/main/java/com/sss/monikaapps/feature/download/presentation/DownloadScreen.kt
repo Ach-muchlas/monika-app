@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +50,8 @@ fun DownloadScreen(
     // ===== Observe Config Table Result =====
     val configResult by viewModel.configDownloadResult
         .observeAsState(Result.loading(emptyList()))
+
+    var allDownloaded by remember { mutableStateOf(false) }
 
     // ===== Progress yang stabil =====
     var displayProgress by remember { mutableFloatStateOf(0f) }
@@ -150,15 +153,25 @@ fun DownloadScreen(
             }
         }
 
-        // ===== Table =====
         when (configResult.status) {
             StatusNetwork.LOADING -> {
                 Text("Memuat data...")
             }
 
             StatusNetwork.SUCCESS -> {
-                CustomTableDownload(data = configResult.data ?: emptyList())
+                val data = configResult.data ?: emptyList()
+
+                CustomTableDownload(data = data)
+
+                // ✅ LOGIKA INTI
+                allDownloaded = data.isNotEmpty() &&
+                        data.none { !it.statusTotalDownload }
+
+                if (allDownloaded) {
+                    displayProgress = 1f
+                }
             }
+
 
             StatusNetwork.ERROR -> {
                 Text("Gagal memuat tabel")
@@ -169,9 +182,9 @@ fun DownloadScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // ===== Download Button =====
         CustomPrimaryButton(
-            text = "Download Data",
+            text = if (allDownloaded) "Semua Data Sudah Download" else "Download Data",
+            enabled = !allDownloaded,
             onClick = { viewModel.fetchDownload() }
         )
     }
