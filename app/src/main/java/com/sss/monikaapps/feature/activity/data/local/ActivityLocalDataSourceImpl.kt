@@ -11,16 +11,27 @@ class ActivityLocalDataSourceImpl(
     private val photoDao: PhotoDao,
 ) : ActivityLocalDataSource {
 
+    override suspend fun fetchActivities(): List<ActivityEntity> {
+        return activityDao.fetchDataActivityLocalDatabase()
+    }
+
     override suspend fun insertActivity(entity: ActivityEntity) {
         activityDao.insertActivity(entity)
     }
 
-    override suspend fun getDetail(id: String): ActivityEntity {
+    override suspend fun fetchDetailActivity(id: String): ActivityEntity {
         return activityDao.fetchDataDetailActivityLocalDatabase(id)
     }
 
-    override suspend fun getPhotos(id: String): List<PhotoEntity> {
-        return photoDao.getPhotosByParentId(id)
+    override suspend fun fetchPhotos(id: String): List<PhotoEntity> {
+        return photoDao.fetchPhotosByParentId(id)
+    }
+
+    override suspend fun fetchPhotosByParentIdAndParentType(
+        id: String,
+        type: String,
+    ): List<PhotoEntity> {
+        return photoDao.fetchPhotoByParentIdAndParentType(id, type)
     }
 
     override suspend fun markCheckInDone(id: String) {
@@ -47,7 +58,7 @@ class ActivityLocalDataSourceImpl(
         id: String,
         endTime: String,
         latitude: String,
-        longitude: String
+        longitude: String,
     ) {
         activityDao.updateActivity(
             idActivity = id,

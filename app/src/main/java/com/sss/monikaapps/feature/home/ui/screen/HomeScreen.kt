@@ -12,17 +12,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.sss.monikaapps.R
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPANSES
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_DOWNLOAD
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_MASTER_DATA
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
+import com.sss.monikaapps.common.theme.BackgroundLayout
+import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
 import com.sss.monikaapps.feature.home.presentasi.HomeViewModel
 import com.sss.monikaapps.feature.home.ui.component.HomeHeader
 import com.sss.monikaapps.feature.home.ui.component.HomeMenuGrid
-import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
-import com.sss.monikaapps.common.theme.BackgroundLayout
-import com.sss.monikaapps.common.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -36,15 +36,24 @@ fun HomeScreen(
         HomeMenuItem(
             FEATURE_ACTIVITIES,
             stringResource(R.string.text_feature_activity),
-            stringResource(R.string.text_desc_feature_activity), R.drawable.icon_activity
+            stringResource(R.string.text_desc_feature_activity),
+            R.drawable.icon_activity
         ),
         HomeMenuItem(
             FEATURE_VISIT,
             stringResource(R.string.text_feature_visited),
-            stringResource(R.string.text_desc_feature_visited), R.drawable.icon_visited
+            stringResource(R.string.text_desc_feature_visited),
+            R.drawable.icon_visited
         ),
         HomeMenuItem(
-            FEATURE_EXPANSES,
+            FEATURE_DOWNLOAD,
+            stringResource(R.string.text_feature_download),
+            stringResource(R.string.text_desc_feature_download),
+            R.drawable.icon_download_data
+        ),
+
+        HomeMenuItem(
+            FEATURE_EXPENSES,
             stringResource(R.string.text_feature_expanses),
             stringResource(R.string.text_desc_feature_expanses),
             R.drawable.icon_expanses
@@ -52,7 +61,8 @@ fun HomeScreen(
         HomeMenuItem(
             FEATURE_MASTER_DATA,
             stringResource(R.string.text_feature_master_data),
-            stringResource(R.string.text_desc_feature_master_data), R.drawable.icon_data_mastering
+            stringResource(R.string.text_desc_feature_master_data),
+            R.drawable.icon_data_mastering
         ),
     )
 

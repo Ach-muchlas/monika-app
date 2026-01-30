@@ -1,10 +1,10 @@
 package com.sss.monikaapps.network
 
 import com.google.gson.GsonBuilder
+import com.sss.monikaapps.common.constanta.ApiConstant
 import com.sss.monikaapps.network.interceptor.AuthInterceptor
 import com.sss.monikaapps.network.interceptor.BaseUrlInterceptor
 import com.sss.monikaapps.network.interceptor.ConnectionInterceptor
-import com.sss.monikaapps.utils.constanta.ApiConstant
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

@@ -8,22 +8,31 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.STATUS_EXPENSE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_ACTIVITY
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_EXPENSE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.TYPE_ACTIVITY
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_DOWNLOAD
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.feature.activity.ui.screen.ActivitiesScreen
 import com.sss.monikaapps.feature.activity.ui.screen.ActivityDetailScreen
 import com.sss.monikaapps.feature.activity.ui.screen.CreateActivityScreen
-import com.sss.monikaapps.feature.expanse.ui.screen.ExpanseDetailScreen
-import com.sss.monikaapps.feature.expanse.ui.screen.ExpansesScreen
+import com.sss.monikaapps.feature.download.presentation.DownloadScreen
+import com.sss.monikaapps.feature.expense.presentation.create.CreateAndUpdateExpenseDetailScreen
+import com.sss.monikaapps.feature.expense.presentation.create.CreateExpenseScreen
+import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScreen
+import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
 import com.sss.monikaapps.feature.home.ui.screen.HomeScreen
 import com.sss.monikaapps.feature.login.ui.screen.LoginScreen
-import com.sss.monikaapps.utils.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
-import com.sss.monikaapps.utils.constanta.ArgumentsConstant.LOCATION_DATA
-import com.sss.monikaapps.utils.constanta.ArgumentsConstant.TRNO_ACTIVITY
-import com.sss.monikaapps.utils.constanta.ArgumentsConstant.TRNO_EXPANSE
-import com.sss.monikaapps.utils.constanta.ArgumentsConstant.TYPE_ACTIVITY
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_IN
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_OUT
-import com.sss.monikaapps.utils.constanta.HomeFeatureConstant
 
 
 @Composable
@@ -53,13 +62,15 @@ fun AppNavGraph(
         composable(Routes.HOME) {
             HomeScreen { idMenu ->
                 when (idMenu) {
-                    HomeFeatureConstant.FEATURE_ACTIVITIES -> navController.navigateToDestination(
+                    FEATURE_ACTIVITIES -> navController.navigateToDestination(
                         RouteDestination.HomeToActivities
                     )
 
-                    HomeFeatureConstant.FEATURE_EXPANSES -> navController.navigateToDestination(
+                    FEATURE_EXPENSES -> navController.navigateToDestination(
                         RouteDestination.HomeToExpanses
                     )
+
+                    FEATURE_DOWNLOAD -> navController.navigateToDestination(RouteDestination.HomeToDownload)
                 }
             }
         }
@@ -79,10 +90,19 @@ fun AppNavGraph(
                 })
         }
 
+        composable(Routes.DOWNLOAD) {
+            DownloadScreen(navController = navController)
+        }
+
         composable(Routes.EXPANSES) {
-            ExpansesScreen(navController) { trno ->
-                navController.navigateToDestination(RouteDestination.ExpansesToDetailExpanse(trno))
-            }
+            ExpansesScreen(
+                navController,
+                onClick = { trno, status ->
+                    navController.navigateToDestination(
+                        RouteDestination.ExpensesToExpenseDetail(trno, status)
+                    )
+                },
+                onClickToAddExpanse = { navController.navigateToDestination(RouteDestination.ExpenseToCreateHeaderExpense) })
         }
 
         composable(
@@ -141,12 +161,65 @@ fun AppNavGraph(
             )
         }
 
+        composable(
+            Routes.DETAIL_EXPENSES,
+            arguments = listOf(
+                navArgument(TRNO_EXPENSE) { type = NavType.StringType },
+                navArgument(STATUS_EXPENSE) { type = NavType.StringType })
+        ) { backStackEntry ->
+            val trno = backStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
+            val status = backStackEntry.arguments?.getString(STATUS_EXPENSE).orEmpty()
+            ExpanseDetailScreen(
+                navController, trno = trno, status = status,
+                onAddExpenseDetail = { trnoExpense ->
+                    navController.navigateToDestination(
+                        RouteDestination.ExpenseDetailToCreateExpenseDetail(trnoExpense)
+                    )
+                },
+                onEditExpenseDetail = { trnoDetail, idDetail, netAmount, note ->
+                    navController.navigateToDestination(
+                        RouteDestination.ExpenseDetailToUpdateExpenseDetail(
+                            trnoDetail,
+                            idDetail,
+                            netAmount,
+                            note
+                        )
+                    )
+                }
+            )
+        }
+
+        composable(Routes.CREATE_EXPENSE_HEADER) {
+            CreateExpenseScreen(navController)
+        }
 
         composable(
-            Routes.DETAIL_EXPANSES, arguments = listOf(
-            navArgument(TRNO_EXPANSE) { type = NavType.StringType })) { backStackEntry ->
-            val trno = backStackEntry.arguments?.getString(TRNO_EXPANSE).orEmpty()
-            ExpanseDetailScreen(navController, trno)
+            Routes.CREATE_EXPENSE_DETAIL, arguments = listOf(
+                navArgument(TRNO_EXPENSE) { type = NavType.StringType })
+        ) { navBackStackEntry ->
+            val trno = navBackStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
+            CreateAndUpdateExpenseDetailScreen(navController, trno)
+        }
+
+        composable(
+            Routes.UPDATE_EXPENSE_DETAIL, arguments = listOf(
+                navArgument(TRNO_EXPENSE) { type = NavType.StringType },
+                navArgument(ID_EXPENSE) { type = NavType.StringType },
+                navArgument(NET_AMOUNT) { type = NavType.StringType },
+                navArgument(NOTE) { type = NavType.StringType },
+            )
+        ) { navBackStackEntry ->
+            val trno = navBackStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
+            val idExpense = navBackStackEntry.arguments?.getString(ID_EXPENSE).orEmpty()
+            val netAmount = navBackStackEntry.arguments?.getString(NET_AMOUNT).orEmpty()
+            val note = navBackStackEntry.arguments?.getString(NOTE).orEmpty()
+            CreateAndUpdateExpenseDetailScreen(
+                navController,
+                trno = trno,
+                dataIdDetail = idExpense,
+                dataNetAmount = netAmount,
+                dataNote = note
+            )
         }
     }
 }

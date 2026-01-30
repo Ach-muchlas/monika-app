@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.model.SnackbarData
+import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 

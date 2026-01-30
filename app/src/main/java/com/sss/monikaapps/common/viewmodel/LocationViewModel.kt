@@ -3,7 +3,7 @@ package com.sss.monikaapps.common.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.common.repository.location.LocationRepository
-import com.sss.monikaapps.utils.result.Result
+import com.sss.monikaapps.common.result.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

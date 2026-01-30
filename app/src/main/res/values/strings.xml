@@ -33,5 +33,7 @@
     <string name="text_add_activity">Tambah Aktivitas</string>
     <string name="text_check_out_activity">Check Out Aktivitas</string>
     <string name="text_detail_expanse">Detail Pengeluaran</string>
+    <string name="text_feature_download">"Download"</string>
+    <string name="text_desc_feature_download">Fitur untuk download data master. Seperti data custom, dll</string>
 
 </resources>

@@ -2,11 +2,10 @@ package com.sss.monikaapps.common.model
 
 import androidx.compose.ui.graphics.Color
 import com.sss.monikaapps.R
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.theme.PieGray
 import com.sss.monikaapps.common.theme.SelectedBackground
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_IN
-import com.sss.monikaapps.utils.constanta.FeatureActivityConstant.CHECK_OUT
-
 
 data class Status(
     val id: String,

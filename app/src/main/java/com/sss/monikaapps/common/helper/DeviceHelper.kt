@@ -13,4 +13,9 @@ object DeviceHelper {
             Settings.Secure.ANDROID_ID
         ) ?: "-"
     }
+
+    fun getApplicationVersion(context: Context): String {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        return "V." + packageInfo.versionName
+    }
 }

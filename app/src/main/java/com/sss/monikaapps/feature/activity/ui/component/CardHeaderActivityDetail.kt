@@ -21,12 +21,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sss.monikaapps.R
+import com.sss.monikaapps.common.formatter.FormatterTime.formatTimeOnly
 import com.sss.monikaapps.common.theme.BodyPopMedium
 import com.sss.monikaapps.common.theme.BodyPopRegular
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.common.theme.TitlePopBold
-import com.sss.monikaapps.utils.formatter.FormatterTime.formatTimeOnly
 
 
 @Composable

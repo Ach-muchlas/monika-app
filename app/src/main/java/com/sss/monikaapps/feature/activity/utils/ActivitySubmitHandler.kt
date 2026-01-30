@@ -8,7 +8,6 @@ object ActivitySubmitHandler {
 
     fun submit(
         isCheckOut: Boolean,
-        trno: String,
         idMobile: String,
         activityId: String,
         title: String,
@@ -18,8 +17,7 @@ object ActivitySubmitHandler {
         viewModel: ActivitiesViewModel,
     ) {
         if (isCheckOut) {
-            viewModel.updateActivity(
-                trno = trno,
+            viewModel.checkOut(
                 idMobile = idMobile,
                 lat = lat,
                 lng = lng
@@ -34,7 +32,7 @@ object ActivitySubmitHandler {
                 startLongitude = lng,
             )
 
-            viewModel.createActivity(payload)
+            viewModel.checkIn(payload)
         }
     }
 }
