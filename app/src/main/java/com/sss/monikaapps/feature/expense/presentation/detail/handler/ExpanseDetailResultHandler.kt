@@ -8,17 +8,39 @@ import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.common.snackbar.SnackbarManager.showSnackbar
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpenseDetailViewModel
-import com.sss.monikaapps.feature.expense.presentation.detail.HandleDeleteResult
+import com.sss.monikaapps.feature.expense.presentation.detail.HandleResultActionExpense
 
 @Composable
 fun ExpanseDetailResultHandler(
+    submitResult :Result<DefaultAddResponse>?,
+    unSubmitResult :Result<DefaultAddResponse>?,
     deleteHeaderResult: Result<DefaultAddResponse>?,
     deleteDetailResult: Result<DefaultAddResponse>?,
     trno: String,
     navController: NavController,
     viewModel: ExpenseDetailViewModel,
 ) {
-    HandleDeleteResult(
+    HandleResultActionExpense(
+        result = submitResult,
+        onSuccess = { message ->
+            showSnackbar(
+                SnackbarData(message, SnackbarType.SUCCESS)
+            )
+            viewModel.fetchDetailExpanse(trno)
+        }
+    )
+
+    HandleResultActionExpense(
+        result = unSubmitResult,
+        onSuccess = { message ->
+            showSnackbar(
+                SnackbarData(message, SnackbarType.SUCCESS)
+            )
+            viewModel.fetchDetailExpanse(trno)
+        }
+    )
+
+    HandleResultActionExpense(
         result = deleteHeaderResult,
         onSuccess = { message ->
             showSnackbar(
@@ -28,7 +50,7 @@ fun ExpanseDetailResultHandler(
         }
     )
 
-    HandleDeleteResult(
+    HandleResultActionExpense(
         result = deleteDetailResult,
         onSuccess = { message ->
             showSnackbar(

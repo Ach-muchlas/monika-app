@@ -26,11 +26,11 @@ class DownloadRepositoryImpl(
         onProgress: (Float) -> Unit,
     ): Result<VisitDownloadResponse> {
         return try {
-            val dataStatusConfig = local.countPendingDownload()
-
-            if (dataStatusConfig == 0) {
-                return Result.error(null, "Semua data sudah selesai didownload")
-            }
+//            val dataStatusConfig = local.countPendingDownload()
+//
+//            if (dataStatusConfig == 0) {
+//                return Result.error(null, "Semua data sudah selesai didownload")
+//            }
 
             onProgress(0.05f)
 
@@ -80,5 +80,14 @@ class DownloadRepositoryImpl(
 
     override suspend fun countDataPending(): Int {
         return local.countPendingDownload()
+    }
+
+    override suspend fun insertDownloadData(data: List<ConfigDownloadDataEntity>) {
+        data.map { config ->
+            val exists = local.checkIsExist(config.tableName)
+            if (!exists) {
+                local.insertConfigDownload(config)
+            }
+        }
     }
 }

@@ -39,5 +39,14 @@
     <string name="text_detail_visit">Detail Kunjungan</string>
     <string name="text_checkout_visit">Checkout Kunjungan</string>
     <string name="text_checkin_visit">Checkin Kunjungan</string>
+    <string name="text_lat">Latitude</string>
+    <string name="text_lng">Longitude</string>
+    <string name="text_form_check_in_visit">Form Kunjungan</string>
+    <string name="text_form_check_out_visit">Form Penyelesaian Kunjungan</string>
+    <string name="text_coordinates">Koordinate</string>
+    <string name="text_description_visit">Catatan</string>
+    <string name="text_input_note">Masukan catatan</string>
+    <string name="text_evidence_visit">Bukti Foto Kunjungan</string>
+    <string name="text_save">Simpan</string>
 
 </resources>

@@ -39,7 +39,7 @@ import org.koin.androidx.compose.koinViewModel
 fun ExpansesScreen(
     navController: NavController,
     viewModel: ExpensesViewModel = koinViewModel(),
-    onClick: (trno: String, status: String) -> Unit,
+    onClick: (trno: String) -> Unit,
     onClickToAddExpanse: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }

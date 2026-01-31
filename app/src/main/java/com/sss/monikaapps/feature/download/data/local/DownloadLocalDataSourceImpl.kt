@@ -14,6 +14,14 @@ class DownloadLocalDataSourceImpl(
         configDao.upsertConfigDownload(data)
     }
 
+    override suspend fun insertConfigDownload(data: ConfigDownloadDataEntity) {
+        configDao.insertConfigDownload(data)
+    }
+
+    override suspend fun checkIsExist(tableName: String): Boolean {
+        return configDao.isTableExist(tableName)
+    }
+
     override suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity> {
         return configDao.fetchDataConfig()
     }

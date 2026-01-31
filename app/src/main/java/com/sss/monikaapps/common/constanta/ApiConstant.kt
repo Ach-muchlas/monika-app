@@ -39,6 +39,8 @@ object ApiConstant {
     const val CHECK_OUT_ACTIVITY = "${ACTIVITIES}-checkout"
 
     const val FETCH_DATA_EXPENSES = "${EXPANSE}-get"
+    const val SUBMIT_EXPENSE ="${EXPANSE}-ajukan"
+    const val UN_SUBMIT_EXPENSE ="${EXPANSE}-batal-ajukan"
     const val FETCH_DETAIL_EXPENSE = "${EXPANSE}-detail"
     const val CREATE_HEADER_EXPENSE = "${EXPANSE}-${HEADER}-add"
     const val DELETE_HEADER_EXPENSE = "${EXPANSE}-${HEADER}-delete"
@@ -47,6 +49,8 @@ object ApiConstant {
     const val DELETE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-delete"
 
     const val FETCH_DOWNLOAD_VISIT = "${VISIT}-download"
+    const val CHECK_IN_VISIT = "${VISIT}-checkin"
+    const val CHECK_OUT_VISIT = "${VISIT}-checkout"
 
     const val FETCH_MASTERING_EXPENSE = "${MASTER}-${EXPANSE}-get"
 

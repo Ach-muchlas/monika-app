@@ -58,10 +58,8 @@ fun LoginScreen(
 
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // ===== HEADER =====
             LoginHeader()
 
-            // ===== CONTENT / FORM =====
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -25,7 +25,7 @@ import com.sss.monikaapps.feature.expense.data.response.DataItemExpenses
 @Composable
 fun ExpanseList(
     lazyPagingItems: LazyPagingItems<DataItemExpenses>,
-    onClick: (trno: String, status: String) -> Unit,
+    onClick: (trno: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier = modifier) {
@@ -36,7 +36,7 @@ fun ExpanseList(
             lazyPagingItems[index]?.let { data ->
                 ExpansesListItem(
                     data = data,
-                    onClick = { onClick(data.trno.toString(), data.isStatus.toString()) }
+                    onClick = { onClick(data.trno.toString()) }
                 )
             }
         }

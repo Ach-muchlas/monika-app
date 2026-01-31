@@ -11,4 +11,5 @@ object ArgumentsConstant {
     const val NET_AMOUNT = "net_amount"
     const val NOTE = "note"
     const val ID_VISIT = "id_visit"
+    const val TYPE_VISIT = "type_visit"
 }

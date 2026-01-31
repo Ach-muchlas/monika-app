@@ -20,7 +20,36 @@ interface VisitDao {
     suspend fun fetchVisitDetail(idVisit: String): VisitEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLogActivity(data: LogEntity)
+    suspend fun insertLogVisit(data: LogEntity)
+
+    @Query(
+        """
+        UPDATE visit_table 
+        SET description = :desc,startLatitude = :startLat,startLongitude= :starLng, startAt =:timeCheckIn ,syncStatus = 1 
+        WHERE id = :idVisit
+    """
+    )
+    suspend fun checkInVisit(
+        idVisit: String,
+        desc : String,
+        timeCheckIn: String,
+        startLat: String,
+        starLng: String,
+    )
+
+    @Query(
+        """
+        UPDATE visit_table 
+        SET endLatitude = :endLat,endLongitude= :endLng, endAt =:timeCheckOut ,syncStatus = 3 
+        WHERE id = :idVisit
+    """
+    )
+    suspend fun checkOutVisit(
+        idVisit: String,
+        timeCheckOut: String,
+        endLat: String,
+        endLng: String,
+    )
 
     @Query("SELECT COUNT(*) FROM visit_table")
     suspend fun countDataVisit(): Int
@@ -39,4 +68,6 @@ interface VisitDao {
 
     @Query("UPDATE visit_table SET syncStatus = 4 WHERE id = :idMobile")
     suspend fun markCheckOutIsSyncInServer(idMobile: String)
+
+
 }

@@ -16,6 +16,9 @@ interface ConfigDownloadDataDao {
     @Upsert
     suspend fun upsertConfigDownload(data: ConfigDownloadDataEntity)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM config_download_data_table WHERE tableName = :tableName)")
+    suspend fun isTableExist(tableName: String): Boolean
+
     @Query("SELECT * FROM config_download_data_table")
     suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity>
 

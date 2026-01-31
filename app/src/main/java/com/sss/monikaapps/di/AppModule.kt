@@ -44,6 +44,8 @@ import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseDetailUseC
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseHeaderUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchDetailExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchExpensesUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.SubmitExpenseUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.UnSubmitExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.UpdateExpenseDetailUseCase
 import com.sss.monikaapps.feature.expense.presentation.create.ExpenseCreateAndUpdateViewModel
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpenseDetailViewModel
@@ -67,12 +69,17 @@ import com.sss.monikaapps.feature.utils.device.domain.usecase.GetAppVersionUseCa
 import com.sss.monikaapps.feature.utils.device.domain.usecase.GetDeviceIdUseCase
 import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSource
 import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSourceImpl
+import com.sss.monikaapps.feature.visit.data.remote.VisitRemoteDataSource
+import com.sss.monikaapps.feature.visit.data.remote.VisitRemoteDataSourceImpl
 import com.sss.monikaapps.feature.visit.domain.repository.VisitRepository
 import com.sss.monikaapps.feature.visit.domain.repository.VisitRepositoryImpl
+import com.sss.monikaapps.feature.visit.domain.usecase.CheckInVisitUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.CheckOutVisitUseCase
 import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitDetailUseCase
 import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitLocalDatabaseUseCase
 import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailViewModel
 import com.sss.monikaapps.feature.visit.presentation.list.VisitViewModel
+import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitViewModel
 import com.sss.monikaapps.network.ApiConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -107,7 +114,7 @@ object AppModule {
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
         single<DownloadRepository> { DownloadRepositoryImpl(get(), get()) }
-        single<VisitRepository> { VisitRepositoryImpl(get()) }
+        single<VisitRepository> { VisitRepositoryImpl(get(), get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -126,7 +133,8 @@ object AppModule {
         single<MasteringRemoteSource> { MasteringRemoteSourceImpl(get()) }
         single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get()) }
         single<DownloadRemoteDataSource> { DownloadRemoteDataSourceImpl(get()) }
-        single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get()) }
+        single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get(), get()) }
+        single<VisitRemoteDataSource> { VisitRemoteDataSourceImpl(get()) }
     }
 
     val useCase = module {
@@ -148,19 +156,23 @@ object AppModule {
         single { CreateExpenseDetailUseCase(get()) }
         single { UpdateExpenseDetailUseCase(get()) }
         single { FetchMasteringExpenseUseCase(get()) }
+        single { SubmitExpenseUseCase(get()) }
+        single { UnSubmitExpenseUseCase(get()) }
         single { DeleteExpenseHeaderUseCase(get()) }
         single { DeleteExpenseDetailUseCase(get()) }
         single { DownloadUseCase(get()) }
         single { FetchConfigDownloadUseCase(get()) }
         single { FetchVisitLocalDatabaseUseCase(get()) }
         single { FetchVisitDetailUseCase(get()) }
+        single { CheckInVisitUseCase(get(), get()) }
+        single { CheckOutVisitUseCase(get(), get()) }
     }
 
     val viewModelModule = module {
         viewModel { AuthViewModel(get(), get(), get()) }
         viewModel { ActivitiesViewModel(get(), get(), get()) }
         viewModel { ExpensesViewModel(get()) }
-        viewModel { ExpenseDetailViewModel(get(), get(), get()) }
+        viewModel { ExpenseDetailViewModel(get(), get(), get(), get(), get()) }
         viewModel { ExpenseCreateAndUpdateViewModel(get(), get(), get(), get()) }
         viewModel { HomeViewModel() }
         viewModel { PhotoViewModel(get()) }
@@ -169,5 +181,6 @@ object AppModule {
         viewModel { DownloadViewModel(get(), get()) }
         viewModel { VisitViewModel(get()) }
         viewModel { VisitDetailViewModel(get()) }
+        viewModel { UpdateVisitViewModel(get(), get()) }
     }
 }

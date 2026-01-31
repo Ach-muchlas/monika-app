@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.visit.presentation.detail
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +23,19 @@ import androidx.navigation.NavController
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.model.SnackbarData
+import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.feature.activity.ui.component.CardDetailItemActivity
+import com.sss.monikaapps.feature.download.data.mapper.VisitMapper
+import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveLatVisit
+import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveLngVisit
+import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveTimeVisit
 import com.sss.monikaapps.feature.visit.presentation.detail.component.CardHeaderVisitDetail
 import org.koin.androidx.compose.koinViewModel
 
@@ -36,10 +44,12 @@ fun VisitDetailScreen(
     idVisit: String,
     navController: NavController,
     viewModel: VisitDetailViewModel = koinViewModel(),
+    onClickButton: (idVisit: String, typeForm: String) -> Unit,
 ) {
     val result by viewModel.visitDetailResult.observeAsState()
     var isStatus = 0
 
+    Log.e("CHECK_D", "Data id detail $idVisit")
     LaunchedEffect(Unit) {
         viewModel.fetchVisitDetail(idVisit)
     }
@@ -74,8 +84,15 @@ fun VisitDetailScreen(
                 }
 
                 StatusNetwork.SUCCESS -> {
-                    val visit = result?.data
+                    val visit = result?.data?.header
+                    val photos = result?.data?.photos
                     isStatus = visit?.syncStatus ?: 0
+
+                    val dataStatusSync = when (isStatus) {
+                        1, 2 -> true
+                        3, 4 -> false
+                        else -> false
+                    }
 
                     CardHeaderVisitDetail(
                         customerId = visit?.customerId.toString(),
@@ -88,22 +105,29 @@ fun VisitDetailScreen(
                     )
                     Spacer(modifier = Modifier.height(Dimens.LargeMargin))
 
-//                    dataStatusActivities.forEach { status ->
-//
-//                        if (status.id == CHECK_OUT && isStatus) return@forEach
-//
-//                        val photosByStatus = photos.filter { it.tipe == status.id }
-//
-//                        CardDetailItemActivity(
-//                            title = status.title,
-//                            dateTime = status.resolveTime(header),
-//                            latitude = status.resolveLat(header),
-//                            longitude = status.resolveLng(header),
-//                            lisPhoto = photosByStatus
-//                        )
-//
-//                        Spacer(modifier = Modifier.height(Dimens.LargeMargin))
-//                    }
+                    if (isStatus != 0) {
+                        dataStatusActivities.forEach { status ->
+                            Log.e("CHECK_DATA", "status : $status")
+                            if (status.id == CHECK_OUT && dataStatusSync) return@forEach
+
+                            val photosByStatus = photos?.filter { it.parentType == status.id }
+
+                            Log.e("CHECK_DATA", "data foto detail visit : $photos")
+                            Log.e(
+                                "CHECK_DATA", "data foto by status detail visit  : $photosByStatus"
+                            )
+
+                            CardDetailItemActivity(
+                                title = status.title,
+                                dateTime = status.resolveTimeVisit(visit),
+                                latitude = status.resolveLatVisit(visit),
+                                longitude = status.resolveLngVisit(visit),
+                                lisPhoto = VisitMapper.photoEntityToPhotoItem(photosByStatus)
+                            )
+
+                            Spacer(modifier = Modifier.height(Dimens.LargeMargin))
+                        }
+                    }
                 }
 
                 StatusNetwork.ERROR -> {
@@ -120,7 +144,7 @@ fun VisitDetailScreen(
             }
         }
 
-        if (isStatus < 2) {
+        if (isStatus <= 2) {
             CustomPrimaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,7 +152,14 @@ fun VisitDetailScreen(
                 text = if (isStatus == 0) stringResource(R.string.text_checkin_visit) else stringResource(
                     R.string.text_checkout_visit
                 ),
-            ) {}
+            ) {
+                val type = when (isStatus) {
+                    0 -> "1"
+                    1, 2 -> "2"
+                    else -> "0"
+                }
+                onClickButton(idVisit, type)
+            }
         }
     }
 }

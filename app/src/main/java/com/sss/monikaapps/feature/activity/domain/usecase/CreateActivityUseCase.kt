@@ -1,6 +1,5 @@
 package com.sss.monikaapps.feature.activity.domain.usecase
 
-import android.util.Log
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
@@ -18,7 +17,6 @@ class CreateActivityUseCase(
 ) {
 
     suspend fun checkIn(payload: ActivityEntity): Result<String> {
-
         val error = validator.validateCheckInForSubmit(payload)
         repository.insertLogActivities(
             "Check In",
@@ -82,32 +80,17 @@ class CreateActivityUseCase(
         timeEnd: String,
     ): Result<String> {
 
-        // ======================
-        // VALIDASI
-        // ======================
         val error = validator.validateCheckOut(idMobile)
         if (error != null) return Result.error(null, error)
 
-        // ======================
-        // SIMPAN CHECKOUT KE LOKAL DULU
-        // ======================
         repository.updateCheckOut(idMobile, timeEnd, latitude, longitude)
 
-        // ======================
-        // KALAU OFFLINE → STOP
-        // ======================
         if (!networkChecker.isConnected()) {
             return Result.success("Checkout disimpan lokal. Silakan sync manual.")
         }
 
-        // ======================
-        // LOAD DATA TERBARU
-        // ======================
         var entity = repository.fetchDetailActivity(idMobile)
 
-        // ======================
-        // STEP 1: PASTIKAN CHECKIN SUDAH ADA DI SERVER
-        // ======================
         if (entity.trno.isNullOrBlank()) {
 
             val photosIn = repository.fetchPhotosByFeatureId(idMobile, CHECK_IN)
@@ -121,7 +104,6 @@ class CreateActivityUseCase(
             val serverTrno = repository.checkInRemote(requestIn)
 
             if (serverTrno.isNullOrBlank()) {
-                // ❌ GAGAL CHECKIN → JANGAN LANJUT CHECKOUT
                 return Result.success("Checkout disimpan lokal, gagal sync checkin ke server.")
             }
 
@@ -130,9 +112,6 @@ class CreateActivityUseCase(
             entity = repository.fetchDetailActivity(idMobile)
         }
 
-        // ======================
-        // STEP 2: PUSH CHECKOUT KE SERVER
-        // ======================
         val photosOut = repository.fetchPhotosByFeatureId(idMobile, CHECK_OUT)
 
         val requestOut = ActivityRequestMapper.toCheckOut(

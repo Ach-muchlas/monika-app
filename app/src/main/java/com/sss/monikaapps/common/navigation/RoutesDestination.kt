@@ -23,7 +23,7 @@ sealed class RouteDestination {
         val locationData: Int,
     ) : RouteDestination()
 
-    data class ExpensesToExpenseDetail(val trno: String, val status: String) : RouteDestination()
+    data class ExpensesToExpenseDetail(val trno: String) : RouteDestination()
     data object ExpenseToCreateHeaderExpense : RouteDestination()
     data class ExpenseDetailToCreateExpenseDetail(val trno: String) : RouteDestination()
     data class ExpenseDetailToUpdateExpenseDetail(
@@ -36,4 +36,6 @@ sealed class RouteDestination {
     data class VisitToDetailVisit(
         val idVisit: String,
     ) : RouteDestination()
+
+    data class VisitDetailToCheckInVisit(val idVisit: String, val type : String) : RouteDestination()
 }

@@ -25,9 +25,9 @@ import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveLat
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveLng
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveTime
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveLatActivity
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveLngActivity
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveTimeActivity
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
@@ -106,9 +106,9 @@ fun ActivityDetailScreen(
 
                         CardDetailItemActivity(
                             title = status.title,
-                            dateTime = status.resolveTime(header),
-                            latitude = status.resolveLat(header),
-                            longitude = status.resolveLng(header),
+                            dateTime = status.resolveTimeActivity(header),
+                            latitude = status.resolveLatActivity(header),
+                            longitude = status.resolveLngActivity(header),
                             lisPhoto = photosByStatus
                         )
 

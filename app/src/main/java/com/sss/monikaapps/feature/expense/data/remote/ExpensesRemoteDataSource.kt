@@ -24,6 +24,8 @@ interface ExpensesRemoteDataSource {
         payload: ExpenseUpdateDetailRequest,
     ): DefaultAddResponse?
 
+    suspend fun submitExpense(trno: String) : DefaultAddResponse?
+    suspend fun unSubmitExpense(trno: String) : DefaultAddResponse?
     suspend fun deleteExpenseHeader(trno: String): DefaultAddResponse?
     suspend fun deleteExpenseDetail(trno: String, idDetail: String): DefaultAddResponse?
 }

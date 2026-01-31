@@ -14,10 +14,10 @@ import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
-import com.sss.monikaapps.common.constanta.ArgumentsConstant.STATUS_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TYPE_ACTIVITY
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.TYPE_VISIT
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
@@ -37,6 +37,7 @@ import com.sss.monikaapps.feature.home.ui.screen.HomeScreen
 import com.sss.monikaapps.feature.login.ui.screen.LoginScreen
 import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailScreen
 import com.sss.monikaapps.feature.visit.presentation.list.VisitListScreen
+import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitScreen
 
 
 @Composable
@@ -108,9 +109,9 @@ fun AppNavGraph(
         composable(Routes.EXPANSES) {
             ExpansesScreen(
                 navController,
-                onClick = { trno, status ->
+                onClick = { trno ->
                     navController.navigateToDestination(
-                        RouteDestination.ExpensesToExpenseDetail(trno, status)
+                        RouteDestination.ExpensesToExpenseDetail(trno)
                     )
                 },
                 onClickToAddExpanse = { navController.navigateToDestination(RouteDestination.ExpenseToCreateHeaderExpense) })
@@ -176,12 +177,12 @@ fun AppNavGraph(
             Routes.DETAIL_EXPENSES,
             arguments = listOf(
                 navArgument(TRNO_EXPENSE) { type = NavType.StringType },
-                navArgument(STATUS_EXPENSE) { type = NavType.StringType })
+            )
         ) { backStackEntry ->
             val trno = backStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
-            val status = backStackEntry.arguments?.getString(STATUS_EXPENSE).orEmpty()
             ExpanseDetailScreen(
-                navController, trno = trno, status = status,
+                navController,
+                trno = trno,
                 onAddExpenseDetail = { trnoExpense ->
                     navController.navigateToDestination(
                         RouteDestination.ExpenseDetailToCreateExpenseDetail(trnoExpense)
@@ -190,14 +191,10 @@ fun AppNavGraph(
                 onEditExpenseDetail = { trnoDetail, idDetail, netAmount, note ->
                     navController.navigateToDestination(
                         RouteDestination.ExpenseDetailToUpdateExpenseDetail(
-                            trnoDetail,
-                            idDetail,
-                            netAmount,
-                            note
+                            trnoDetail, idDetail, netAmount, note
                         )
                     )
-                }
-            )
+                })
         }
 
         composable(Routes.CREATE_EXPENSE_HEADER) {
@@ -234,12 +231,32 @@ fun AppNavGraph(
         }
         composable(
             Routes.DETAIL_VISIT, arguments = listOf(
-                navArgument(ID_VISIT) { type = NavType.StringType }
-            )
+                navArgument(ID_VISIT) { type = NavType.StringType })
         ) { navBackStackEntry ->
             val trnoMobile = navBackStackEntry.arguments?.getString(ID_VISIT).orEmpty()
 
-            VisitDetailScreen(idVisit = trnoMobile, navController = navController)
+            VisitDetailScreen(
+                idVisit = trnoMobile,
+                navController = navController,
+                onClickButton = { idVisit, type ->
+                    navController.navigateToDestination(
+                        RouteDestination.VisitDetailToCheckInVisit(idVisit, type)
+                    )
+                })
+        }
+
+        composable(
+            Routes.CHECK_IN_VISIT, arguments = listOf(
+                navArgument(ID_VISIT) { type = NavType.StringType },
+                navArgument(TYPE_VISIT) { type = NavType.StringType },
+            )
+        ) { navBackStackEntry ->
+            val trnoMobile = navBackStackEntry.arguments?.getString(ID_VISIT).orEmpty()
+            val type = navBackStackEntry.arguments?.getString(TYPE_VISIT).orEmpty()
+
+            UpdateVisitScreen(
+                navController = navController, typeVisit = type, idMobile = trnoMobile
+            )
         }
     }
 }

@@ -40,9 +40,7 @@ fun NavController.navigateToDestination(
         is RouteDestination.ActivityToDetail -> {
             navigate(
                 Routes.detailActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.locationData
+                    destination.trno, destination.idMobile, destination.locationData
                 )
             ) {
                 launchSingleTop = true
@@ -52,9 +50,7 @@ fun NavController.navigateToDestination(
         is RouteDestination.DetailActivityToCheckOutActivity -> {
             navigate(
                 Routes.checkOutActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.typeActivity
+                    destination.trno, destination.idMobile, destination.typeActivity
                 )
             ) {
                 launchSingleTop = true
@@ -62,7 +58,7 @@ fun NavController.navigateToDestination(
         }
 
         is RouteDestination.ExpensesToExpenseDetail -> {
-            navigate(Routes.expenseToDetailExpense(destination.trno, destination.status)) {
+            navigate(Routes.expenseToDetailExpense(destination.trno)) {
                 launchSingleTop = true
             }
         }
@@ -78,10 +74,7 @@ fun NavController.navigateToDestination(
         is RouteDestination.ExpenseDetailToUpdateExpenseDetail -> {
             navigate(
                 Routes.updateExpenseDetail(
-                    destination.trno,
-                    destination.idExpense,
-                    destination.netAmount,
-                    destination.note
+                    destination.trno, destination.idExpense, destination.netAmount, destination.note
                 )
             ) { launchSingleTop = true }
         }
@@ -89,6 +82,13 @@ fun NavController.navigateToDestination(
         is RouteDestination.VisitToDetailVisit -> {
             navigate(Routes.detailVisit(destination.idVisit)) { launchSingleTop = true }
         }
+
+        is RouteDestination.VisitDetailToCheckInVisit -> {
+            navigate(Routes.checkInVisit(destination.idVisit, destination.type)) {
+                launchSingleTop = true
+            }
+        }
     }
+
 }
 

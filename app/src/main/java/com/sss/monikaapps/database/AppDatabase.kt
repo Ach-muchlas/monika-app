@@ -14,7 +14,7 @@ import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 @Database(
     entities = [ActivityEntity::class, PhotoEntity::class, VisitEntity::class, LogEntity::class, ConfigDownloadDataEntity::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 

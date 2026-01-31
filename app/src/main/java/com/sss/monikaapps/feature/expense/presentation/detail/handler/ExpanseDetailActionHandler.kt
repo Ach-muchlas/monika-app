@@ -14,6 +14,38 @@ fun ExpanseDetailActionHandler(
 ) {
     when (action) {
 
+        is ExpenseDetailDialogAction.Submit -> {
+            CustomConfirmDialog(
+                show = true,
+                title = "Selesaikan Pengeluaran",
+                message = "Setelah disimpan, data pengeluaran ini tidak dapat diubah. Lanjutkan?",
+                confirmText = "Iya",
+                onConfirm = {
+                    viewModel.submitExpense(action.trno)
+                    onClearAction()
+                },
+                onDismiss = {
+                    onClearAction()
+                }
+            )
+        }
+
+        is ExpenseDetailDialogAction.UnSubmit -> {
+            CustomConfirmDialog(
+                show = true,
+                title = "Batal Selesaikan Pengeluaran",
+                message = "Status pengeluaran akan dibatalkan dan data dapat diubah kembali. Apakah Anda yakin?",
+                confirmText = "Iya",
+                onConfirm = {
+                    viewModel.unSubmitExpense(action.trno)
+                    onClearAction()
+                },
+                onDismiss = {
+                    onClearAction()
+                }
+            )
+        }
+
         is ExpenseDetailDialogAction.DeleteHeader -> {
             CustomConfirmDialog(
                 show = true,

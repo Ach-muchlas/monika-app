@@ -11,7 +11,7 @@ import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 
 @Composable
-fun HandleDeleteResult(
+fun HandleResultActionExpense(
     result: Result<DefaultAddResponse>?,
     onSuccess: suspend (String) -> Unit,
 ) {

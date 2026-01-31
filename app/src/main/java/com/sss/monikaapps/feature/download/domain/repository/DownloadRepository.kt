@@ -11,4 +11,5 @@ interface DownloadRepository {
     ): Result<VisitDownloadResponse>
 
     suspend fun countDataPending(): Int
+    suspend fun insertDownloadData(data: List<ConfigDownloadDataEntity>)
 }
