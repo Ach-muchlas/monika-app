@@ -25,6 +25,7 @@ data class VisitEntity(
     val endLatitude: String? = null,
     val endLongitude: String? = null,
 
+    val description: String? = null,
     val trno: String? = null,
     // 0 = belum visit || 1 = checkin sudah disimpan lokal || 2 = checkin sudah tersimpan di server
     // 3 = checkout sudah disimpan lokal || 4 = checkout sudah tersimpan di server

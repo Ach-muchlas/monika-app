@@ -5,6 +5,7 @@ import com.sss.monikaapps.common.constanta.ApiConstant
 import com.sss.monikaapps.network.interceptor.AuthInterceptor
 import com.sss.monikaapps.network.interceptor.BaseUrlInterceptor
 import com.sss.monikaapps.network.interceptor.ConnectionInterceptor
+import com.sss.monikaapps.network.interceptor.TimeoutInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -28,9 +29,7 @@ object ApiConfig {
 
     private fun createRetrofitInstance(): Retrofit {
         val client = OkHttpClient.Builder()
-            .connectTimeout(500, TimeUnit.SECONDS)
-            .readTimeout(500, TimeUnit.SECONDS)
-            .writeTimeout(500, TimeUnit.SECONDS)
+            .addInterceptor(TimeoutInterceptor())
             .addInterceptor(ConnectionInterceptor())
             .addInterceptor(AuthInterceptor())
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

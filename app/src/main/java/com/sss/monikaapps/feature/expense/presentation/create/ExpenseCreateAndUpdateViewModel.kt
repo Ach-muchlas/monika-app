@@ -49,6 +49,13 @@ class ExpenseCreateAndUpdateViewModel(
         }
     }
 
+    fun setSelectedCategoryById(categoryId: String) {
+        val category = _expenseCategories.value
+            ?.firstOrNull { it.id == categoryId }
+
+        _selectedExpenseCategory.value = category
+    }
+
 
     fun createExpenseDetail(trno: String, payload: ExpenseDetailRequest) {
         viewModelScope.launch {

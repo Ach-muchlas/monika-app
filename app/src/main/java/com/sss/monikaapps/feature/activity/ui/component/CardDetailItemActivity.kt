@@ -20,12 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.sss.monikaapps.feature.activity.data.response.PhotoItem
 import com.sss.monikaapps.common.component.CustomPhoto
 import com.sss.monikaapps.common.theme.BodyBitterRegular
 import com.sss.monikaapps.common.theme.BodyPopSemiBold
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Primary
+import com.sss.monikaapps.feature.activity.data.response.PhotoItem
 
 @Composable
 fun CardDetailItemActivity(
@@ -33,6 +33,7 @@ fun CardDetailItemActivity(
     dateTime: String,
     latitude: String,
     longitude: String,
+    color: Color = Primary,
     lisPhoto: List<PhotoItem>?,
 ) {
     Card(
@@ -44,7 +45,7 @@ fun CardDetailItemActivity(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Primary)
+                .background(color)
         ) {
             Spacer(modifier = Modifier.width(10.dp))
 
@@ -59,7 +60,9 @@ fun CardDetailItemActivity(
                     horizontalArrangement = Arrangement.Absolute.SpaceBetween
                 ) {
                     Text(
-                        com.sss.monikaapps.common.formatter.FormatterDate.formatDateTimeToDisplayDateTime(dateTime),
+                        com.sss.monikaapps.common.formatter.FormatterDate.formatDateTimeToDisplayDateTime(
+                            dateTime
+                        ),
                         style = BodyPopSemiBold
                     )
                     Text(

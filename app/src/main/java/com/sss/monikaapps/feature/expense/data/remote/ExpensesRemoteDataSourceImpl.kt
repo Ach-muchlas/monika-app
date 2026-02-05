@@ -81,6 +81,26 @@ class ExpensesRemoteDataSourceImpl(private val apiService: ApiService) : Expense
         return response.body()
     }
 
+    override suspend fun submitExpense(trno: String): DefaultAddResponse? {
+        val response = apiService.submitExpense(trno)
+
+        if (!response.isSuccessful) {
+            throw RuntimeException(parseErrorResponse(response))
+        }
+
+        return response.body()
+    }
+
+    override suspend fun unSubmitExpense(trno: String): DefaultAddResponse? {
+        val response = apiService.unSubmitExpense(trno)
+
+        if (!response.isSuccessful) {
+            throw RuntimeException(parseErrorResponse(response))
+        }
+
+        return response.body()
+    }
+
     override suspend fun deleteExpenseHeader(trno: String): DefaultAddResponse? {
         val response = apiService.deleteExpenseHeader(trno)
 

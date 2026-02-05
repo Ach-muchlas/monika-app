@@ -12,6 +12,5 @@ data class PhotoEntity(
     val parentFeature: Int,
     val parentType: String,
     val filePath: String,
-    val syncStatus: Int,
     val createdAt: String = getCurrentDateTime(),
 )

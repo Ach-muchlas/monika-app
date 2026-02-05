@@ -10,9 +10,41 @@ fun ExpanseDetailActionHandler(
     action: ExpenseDetailDialogAction?,
     viewModel: ExpenseDetailViewModel,
     onClearAction: () -> Unit,
-    onEditAction: (trno: String, idExpense: String, netAmount: String, note: String) -> Unit,
+    onEditAction: (trno: String, idExpense: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
 ) {
     when (action) {
+
+        is ExpenseDetailDialogAction.Submit -> {
+            CustomConfirmDialog(
+                show = true,
+                title = "Selesaikan Pengeluaran",
+                message = "Setelah disimpan, data pengeluaran ini tidak dapat diubah. Lanjutkan?",
+                confirmText = "Iya",
+                onConfirm = {
+                    viewModel.submitExpense(action.trno)
+                    onClearAction()
+                },
+                onDismiss = {
+                    onClearAction()
+                }
+            )
+        }
+
+        is ExpenseDetailDialogAction.UnSubmit -> {
+            CustomConfirmDialog(
+                show = true,
+                title = "Batal Selesaikan Pengeluaran",
+                message = "Status pengeluaran akan dibatalkan dan data dapat diubah kembali. Apakah Anda yakin?",
+                confirmText = "Iya",
+                onConfirm = {
+                    viewModel.unSubmitExpense(action.trno)
+                    onClearAction()
+                },
+                onDismiss = {
+                    onClearAction()
+                }
+            )
+        }
 
         is ExpenseDetailDialogAction.DeleteHeader -> {
             CustomConfirmDialog(
@@ -53,7 +85,14 @@ fun ExpanseDetailActionHandler(
                 message = "Apakah kamu yakin ingin mengedit data detail pengeluaran ini?",
                 confirmText = "Edit",
                 onConfirm = {
-                    onEditAction(action.trno, action.idDetail, action.netAmount, action.note)
+                    onEditAction(
+                        action.trno,
+                        action.idDetail,
+                        action.netAmount,
+                        action.note,
+                        action.initKm,
+                        action.finalKm
+                    )
                     onClearAction()
                 },
                 onDismiss = {

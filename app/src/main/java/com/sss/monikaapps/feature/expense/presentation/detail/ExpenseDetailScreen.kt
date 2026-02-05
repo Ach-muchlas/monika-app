@@ -47,17 +47,18 @@ import org.koin.androidx.compose.koinViewModel
 fun ExpanseDetailScreen(
     navController: NavController,
     trno: String,
-    status: String,
     viewModel: ExpenseDetailViewModel = koinViewModel(),
     onAddExpenseDetail: (trno: String) -> Unit,
-    onEditExpenseDetail: (trno: String, idExpense: String, netAmount: String, note: String) -> Unit,
+    onEditExpenseDetail: (trno: String, idExpense: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
 ) {
-
+    var status = "0"
     var dialogAction by remember { mutableStateOf<ExpenseDetailDialogAction?>(null) }
 
     val result by viewModel.detailExpanseResult.observeAsState()
     val deleteExpenseDetailResult by viewModel.deleteDetailExpenseResult.observeAsState()
     val deleteExpenseHeaderResult by viewModel.deleteHeaderExpenseResult.observeAsState()
+    val submitExpenseResult by viewModel.submitExpenseResult.observeAsState()
+    val unSubmitExpenseResult by viewModel.unSubmitExpenseResult.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchDetailExpanse(trno)
@@ -85,6 +86,7 @@ fun ExpanseDetailScreen(
                     StatusNetwork.SUCCESS -> {
                         val header = result?.data?.data?.header
                         val detail = result?.data?.data?.detail
+                        status = result?.data?.data?.header?.isStatus.toString()
 
                         CustomTopBar(
                             title = stringResource(R.string.text_detail_expanse),
@@ -101,7 +103,7 @@ fun ExpanseDetailScreen(
                         Spacer(modifier = Modifier.height(Dimens.MediumMargin))
 
                         CardHeaderExpanseDetail(
-                            employeeName = header?.employeeId.toString() + header?.employeeName.toString(),
+                            employeeName = header?.employeeName.toString(),
                             netAmount = formatCurrency(amount = header?.netAmount?.toLong() ?: 0),
                             date = formatDateToIndoDisplay(header?.date.toString()),
                             status = mapperStatusExpanse(header?.isStatus),
@@ -116,9 +118,9 @@ fun ExpanseDetailScreen(
                                 dataItem = data,
                                 status = status,
                                 lisPhoto = data.photo,
-                                onClickEdited = { trnoDetail, idDetail, netAmount, note ->
+                                onClickEdited = { trnoDetail, idDetail, netAmount, note, initKm, finalKm ->
                                     dialogAction = ExpenseDetailDialogAction.EditDetail(
-                                        trnoDetail, idDetail, netAmount, note
+                                        trnoDetail, idDetail, netAmount, note, initKm, finalKm
                                     )
 
                                 },
@@ -148,7 +150,8 @@ fun ExpanseDetailScreen(
             }
         }
 
-        if (status == "0") {
+
+        if (status == "0" || status == "4") {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -156,15 +159,24 @@ fun ExpanseDetailScreen(
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Tombol utama
-                CustomPrimaryButton(
-                    text = "Selesai", modifier = Modifier.weight(1f)
-                ) {
 
+                CustomPrimaryButton(
+                    text = if (status == "4") "Batal Diajukan" else "Diajukan",
+                    modifier = Modifier.weight(1f)
+                ) {
+                    dialogAction =
+                        if (status == "0") ExpenseDetailDialogAction.Submit(trno = trno) else ExpenseDetailDialogAction.UnSubmit(
+                            trno = trno
+                        )
                 }
 
-                CustomFloatingActionButton(
-                    modifier = Modifier.height(54.dp), onClick = { onAddExpenseDetail(trno) })
+                // FAB hanya muncul saat status = 0
+                if (status == "0") {
+                    CustomFloatingActionButton(
+                        modifier = Modifier.height(54.dp),
+                        onClick = { onAddExpenseDetail(trno) }
+                    )
+                }
             }
         }
 
@@ -177,63 +189,13 @@ fun ExpanseDetailScreen(
 
 
         ExpanseDetailResultHandler(
+            submitResult = submitExpenseResult,
+            unSubmitResult = unSubmitExpenseResult,
             deleteHeaderResult = deleteExpenseHeaderResult,
             deleteDetailResult = deleteExpenseDetailResult,
             trno = trno,
             navController = navController,
             viewModel = viewModel
         )
-
-
-//        deleteExpenseHeaderResult?.let { result ->
-//            when (result.status) {
-//                StatusNetwork.LOADING -> {
-//                    CustomLoadingDialog("Loading delete data")
-//                }
-//
-//                StatusNetwork.SUCCESS -> {
-//                    LaunchedEffect(result) {
-//                        SnackbarManager.showSnackbar(
-//                            SnackbarData(result.data?.message.toString(), SnackbarType.SUCCESS)
-//                        )
-//                        navController.popBackStack()
-//                    }
-//                }
-//
-//                StatusNetwork.ERROR -> {
-//                    LaunchedEffect(result) {
-//                        SnackbarManager.showSnackbar(
-//                            SnackbarData(result.message ?: "Terjadi kesalahan", SnackbarType.ERROR)
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//
-//        deleteExpenseDetailResult?.let { result ->
-//            when (result.status) {
-//                StatusNetwork.LOADING -> {
-//                    CustomLoadingDialog("Loading delete data")
-//                }
-//
-//                StatusNetwork.SUCCESS -> {
-//                    LaunchedEffect(result) {
-//                        SnackbarManager.showSnackbar(
-//                            SnackbarData(result.data?.message.toString(), SnackbarType.SUCCESS)
-//                        )
-//                        viewModel.fetchDetailExpanse(trno)
-//                    }
-//                }
-//
-//                StatusNetwork.ERROR -> {
-//                    LaunchedEffect(result) {
-//                        SnackbarManager.showSnackbar(
-//                            SnackbarData(result.message ?: "Terjadi kesalahan", SnackbarType.ERROR)
-//                        )
-//                    }
-//                }
-//            }
-//        }
-
     }
 }

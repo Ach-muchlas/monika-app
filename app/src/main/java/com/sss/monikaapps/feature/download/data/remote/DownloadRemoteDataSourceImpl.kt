@@ -14,4 +14,19 @@ class DownloadRemoteDataSourceImpl(private val apiService: ApiService) : Downloa
 
         return response.body()
     }
+
+    override suspend fun checkDataDownloadVisit(totalData: Int): String? {
+        return try {
+            val response = apiService.checkDataDownloadVisit(totalData)
+
+            if (!response.isSuccessful) {
+                null
+            } else {
+                response.body()?.data
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }

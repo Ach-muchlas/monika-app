@@ -40,7 +40,7 @@ fun CardDetailItemExpense(
     dataItem: DetailItemExpense,
     status: String,
     lisPhoto: List<PhotoItem>?,
-    onClickEdited: (trno: String, idDetail: String, netAmount: String, note: String) -> Unit,
+    onClickEdited: (trno: String, idDetail: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
     onClickDeleted: (trno: String, idDetail: String) -> Unit,
 ) {
     Card(
@@ -112,7 +112,9 @@ fun CardDetailItemExpense(
                                     dataItem.trnoTransaction.toString(),
                                     dataItem.idExpanse.toString(),
                                     dataItem.netAmountDetail.toString(),
-                                    if (dataItem.note.isNullOrEmpty()) "-" else dataItem.note
+                                    if (dataItem.note.isNullOrEmpty()) "-" else dataItem.note,
+                                    dataItem.initialKilometer ?: "0",
+                                    dataItem.finalKilometer ?: "0"
                                 )
                             })
                         Spacer(modifier = Modifier.width(Dimens.ExtraSmallMargin))

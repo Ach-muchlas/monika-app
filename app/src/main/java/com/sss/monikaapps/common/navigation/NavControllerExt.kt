@@ -26,6 +26,27 @@ fun NavController.navigateToDestination(
             navigate(Routes.DOWNLOAD) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToSetting -> {
+            navigate(Routes.SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToMaster -> {
+            navigate(Routes.MASTER_DATA) { launchSingleTop = true }
+        }
+
+        RouteDestination.ConnectionToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(Routes.CONNECTION) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.HomeToVisit -> {
+            navigate(Routes.VISIT) { launchSingleTop = true }
+        }
+
 
         is RouteDestination.ActivityToCreateActivity -> {
             navigate(Routes.createActivityOrUpdate(destination.typeActivity)) {
@@ -36,9 +57,7 @@ fun NavController.navigateToDestination(
         is RouteDestination.ActivityToDetail -> {
             navigate(
                 Routes.detailActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.locationData
+                    destination.trno, destination.idMobile, destination.locationData
                 )
             ) {
                 launchSingleTop = true
@@ -48,9 +67,7 @@ fun NavController.navigateToDestination(
         is RouteDestination.DetailActivityToCheckOutActivity -> {
             navigate(
                 Routes.checkOutActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.typeActivity
+                    destination.trno, destination.idMobile, destination.typeActivity
                 )
             ) {
                 launchSingleTop = true
@@ -58,7 +75,7 @@ fun NavController.navigateToDestination(
         }
 
         is RouteDestination.ExpensesToExpenseDetail -> {
-            navigate(Routes.expenseToDetailExpense(destination.trno, destination.status)) {
+            navigate(Routes.expenseToDetailExpense(destination.trno)) {
                 launchSingleTop = true
             }
         }
@@ -77,10 +94,48 @@ fun NavController.navigateToDestination(
                     destination.trno,
                     destination.idExpense,
                     destination.netAmount,
-                    destination.note
+                    destination.note,
+                    destination.initKm,
+                    destination.finalKm
                 )
             ) { launchSingleTop = true }
         }
+
+        is RouteDestination.VisitToDetailVisit -> {
+            navigate(Routes.detailVisit(destination.idVisit)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.VisitDetailToCheckInVisit -> {
+            navigate(Routes.checkInVisit(destination.idVisit, destination.type)) {
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.SettingToConnection -> {
+            navigate(Routes.CONNECTION_SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToResultDownload -> {
+            navigate(Routes.RESULT_DOWNLOAD) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.LoginToConnection -> {
+            navigate(Routes.CONNECTION) { launchSingleTop = true }
+        }
+
+        RouteDestination.MasterDataToMasterDataExpense -> {
+            navigate(Routes.MASTER_DATA_EXPENSE) { launchSingleTop = true }
+        }
     }
+
 }
 

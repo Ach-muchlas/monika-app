@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sss.monikaapps.common.exention.UiExtension.singleClick
 import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
 import com.sss.monikaapps.common.theme.BodyBitterMedium
 import com.sss.monikaapps.common.theme.CardWhite
@@ -52,7 +53,7 @@ fun HomeMenuGrid(menuItems: List<HomeMenuItem>, onMenuClick: (Int) -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clickable { onMenuClick(item.idMenu) }
+                    .singleClick { onMenuClick(item.idMenu) }
             ) {
                 Column(
                     modifier = Modifier

@@ -3,6 +3,7 @@ package com.sss.monikaapps.di
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.google.android.gms.location.LocationServices
+import com.sss.monikaapps.common.manager.ServerManager
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.common.repository.location.LocationRepository
 import com.sss.monikaapps.common.repository.location.LocationRepositoryImpl
@@ -25,6 +26,15 @@ import com.sss.monikaapps.feature.activity.domain.usecase.FetchDetailActivityUse
 import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import com.sss.monikaapps.feature.activity.utils.NetworkChecker
 import com.sss.monikaapps.feature.activity.utils.NetworkCheckerImpl
+import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSource
+import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSourceImpl
+import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSource
+import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSourceImpl
+import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepository
+import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepositoryImpl
+import com.sss.monikaapps.feature.connection.domain.usecase.ChangeServerUseCase
+import com.sss.monikaapps.feature.connection.domain.usecase.FetchServerUrlUseCase
+import com.sss.monikaapps.feature.connection.presentation.ConnectionViewModel
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSource
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSourceImpl
 import com.sss.monikaapps.feature.download.data.remote.DownloadRemoteDataSource
@@ -33,6 +43,7 @@ import com.sss.monikaapps.feature.download.domain.repository.DownloadRepository
 import com.sss.monikaapps.feature.download.domain.repository.DownloadRepositoryImpl
 import com.sss.monikaapps.feature.download.domain.usecase.DownloadUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.FetchConfigDownloadUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.InsertDownloadUseCase
 import com.sss.monikaapps.feature.download.presentation.DownloadViewModel
 import com.sss.monikaapps.feature.expense.data.remote.ExpensesRemoteDataSource
 import com.sss.monikaapps.feature.expense.data.remote.ExpensesRemoteDataSourceImpl
@@ -44,10 +55,13 @@ import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseDetailUseC
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseHeaderUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchDetailExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchExpensesUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.SubmitExpenseUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.UnSubmitExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.UpdateExpenseDetailUseCase
 import com.sss.monikaapps.feature.expense.presentation.create.ExpenseCreateAndUpdateViewModel
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpenseDetailViewModel
 import com.sss.monikaapps.feature.expense.presentation.list.ExpensesViewModel
+import com.sss.monikaapps.feature.home.domain.usecase.CheckPendingDataDownloadUseCase
 import com.sss.monikaapps.feature.home.presentasi.HomeViewModel
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSource
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSourceImpl
@@ -61,10 +75,32 @@ import com.sss.monikaapps.feature.mastering.domain.repository.MasteringRepositor
 import com.sss.monikaapps.feature.mastering.domain.repository.MasteringRepositoryImpl
 import com.sss.monikaapps.feature.mastering.domain.usecase.FetchMasteringExpenseUseCase
 import com.sss.monikaapps.feature.mastering.presentation.MasteringViewModel
+import com.sss.monikaapps.feature.result_download.data.remote.BackupRemoteDataSource
+import com.sss.monikaapps.feature.result_download.data.remote.BackupRemoteDataSourceImpl
+import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemoteRepository
+import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemoteRepositoryImpl
+import com.sss.monikaapps.feature.result_download.domain.usecase.SendEmailUseCase
+import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadViewModel
 import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepository
 import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepositoryImpl
 import com.sss.monikaapps.feature.utils.device.domain.usecase.GetAppVersionUseCase
 import com.sss.monikaapps.feature.utils.device.domain.usecase.GetDeviceIdUseCase
+import com.sss.monikaapps.feature.utils.device.domain.usecase.GetSystemOperationUseCase
+import com.sss.monikaapps.feature.utils.device.presentation.DeviceViewModel
+import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSource
+import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSourceImpl
+import com.sss.monikaapps.feature.visit.data.remote.VisitRemoteDataSource
+import com.sss.monikaapps.feature.visit.data.remote.VisitRemoteDataSourceImpl
+import com.sss.monikaapps.feature.visit.domain.repository.VisitRepository
+import com.sss.monikaapps.feature.visit.domain.repository.VisitRepositoryImpl
+import com.sss.monikaapps.feature.visit.domain.usecase.CheckInVisitUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.CheckOutVisitUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitDetailUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.FetchVisitLocalDatabaseUseCase
+import com.sss.monikaapps.feature.visit.domain.usecase.SyncManualVisitUseCase
+import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailViewModel
+import com.sss.monikaapps.feature.visit.presentation.list.VisitViewModel
+import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitViewModel
 import com.sss.monikaapps.network.ApiConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -77,7 +113,7 @@ object AppModule {
 
     val databaseModule = module {
         single {
-            Room.databaseBuilder(androidContext(), AppDatabase::class.java, "app_database")
+            Room.databaseBuilder(androidContext(), AppDatabase::class.java, AppDatabase.DB_NAME)
                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).fallbackToDestructiveMigration()
                 .build().also { AppDatabaseManager.setDatabase(it) }
         }
@@ -93,12 +129,14 @@ object AppModule {
             LocationServices.getFusedLocationProviderClient(androidContext())
         }
         single { SessionManager.getInstance() }
-
         single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
         single<ActivitiesRepository> { ActivitiesRepositoryImpl(get(), get(), get(), get()) }
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
-        single<DownloadRepository> { DownloadRepositoryImpl(get(), get()) }
+        single<DownloadRepository> { DownloadRepositoryImpl(androidContext(), get(),get(), get()) }
+        single<VisitRepository> { VisitRepositoryImpl(get(), get()) }
+        single<ConnectionRepository> { ConnectionRepositoryImpl(get(), get()) }
+        single<BackupRemoteRepository> { BackupRemoteRepositoryImpl(get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -110,6 +148,8 @@ object AppModule {
     }
 
     val dataSource = module {
+        single { ServerManager.getInstance() }
+
         single<AuthRemoteDataSource> { AuthRemoteDataSourceImpl(get()) }
         single<ActivityRemoteDataSource> { ActivityRemoteDataSourceImpl(get()) }
         single<ActivityLocalDataSource> { ActivityLocalDataSourceImpl(get(), get()) }
@@ -117,43 +157,64 @@ object AppModule {
         single<MasteringRemoteSource> { MasteringRemoteSourceImpl(get()) }
         single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get()) }
         single<DownloadRemoteDataSource> { DownloadRemoteDataSourceImpl(get()) }
+        single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get(), get()) }
+        single<VisitRemoteDataSource> { VisitRemoteDataSourceImpl(get()) }
+        single<ConnectionLocalDataSource> { ConnectionLocalDataSourceImpl(get()) }
+        single<ConnectionRemoteDataSource> { ConnectionRemoteDataSourceImpl(get()) }
+        single<BackupRemoteDataSource> { BackupRemoteDataSourceImpl(get()) }
     }
 
     val useCase = module {
+        single<NetworkChecker> { NetworkCheckerImpl(androidContext()) }
+
         single { LoginUseCase(get()) }
         single { ActivityValidator(get()) }
-        single<NetworkChecker> { NetworkCheckerImpl(androidContext()) }
-        single {
-            CreateActivityUseCase(
-                get<ActivitiesRepository>(), get<ActivityValidator>(), get<NetworkChecker>()
-            )
-        }
+        single { CreateActivityUseCase(get(), get(), get()) }
         single { FetchActivitiesUseCase(get()) }
         single { FetchDetailActivityUseCase(get()) }
         single { FetchExpensesUseCase(get()) }
         single { FetchDetailExpenseUseCase(get()) }
         single { GetAppVersionUseCase(get()) }
         single { GetDeviceIdUseCase(get()) }
+        single { GetSystemOperationUseCase(get()) }
         single { CreateExpenseHeaderUseCase(get()) }
         single { CreateExpenseDetailUseCase(get()) }
         single { UpdateExpenseDetailUseCase(get()) }
         single { FetchMasteringExpenseUseCase(get()) }
+        single { SubmitExpenseUseCase(get()) }
+        single { UnSubmitExpenseUseCase(get()) }
         single { DeleteExpenseHeaderUseCase(get()) }
         single { DeleteExpenseDetailUseCase(get()) }
         single { DownloadUseCase(get()) }
         single { FetchConfigDownloadUseCase(get()) }
+        single { FetchVisitLocalDatabaseUseCase(get()) }
+        single { FetchVisitDetailUseCase(get()) }
+        single { CheckInVisitUseCase(get(), get()) }
+        single { CheckOutVisitUseCase(get(), get()) }
+        single { InsertDownloadUseCase(get()) }
+        single { ChangeServerUseCase(get()) }
+        single { FetchServerUrlUseCase(get()) }
+        single { SendEmailUseCase(get()) }
+        single { SyncManualVisitUseCase(get(), get()) }
+        single { CheckPendingDataDownloadUseCase(get()) }
     }
 
     val viewModelModule = module {
         viewModel { AuthViewModel(get(), get(), get()) }
         viewModel { ActivitiesViewModel(get(), get(), get()) }
         viewModel { ExpensesViewModel(get()) }
-        viewModel { ExpenseDetailViewModel(get(), get(), get()) }
+        viewModel { ExpenseDetailViewModel(get(), get(), get(), get(), get()) }
         viewModel { ExpenseCreateAndUpdateViewModel(get(), get(), get(), get()) }
-        viewModel { HomeViewModel() }
+        viewModel { HomeViewModel(get(), get()) }
         viewModel { PhotoViewModel(get()) }
         viewModel { LocationViewModel(get()) }
         viewModel { MasteringViewModel(get()) }
-        viewModel { DownloadViewModel(get(),get()) }
+        viewModel { DownloadViewModel(get(), get()) }
+        viewModel { VisitViewModel(get()) }
+        viewModel { VisitDetailViewModel(get()) }
+        viewModel { UpdateVisitViewModel(get(), get(), get()) }
+        viewModel { ConnectionViewModel(get(), get()) }
+        viewModel { DeviceViewModel(get(), get(), get()) }
+        viewModel { ResultDownloadViewModel(get(), get()) }
     }
 }

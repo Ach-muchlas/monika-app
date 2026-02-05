@@ -2,7 +2,7 @@ package com.sss.monikaapps.feature.download.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 
 @Entity(tableName = "config_download_data_table")
 data class ConfigDownloadDataEntity(
@@ -11,5 +11,5 @@ data class ConfigDownloadDataEntity(
     val totalDataMobile: Int,
     val totalDataServer: Int,
     val statusTotalDownload: Boolean,
-    val createAd: String = getCurrentDateTime(),
+    val createAd: String = getCurrentDate(),
 )

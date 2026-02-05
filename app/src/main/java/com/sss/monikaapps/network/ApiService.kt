@@ -1,8 +1,12 @@
 package com.sss.monikaapps.network
 
+import com.sss.monikaapps.common.constanta.ApiConstant.APP_VERSION
 import com.sss.monikaapps.common.constanta.ApiConstant.AUTH
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_DATA_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_ACTIVITY
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_ACTIVITY
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_HEADER_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_DETAIL_EXPENSE
@@ -13,10 +17,14 @@ import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_MASTERING_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.SEND_EMAIL
+import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.UN_SUBMIT_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
 import com.sss.monikaapps.feature.activity.data.response.DetailActivityResponse
+import com.sss.monikaapps.feature.connection.data.response.VersionResponse
 import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
@@ -47,6 +55,9 @@ interface ApiService {
         @Field("app_version") appVersion: String,
     ): Response<LoginResponse>
 
+    @GET(APP_VERSION)
+    suspend fun fetchAppVersion(): Response<VersionResponse>
+
     // fetch data activities
     @GET("${FETCH_DATA_ACTIVITIES}/{tanggal}")
     suspend fun fetchDataActivities(
@@ -57,7 +68,6 @@ interface ApiService {
     suspend fun fetchDetailActivity(
         @Path("trno") trno: String,
     ): Response<DetailActivityResponse>
-
 
     // fetch data expanses
     @GET("${FETCH_DATA_EXPENSES}/{status}")
@@ -71,6 +81,16 @@ interface ApiService {
     suspend fun fetchDetailExpanse(
         @Path("trno") trno: String,
     ): Response<DetailExpanseResponse>
+
+    @POST("${SUBMIT_EXPENSE}/{trno}")
+    suspend fun submitExpense(
+        @Path("trno") trno: String,
+    ): Response<DefaultAddResponse>
+
+    @POST("${UN_SUBMIT_EXPENSE}/{trno}")
+    suspend fun unSubmitExpense(
+        @Path("trno") trno: String,
+    ): Response<DefaultAddResponse>
 
     // check in
     @Multipart
@@ -128,8 +148,33 @@ interface ApiService {
     @GET(FETCH_DOWNLOAD_VISIT)
     suspend fun fetchDownloadVisit(): Response<VisitDownloadResponse>
 
+    @GET("${CHECK_DATA_DOWNLOAD_VISIT}/{totalData}")
+    suspend fun checkDataDownloadVisit(
+        @Path("totalData") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST(CHECK_IN_VISIT)
+    suspend fun checkInVisit(
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part photos: List<MultipartBody.Part>?,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST("${CHECK_OUT_VISIT}/{trno}")
+    suspend fun checkOutVisit(
+        @Path("trno") trno: String,
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part photos: List<MultipartBody.Part>?,
+    ): Response<DefaultAddResponse>
 
     @GET(FETCH_MASTERING_EXPENSE)
     suspend fun fetchMasteringExpense(): Response<MasteringExpenseResponse>
 
+    @Multipart
+    @POST(SEND_EMAIL)
+    suspend fun sendEmail(
+        @Part("reason") reason: RequestBody,
+        @Part file: MultipartBody.Part,
+    ): Response<DefaultAddResponse>
 }

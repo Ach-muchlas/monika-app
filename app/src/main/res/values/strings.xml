@@ -23,17 +23,43 @@
     <string name="text_create_activity">Buat Aktivitas</string>
     <string name="text_input_title_activity">Masukan judul aktivitas</string>
     <string name="text_input_desc">Masukan deskripsi aktivitas</string>
-    <string name="text_title_activity">Judul Aktivitas</string>
-    <string name="text_description_activity">Deskripsi Aktivitas</string>
+    <string name="text_title_activity">Judul Aktivitas *</string>
+    <string name="text_description_activity">Deskripsi Aktivitas *</string>
 
     <string name="title_create_activity">Form Aktivitas Baru</string>
     <string name="title_finish_activity">Form Penyelesaian Aktivitas</string>
 
-    <string name="text_photo_activity">Foto Aktivitas</string>
+    <string name="text_photo_activity">Foto Aktivitas *</string>
     <string name="text_add_activity">Tambah Aktivitas</string>
     <string name="text_check_out_activity">Check Out Aktivitas</string>
     <string name="text_detail_expanse">Detail Pengeluaran</string>
     <string name="text_feature_download">"Download"</string>
     <string name="text_desc_feature_download">Fitur untuk download data master. Seperti data custom, dll</string>
+    <string name="list_visit">List Kunjungan</string>
+    <string name="text_detail_visit">Detail Kunjungan</string>
+    <string name="text_checkout_visit">Checkout Kunjungan</string>
+    <string name="text_checkin_visit">Checkin Kunjungan</string>
+    <string name="text_lat">Latitude</string>
+    <string name="text_lng">Longitude</string>
+    <string name="text_form_check_in_visit">Form Kunjungan</string>
+    <string name="text_form_check_out_visit">Form Penyelesaian Kunjungan</string>
+    <string name="text_coordinates">Koordinate</string>
+    <string name="text_description_visit">Catatan</string>
+    <string name="text_input_note">Masukan catatan</string>
+    <string name="text_evidence_visit">Bukti Foto Kunjungan</string>
+    <string name="text_save">Simpan</string>
+    <string name="text_feature_setting">Pengaturan</string>
+    <string name="text_desc_feature_setting">Pengaturan aplikasi untuk melihat profile, kirim backup, dan konfigurasi koneksi</string>
+    <string name="text_server_name">Alamat Server</string>
+    <string name="text_title_imei">Imei</string>
+    <string name="text_title_system_operation">Sistem Operasi</string>
+    <string name="text_title_version_apps">Versi Aplikasi</string>
+    <string name="text_to_login">Lanjut Ke Login</string>
+    <string name="text_developer_mode_is_actived">Matikan developer mode terlebih dahulu</string>
+    <string name="open_setting">Ke Pengaturan</string>
+    <string name="text_close">Tutup</string>
+    <string name="text_desc_master_feature_expanses">Daftar master kategori pengeluaran</string>
+    <string name="master_expense">Master Pengeluaran</string>
+    <string name="text_description_expense">Catatan *</string>
 
 </resources>

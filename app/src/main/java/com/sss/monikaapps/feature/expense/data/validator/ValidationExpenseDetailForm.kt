@@ -19,7 +19,7 @@ data class ValidationExpenseDetailForm(
 
 fun validateInputExpenseDetail(
     isEditMode: Boolean,
-    selectedCategory: DataItemMasteringExpense?, // misal model category
+    selectedCategory: DataItemMasteringExpense?,
     netAmount: String,
     photos: List<String>,
     initialKilometer: String,
@@ -44,8 +44,8 @@ fun validateInputExpenseDetail(
     }
 
     // Validasi foto
-    if (selectedCategory?.name == "BBM" && photos.size < 2) {
-        photoError = "Minimal 2 foto harus ditambahkan. Foto nota dan Foto Kilometer"
+    if (selectedCategory?.name == "BBM" && photos.size < 3) {
+        photoError = "Minimal 3 foto harus ditambahkan. Foto nota dan Foto Kilometer"
     } else if (selectedCategory?.isRequiredFoto == "1" && photos.isEmpty()) {
         photoError = "Minimal 1 foto harus ditambahkan"
     }

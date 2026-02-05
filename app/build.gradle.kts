@@ -90,4 +90,6 @@ dependencies {
     implementation(libs.paging.compose)
 
     implementation(libs.lottie.compose)
+    implementation(libs.androidx.core.splashscreen)
+
 }

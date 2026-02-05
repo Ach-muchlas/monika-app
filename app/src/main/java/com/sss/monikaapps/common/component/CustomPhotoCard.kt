@@ -1,6 +1,7 @@
 package com.sss.monikaapps.common.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,11 +35,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.sss.monikaapps.common.theme.BodyPopMedium
-import com.sss.monikaapps.common.theme.Gray
 import androidx.core.net.toUri
+import coil.compose.AsyncImage
+import com.sss.monikaapps.R
+import com.sss.monikaapps.common.theme.BodyPopMedium
+import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Gray
 
 @Composable
 fun CustomMultiPhotoCard(
@@ -74,18 +78,17 @@ fun CustomMultiPhotoCard(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
+                    Image(
+                        painter = painterResource(R.drawable.icon_add_photo),
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color(0xFF90A4AE)
+                        modifier = Modifier.size(100.dp),
                     )
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(Dimens.SmallMargin))
 
                     Text(title, style = BodyPopMedium, color = Gray)
 
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(Dimens.SmallMargin))
 
                     CustomOutlineButton(
                         "Ambil Foto",

@@ -11,16 +11,26 @@ import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseDetailUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseHeaderUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchDetailExpenseUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.SubmitExpenseUseCase
+import com.sss.monikaapps.feature.expense.domain.usecase.UnSubmitExpenseUseCase
 import kotlinx.coroutines.launch
 
 class ExpenseDetailViewModel(
     private val fetchDetailExpanseUseCase: FetchDetailExpenseUseCase,
+    private val submitExpenseUseCase: SubmitExpenseUseCase,
+    private val unSubmitExpenseUseCase: UnSubmitExpenseUseCase,
     private val deleteExpenseHeaderUseCase: DeleteExpenseHeaderUseCase,
     private val deleteExpenseDetailUseCase: DeleteExpenseDetailUseCase,
 ) : ViewModel() {
 
     private val _detailExpanseResult = MutableLiveData<Result<DetailExpanseResponse>>()
     val detailExpanseResult: LiveData<Result<DetailExpanseResponse>> = _detailExpanseResult
+
+    private val _submitExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
+    val submitExpenseResult: LiveData<Result<DefaultAddResponse>> = _submitExpenseResult
+
+    private val _unSubmitExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
+    val unSubmitExpenseResult: LiveData<Result<DefaultAddResponse>> = _unSubmitExpenseResult
 
     private val _deleteHeaderExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
     val deleteHeaderExpenseResult: LiveData<Result<DefaultAddResponse>> = _deleteHeaderExpenseResult
@@ -43,6 +53,22 @@ class ExpenseDetailViewModel(
         } catch (e: Exception) {
             _detailExpanseResult.value =
                 Result.error(null, e.message ?: "Gagal mengambil detail expanse")
+        }
+    }
+
+    fun submitExpense(trno: String) {
+        viewModelScope.launch {
+            _submitExpenseResult.value = Result.loading(null)
+            val result = submitExpenseUseCase(trno)
+            _submitExpenseResult.value = result
+        }
+    }
+
+    fun unSubmitExpense(trno: String) {
+        viewModelScope.launch {
+            _submitExpenseResult.value = Result.loading(null)
+            val result = unSubmitExpenseUseCase(trno)
+            _submitExpenseResult.value = result
         }
     }
 

@@ -38,6 +38,14 @@ class ExpensesRepositoryImpl(private val remote: ExpensesRemoteDataSource) : Exp
         return remote.updateExpenseDetail(trno, idDetail, payload)
     }
 
+    override suspend fun submitExpense(trno: String): DefaultAddResponse? {
+        return remote.submitExpense(trno)
+    }
+
+    override suspend fun unSubmitExpense(trno: String): DefaultAddResponse? {
+        return remote.unSubmitExpense(trno)
+    }
+
     override suspend fun deleteExpenseHeader(trno: String): DefaultAddResponse? {
         return remote.deleteExpenseHeader(trno)
     }

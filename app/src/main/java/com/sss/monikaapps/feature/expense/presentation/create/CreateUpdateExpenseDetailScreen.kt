@@ -24,17 +24,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.component.PhotoPickerBottomSheet
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
 import com.sss.monikaapps.common.constanta.NameFeatureConstant.EXPENSE
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.helper.GenerateRandomTextHelper.generateRandomId
-import com.sss.monikaapps.common.helper.PhotoHelper
+import com.sss.monikaapps.common.helper.rememberPhotoPickerWithCompress
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
@@ -51,12 +51,13 @@ fun CreateAndUpdateExpenseDetailScreen(
     navController: NavController,
     trno: String,
     dataIdDetail: String? = null,
+    dataInitialKm: String? = null,
+    dataFinalKm: String? = null,
     dataNetAmount: String? = null,
     dataNote: String? = null,
     photoViewModel: PhotoViewModel = koinViewModel(),
     viewModel: ExpenseCreateAndUpdateViewModel = koinViewModel(),
 ) {
-    val context = LocalContext.current
     val isEditMode = dataIdDetail != null
 
     var netAmount by rememberSaveable {
@@ -67,37 +68,44 @@ fun CreateAndUpdateExpenseDetailScreen(
         mutableStateOf(dataNote ?: "")
     }
 
-    var initialKilometer by remember { mutableStateOf("0") }
-    var finalKilometer by remember { mutableStateOf("0") }
-
+    var initialKilometer by rememberSaveable { mutableStateOf(dataInitialKm ?: "0") }
+    var finalKilometer by rememberSaveable { mutableStateOf(dataFinalKm ?: "0") }
 
     val generatedId = rememberSaveable { generateRandomId() }
     val parentIdPhoto = trno + "_" + generatedId
-
-    val photoHelper = remember {
-        PhotoHelper(context, EXPENSE, FEATURE_EXPENSES.toString()) { newPhoto ->
-            photoViewModel.addPhoto(
-                parentId = parentIdPhoto,
-                parentType = FEATURE_EXPENSES.toString(),
-                parentFeature = FEATURE_EXPENSES,
-                path = newPhoto
-            )
-        }
-    }
-
-    val launchCamera = photoHelper.rememberCameraLauncher()
 
     val photos by photoViewModel.observePhotos(parentIdPhoto, FEATURE_EXPENSES.toString())
         .collectAsState()
 
     val categories by viewModel.expenseCategories.observeAsState(emptyList())
+    var showPhotoSheet by remember { mutableStateOf(false) }
 
     val selectedCategory by viewModel.selectedExpenseCategory.observeAsState()
     val createDetailResult by viewModel.createDetailExpenseResult.observeAsState()
     val updateDetailResult by viewModel.updateDetailExpenseResult.observeAsState()
 
+    val (openCamera, openGallery) =
+        rememberPhotoPickerWithCompress(
+            feature = EXPENSE,
+            typeFeature = FEATURE_EXPENSES.toString()
+        ) { newPhotoPath ->
+            photoViewModel.addPhoto(
+                parentId = parentIdPhoto,
+                parentType = FEATURE_EXPENSES.toString(),
+                parentFeature = FEATURE_EXPENSES,
+                path = newPhotoPath
+            )
+        }
+
+
     LaunchedEffect(Unit) {
         viewModel.fetchExpenseCategories()
+    }
+
+    LaunchedEffect(categories) {
+        if (isEditMode && selectedCategory == null && dataIdDetail != null) {
+            viewModel.setSelectedCategoryById(dataIdDetail)
+        }
     }
 
     Box(
@@ -123,10 +131,10 @@ fun CreateAndUpdateExpenseDetailScreen(
             ) {
                 ExpenseDetailForm(
                     isEditMode = isEditMode,
+                    idDetail = if (isEditMode) dataIdDetail?.toInt() ?: 0 else 0,
                     categories = categories,
                     selectedCategory = selectedCategory,
                     onCategorySelected = { viewModel.selectExpenseCategory(it) },
-
                     netAmount = netAmount,
                     onNetAmountChange = { netAmount = it },
                     note = note,
@@ -135,9 +143,10 @@ fun CreateAndUpdateExpenseDetailScreen(
                     onInitialKilometerChange = { initialKilometer = it },
                     finalKilometer = finalKilometer,
                     onFinalKilometerChange = { finalKilometer = it },
-
                     photos = photos.map { it.filePath },
-                    onAddPhoto = { launchCamera() },
+                    onAddPhoto = {
+                        showPhotoSheet = true
+                    },
                     onDeletePhoto = { path ->
                         photos.firstOrNull { it.filePath == path }?.let {
                             photoViewModel.deletePhoto(it)
@@ -156,6 +165,8 @@ fun CreateAndUpdateExpenseDetailScreen(
                         val payloadEdit = ExpenseUpdateDetailRequest(
                             netAmount = netAmount,
                             note = note,
+                            initialKilometer = initialKilometer,
+                            finalKilometer = finalKilometer,
                             photos = photos.map { File(it.filePath) })
 
                         if (isEditMode) viewModel.updateExpenseDetail(
@@ -164,6 +175,20 @@ fun CreateAndUpdateExpenseDetailScreen(
                     })
             }
         }
+
+        PhotoPickerBottomSheet(
+            show = showPhotoSheet,
+            onDismiss = { showPhotoSheet = false },
+            onCamera = {
+                showPhotoSheet = false
+                openCamera()
+            },
+            onGallery = {
+                showPhotoSheet = false
+                openGallery()
+            }
+        )
+
 
         createDetailResult?.let { result ->
             when (result.status) {

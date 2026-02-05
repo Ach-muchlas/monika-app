@@ -27,34 +27,34 @@ fun HomeHeader(userName: String, nameDepo: String, userRole: String) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CustomRoundedIconContainer(
-                onClick = {},
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.icon_notification),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(Dimens.ExtraSmallMargin)
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            CustomRoundedIconContainer(
-                onClick = {},
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.icon_setting),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(Dimens.ExtraSmallMargin)
-                )
-            }
-        }
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            CustomRoundedIconContainer(
+//                onClick = {},
+//            ) {
+//                Image(
+//                    painter = painterResource(R.drawable.icon_notification),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .padding(Dimens.ExtraSmallMargin)
+//                )
+//            }
+//            Spacer(modifier = Modifier.weight(1f))
+//            CustomRoundedIconContainer(
+//                onClick = {},
+//            ) {
+//                Image(
+//                    painter = painterResource(R.drawable.icon_setting),
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .padding(Dimens.ExtraSmallMargin)
+//                )
+//            }
+//        }
 
         Spacer(modifier = Modifier.height(Dimens.ExtraLargeMargin))
 

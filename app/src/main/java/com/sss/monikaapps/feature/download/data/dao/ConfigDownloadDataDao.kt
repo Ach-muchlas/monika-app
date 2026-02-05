@@ -16,6 +16,9 @@ interface ConfigDownloadDataDao {
     @Upsert
     suspend fun upsertConfigDownload(data: ConfigDownloadDataEntity)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM config_download_data_table WHERE tableName = :tableName)")
+    suspend fun isTableExist(tableName: String): Boolean
+
     @Query("SELECT * FROM config_download_data_table")
     suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity>
 
@@ -24,4 +27,8 @@ interface ConfigDownloadDataDao {
 
     @Query("UPDATE config_download_data_table SET  statusTotalDownload = 0,totalDataServer = 0,totalDataMobile = 0")
     suspend fun returnDataConfigDownload()
+
+    @Query("SELECT DISTINCT(createAd) FROM config_download_data_table LIMIT 1")
+    suspend fun getDownloadDate(): String
+
 }

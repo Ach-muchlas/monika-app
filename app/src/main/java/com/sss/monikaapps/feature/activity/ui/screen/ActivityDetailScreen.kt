@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.activity.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,17 +23,21 @@ import androidx.navigation.NavController
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveLat
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveLng
-import com.sss.monikaapps.common.mapper.MapperActivity.resolveTime
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveLatActivity
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveLngActivity
+import com.sss.monikaapps.common.mapper.MapperActivity.resolveTimeActivity
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
+import com.sss.monikaapps.common.theme.DarkRed
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.LightRed
+import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import com.sss.monikaapps.feature.activity.ui.component.CardDetailItemActivity
 import com.sss.monikaapps.feature.activity.ui.component.CardHeaderActivityDetail
@@ -51,7 +56,7 @@ fun ActivityDetailScreen(
     var isStatus = false
 
     LaunchedEffect(Unit) {
-        viewModel.fetchDetailActivity(trno, locationData)
+        viewModel.fetchDetailActivity(idMobile)
     }
 
     Column(
@@ -87,6 +92,7 @@ fun ActivityDetailScreen(
                     val header = activity?.header
                     val photos = activity?.fotoActivity.orEmpty()
                     isStatus = header?.isSync != "2"
+                    val dataSyncLocal = header?.isSyncDataLocal
 
                     CardHeaderActivityDetail(
                         employeeName = header?.employeeId.toString(),
@@ -99,19 +105,25 @@ fun ActivityDetailScreen(
                     Spacer(modifier = Modifier.height(Dimens.LargeMargin))
 
                     dataStatusActivities.forEach { status ->
-
                         if (status.id == CHECK_OUT && isStatus) return@forEach
 
                         val photosByStatus = photos.filter { it.tipe == status.id }
 
+                        val cardColor = when {
+                            status.id == CHECK_IN && dataSyncLocal == 1 -> DarkRed
+                            status.id == CHECK_OUT && dataSyncLocal == 3 -> DarkRed
+                            header?.trnoMobile.isNullOrBlank() -> DarkRed
+                            else -> Primary
+                        }
+
                         CardDetailItemActivity(
                             title = status.title,
-                            dateTime = status.resolveTime(header),
-                            latitude = status.resolveLat(header),
-                            longitude = status.resolveLng(header),
+                            color = cardColor,
+                            dateTime = status.resolveTimeActivity(header),
+                            latitude = status.resolveLatActivity(header),
+                            longitude = status.resolveLngActivity(header),
                             lisPhoto = photosByStatus
                         )
-
                         Spacer(modifier = Modifier.height(Dimens.LargeMargin))
                     }
                 }

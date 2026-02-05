@@ -9,4 +9,7 @@ interface DownloadRepository {
     suspend fun fetchDownload(
         onProgress: (Float) -> Unit,
     ): Result<VisitDownloadResponse>
+
+    suspend fun countDataPending(): Int
+    suspend fun insertDownloadData(data: List<ConfigDownloadDataEntity>)
 }

@@ -5,6 +5,7 @@ import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 
 interface ActivityLocalDataSource {
     suspend fun fetchActivities(): List<ActivityEntity>
+    suspend fun fetchActivitiesLocalDatabase(): List<ActivityEntity>
     suspend fun insertActivity(entity: ActivityEntity)
     suspend fun fetchDetailActivity(id: String): ActivityEntity
     suspend fun fetchPhotos(id: String): List<PhotoEntity>
@@ -21,4 +22,5 @@ interface ActivityLocalDataSource {
     suspend fun countStillCheckIn(): Int
 
     suspend fun insertLog(title: String, desc: String)
+    suspend fun getSyncStatus(trno: String): Int
 }
