@@ -59,6 +59,7 @@ fun LoginForm(
     onEmployeeChange: (String) -> Unit,
     onCopyImei: () -> Unit,
     onLoginClick: () -> Unit,
+    onLoginConnection: () -> Unit,
     focusManager: FocusManager,
 ) {
     Column(
@@ -111,12 +112,12 @@ fun LoginForm(
 
         Spacer(Modifier.height(Dimens.LargeMargin))
 
-        CustomOutlineButton("Konfigurasi Koneksi") {}
+        CustomOutlineButton("Konfigurasi Koneksi", onClick = onLoginConnection)
     }
 }
 
 @Composable
-fun BoxScope.LoginFooter() {
+fun BoxScope.LoginFooter(versionApps: String) {
     Column(
         modifier = Modifier
             .align(Alignment.BottomCenter)
@@ -129,7 +130,7 @@ fun BoxScope.LoginFooter() {
         )
 
         Text(
-            text = "Version 1.0.5",
+            text = "Version $versionApps",
             style = BodyPopMedium.copy(fontSize = 12.sp, color = Color.Gray)
         )
     }

@@ -43,7 +43,7 @@ object VisitMapper {
     ): CheckInVisitRequest {
 
         return CheckInVisitRequest(
-            description = entity.description,
+            description = entity.description.toString(),
             startAt = entity.startAt.toString(),
             startLatitude = entity.startLatitude.toString(),
             startLongitude = entity.startLongitude.toString(),

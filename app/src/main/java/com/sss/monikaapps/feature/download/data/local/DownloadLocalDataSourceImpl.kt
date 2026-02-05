@@ -34,6 +34,10 @@ class DownloadLocalDataSourceImpl(
         return configDao.countPendingDownload()
     }
 
+    override suspend fun getDateConfig(): String {
+        return configDao.getDownloadDate()
+    }
+
     override suspend fun deleteVisit() {
         dao.deleteVisit()
     }

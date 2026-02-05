@@ -41,17 +41,11 @@ class ActivitiesViewModel(
         _activitiesResult.value = fetchActivitiesUseCase()
     }
 
-    fun fetchDetailActivity(trno: String, locationData: Int) =
+    fun fetchDetailActivity(trno: String) =
         viewModelScope.launch {
-
             _detailActivityResult.value = Result.loading(null)
-
-            val result = if (locationData == 0) {
+            val result =
                 fetchDetailActivityUseCase.fetchLocal(trno)
-            } else {
-                fetchDetailActivityUseCase.fetchRemote(trno)
-            }
-
             _detailActivityResult.value = result
         }
 

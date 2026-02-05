@@ -12,13 +12,39 @@ class CheckInVisitUseCase(
 ) {
     suspend operator fun invoke(
         idVisit: String,
-        desc : String,
+        desc: String,
         timeCheckIn: String,
         startLat: String,
         startLng: String,
     ): Result<String> {
 
-        repository.checkInVisit(idVisit,desc, timeCheckIn, startLat, startLng)
+        if (repository.countStillCheckIn() != 0) {
+            return Result.error("Gagal", "Gagal checkin, karena data sebelum nya belum di checkout")
+        }
+
+        var entity = repository.fetchVisitDetail(idVisit)
+        val userLat = startLat.toDoubleOrNull()
+        val userLng = startLng.toDoubleOrNull()
+
+        if (userLat == null || userLng == null) {
+            return Result.error("Gagal", "Lokasi tidak valid")
+        }
+
+        val distanceInMeters = repository.calculateDistanceInMeters(
+            customerLat = entity.customerLatitude,
+            customerLong = entity.customerLongitude,
+            userLat = userLat,
+            userLong = userLng
+        )
+
+//        if (distanceInMeters > 50.0) {
+//            return Result.error(
+//                "Gagal",
+//                "Gagal checkin, karena jarak anda terlalu jauh dari titik pelanggan"
+//            )
+//        }
+
+        repository.checkInVisit(idVisit, desc, timeCheckIn, startLat, startLng)
 
         if (!networkChecker.isConnected()) {
             repository.insertLogActivities(
@@ -28,7 +54,7 @@ class CheckInVisitUseCase(
             return Result.success("Aktivitas checkin disimpan di perangkat. Silakan sync manual.")
         }
 
-        val entity = repository.fetchVisitDetail(idVisit)
+        entity = repository.fetchVisitDetail(idVisit)
         val photos = repository.fetchPhotosByFeatureId(idVisit, CHECK_IN)
 
         val request = VisitMapper.toCheckInVisitRequest(entity, photos)

@@ -76,4 +76,5 @@ data class DataHeaderDetailActivity(
     @field:SerializedName("id")
     val id: String? = null,
 
+    var isSyncDataLocal: Int = 0,
 )

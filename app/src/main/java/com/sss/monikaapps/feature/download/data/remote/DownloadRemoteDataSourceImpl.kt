@@ -1,11 +1,7 @@
 package com.sss.monikaapps.feature.download.data.remote
 
 import com.sss.monikaapps.common.helper.ResponseHelper.parseErrorResponse
-import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
-import com.sss.monikaapps.feature.visit.domain.model.CheckInVisitRequest
-import com.sss.monikaapps.feature.visit.domain.model.toMultipartBody
-import com.sss.monikaapps.feature.visit.domain.model.toMultipartImageParts
 import com.sss.monikaapps.network.ApiService
 
 class DownloadRemoteDataSourceImpl(private val apiService: ApiService) : DownloadRemoteDataSource {
@@ -18,4 +14,19 @@ class DownloadRemoteDataSourceImpl(private val apiService: ApiService) : Downloa
 
         return response.body()
     }
+
+    override suspend fun checkDataDownloadVisit(totalData: Int): String? {
+        return try {
+            val response = apiService.checkDataDownloadVisit(totalData)
+
+            if (!response.isSuccessful) {
+                null
+            } else {
+                response.body()?.data
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 }

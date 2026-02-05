@@ -9,7 +9,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 data class CheckInVisitRequest(
-    val description: String?,
+    val description: String,
     val startAt: String,
     val startLatitude: String,
     val startLongitude: String,
@@ -36,7 +36,7 @@ data class CheckOutVisitRequest(
 
 fun CheckInVisitRequest.toMultipartBody(): Map<String, RequestBody> {
     return mutableMapOf<String, RequestBody>().apply {
-        description?.toRequestBody("text/plain".toMediaTypeOrNull())?.let { put("description", it) }
+        put("description", description.toRequestBody("text/plain".toMediaTypeOrNull()))
         put("start_at", startAt.toRequestBody("text/plain".toMediaTypeOrNull()))
         put("start_lat", startLatitude.toRequestBody("text/plain".toMediaTypeOrNull()))
         put("start_lng", startLongitude.toRequestBody("text/plain".toMediaTypeOrNull()))

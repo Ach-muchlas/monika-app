@@ -1,12 +1,14 @@
 package com.sss.monikaapps.feature.visit.data.local
 
+import androidx.room.Query
 import com.sss.monikaapps.common.db.entity.PhotoEntity
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 interface VisitLocalDataSource {
-    suspend fun fetchDataVisit(): List<VisitEntity>
+    suspend fun fetchDataVisit(keyword : String?, status :Int?): List<VisitEntity>
+    suspend fun fetchDataVisitNotSync(): List<VisitEntity>
     suspend fun fetchDetailVisit(idVisit: String): VisitEntity
-
+    suspend fun countStillCheckIn(): Int
     suspend fun checkInVisit(
         idVisit: String,
         desc: String,

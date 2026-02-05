@@ -36,6 +36,7 @@ fun ExpanseList(
             lazyPagingItems[index]?.let { data ->
                 ExpansesListItem(
                     data = data,
+
                     onClick = { onClick(data.trno.toString()) }
                 )
             }
@@ -74,6 +75,7 @@ fun ExpansesListItem(
             showNote = true,
             note = data.note.orEmpty().ifBlank { "-" },
             status = status,
+            sizeIcon = 60.dp,
             onClick = onClick
         )
         Spacer(modifier = Modifier.height(12.dp))

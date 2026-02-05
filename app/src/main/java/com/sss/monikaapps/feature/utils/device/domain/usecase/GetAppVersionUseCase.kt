@@ -5,5 +5,5 @@ import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepos
 class GetAppVersionUseCase(
     private val repository: DeviceInfoRepository
 ) {
-    suspend fun execute(): String = repository.getAppVersion()
+    suspend operator fun invoke(): String = repository.getAppVersion()
 }

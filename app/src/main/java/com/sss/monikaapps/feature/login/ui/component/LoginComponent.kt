@@ -3,6 +3,7 @@ package com.sss.monikaapps.feature.login.ui.component
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -12,6 +13,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomTextField
 import com.sss.monikaapps.common.theme.BodyPopBold
@@ -37,6 +39,7 @@ fun ImeiField(
                 Icon(
                     painter = painterResource(R.drawable.icon_copy),
                     contentDescription = "Copy IMEI",
+                    modifier = Modifier.size(30.dp),
                     tint = Primary
                 )
             }

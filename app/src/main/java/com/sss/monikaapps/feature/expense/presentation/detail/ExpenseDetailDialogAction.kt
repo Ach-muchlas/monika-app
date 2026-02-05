@@ -10,5 +10,7 @@ sealed class ExpenseDetailDialogAction {
         val idDetail: String,
         val netAmount: String,
         val note: String,
+        val initKm: String,
+        val finalKm: String,
     ) : ExpenseDetailDialogAction()
 }

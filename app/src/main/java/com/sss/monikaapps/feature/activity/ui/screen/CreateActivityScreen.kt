@@ -103,7 +103,7 @@ fun CreateActivityScreen(
         ) {
 
             CustomTopBar(
-                title = if (isCheckOut) "Check Out Activity" else "Create Activity",
+                title = if (isCheckOut) "Selesai Aktivitas" else "Mulai Aktivitas",
                 onBackClick = { navController.popBackStack() }
             )
 

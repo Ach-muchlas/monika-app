@@ -10,7 +10,7 @@ fun ExpanseDetailActionHandler(
     action: ExpenseDetailDialogAction?,
     viewModel: ExpenseDetailViewModel,
     onClearAction: () -> Unit,
-    onEditAction: (trno: String, idExpense: String, netAmount: String, note: String) -> Unit,
+    onEditAction: (trno: String, idExpense: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
 ) {
     when (action) {
 
@@ -85,7 +85,14 @@ fun ExpanseDetailActionHandler(
                 message = "Apakah kamu yakin ingin mengedit data detail pengeluaran ini?",
                 confirmText = "Edit",
                 onConfirm = {
-                    onEditAction(action.trno, action.idDetail, action.netAmount, action.note)
+                    onEditAction(
+                        action.trno,
+                        action.idDetail,
+                        action.netAmount,
+                        action.note,
+                        action.initKm,
+                        action.finalKm
+                    )
                     onClearAction()
                 },
                 onDismiss = {

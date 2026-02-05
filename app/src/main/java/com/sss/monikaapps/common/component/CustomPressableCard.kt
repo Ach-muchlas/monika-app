@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sss.monikaapps.common.exention.UiExtension.singleClick
 
 
 @Composable
@@ -57,7 +58,6 @@ fun CustomPressableCard(
         modifier = modifier
             .scale(scale)
             .alpha(alpha)
-            // Shadow besar (ambient)
             .shadow(
                 elevation = if (isPressed) elevation else elevation * 1.2f,
                 shape = shape,
@@ -75,10 +75,8 @@ fun CustomPressableCard(
 
             .clip(shape)
             .background(backgroundBrush)
-            .clickable(
+            .singleClick(
                 enabled = enabled,
-                interactionSource = interactionSource,
-                indication = null
             ) { onClick() },
         contentAlignment = Alignment.Center
     ) {

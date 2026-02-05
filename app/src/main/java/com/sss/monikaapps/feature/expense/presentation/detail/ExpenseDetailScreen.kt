@@ -49,7 +49,7 @@ fun ExpanseDetailScreen(
     trno: String,
     viewModel: ExpenseDetailViewModel = koinViewModel(),
     onAddExpenseDetail: (trno: String) -> Unit,
-    onEditExpenseDetail: (trno: String, idExpense: String, netAmount: String, note: String) -> Unit,
+    onEditExpenseDetail: (trno: String, idExpense: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
 ) {
     var status = "0"
     var dialogAction by remember { mutableStateOf<ExpenseDetailDialogAction?>(null) }
@@ -103,7 +103,7 @@ fun ExpanseDetailScreen(
                         Spacer(modifier = Modifier.height(Dimens.MediumMargin))
 
                         CardHeaderExpanseDetail(
-                            employeeName = header?.employeeId.toString() + header?.employeeName.toString(),
+                            employeeName = header?.employeeName.toString(),
                             netAmount = formatCurrency(amount = header?.netAmount?.toLong() ?: 0),
                             date = formatDateToIndoDisplay(header?.date.toString()),
                             status = mapperStatusExpanse(header?.isStatus),
@@ -118,9 +118,9 @@ fun ExpanseDetailScreen(
                                 dataItem = data,
                                 status = status,
                                 lisPhoto = data.photo,
-                                onClickEdited = { trnoDetail, idDetail, netAmount, note ->
+                                onClickEdited = { trnoDetail, idDetail, netAmount, note, initKm, finalKm ->
                                     dialogAction = ExpenseDetailDialogAction.EditDetail(
-                                        trnoDetail, idDetail, netAmount, note
+                                        trnoDetail, idDetail, netAmount, note, initKm, finalKm
                                     )
 
                                 },
@@ -151,7 +151,7 @@ fun ExpanseDetailScreen(
         }
 
 
-        if (status == "0" || status == "1") {
+        if (status == "0" || status == "4") {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,9 +159,9 @@ fun ExpanseDetailScreen(
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Button utama selalu ada
+
                 CustomPrimaryButton(
-                    text = if (status == "1") "Batal Selesai" else "Selesai",
+                    text = if (status == "4") "Batal Diajukan" else "Diajukan",
                     modifier = Modifier.weight(1f)
                 ) {
                     dialogAction =

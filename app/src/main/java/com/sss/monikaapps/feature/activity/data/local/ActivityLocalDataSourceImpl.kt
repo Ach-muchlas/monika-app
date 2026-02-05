@@ -3,6 +3,7 @@ package com.sss.monikaapps.feature.activity.data.local
 import com.sss.monikaapps.common.db.dao.PhotoDao
 import com.sss.monikaapps.common.db.entity.LogEntity
 import com.sss.monikaapps.common.db.entity.PhotoEntity
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.feature.activity.data.dao.ActivityDao
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 
@@ -12,6 +13,10 @@ class ActivityLocalDataSourceImpl(
 ) : ActivityLocalDataSource {
 
     override suspend fun fetchActivities(): List<ActivityEntity> {
+        return activityDao.fetchActivity(getCurrentDate())
+    }
+
+    override suspend fun fetchActivitiesLocalDatabase(): List<ActivityEntity> {
         return activityDao.fetchDataActivityLocalDatabase()
     }
 
@@ -77,4 +82,6 @@ class ActivityLocalDataSourceImpl(
             )
         )
     }
+
+    override suspend fun getSyncStatus(trno: String): Int = activityDao.getSyncData(trno)
 }

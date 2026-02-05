@@ -26,19 +26,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sss.monikaapps.R
-import com.sss.monikaapps.common.data.SnackbarType
-import com.sss.monikaapps.common.data.StatusNetwork
-import com.sss.monikaapps.common.model.SnackbarData
-import com.sss.monikaapps.common.model.dataStatusActivities
-import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import com.sss.monikaapps.common.component.CustomCardListHeader
 import com.sss.monikaapps.common.component.CustomFloatingActionButton
 import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomSearch
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.data.SnackbarType
+import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.model.SnackbarData
+import com.sss.monikaapps.common.model.dataStatusActivities
+import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
-import com.sss.monikaapps.common.snackbar.SnackbarManager
+import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -102,7 +102,7 @@ fun ActivitiesScreen(
             CustomTopBar(
                 title = stringResource(R.string.list_activity),
                 showRightIcon = true,
-                iconRight = R.drawable.icon_sync2,
+                iconRight = R.drawable.icon_sync,
                 iconSize = 30,
                 onBackClick = { navController.popBackStack() },
                 onRightIconClick = {

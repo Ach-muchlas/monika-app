@@ -2,12 +2,14 @@ package com.sss.monikaapps.feature.activity.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 
 @Entity(tableName = "activity_table")
 data class ActivityEntity(
     @PrimaryKey val id: String,
     val title: String,
     val description: String,
+    val createdAt: String = getCurrentDate(),
     val startAt: String? = null,
     val endAt: String? = null,
     val startLatitude: String? = null,

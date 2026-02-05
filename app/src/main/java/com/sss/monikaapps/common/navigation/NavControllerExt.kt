@@ -26,6 +26,23 @@ fun NavController.navigateToDestination(
             navigate(Routes.DOWNLOAD) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToSetting -> {
+            navigate(Routes.SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToMaster -> {
+            navigate(Routes.MASTER_DATA) { launchSingleTop = true }
+        }
+
+        RouteDestination.ConnectionToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(Routes.CONNECTION) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
         RouteDestination.HomeToVisit -> {
             navigate(Routes.VISIT) { launchSingleTop = true }
         }
@@ -74,7 +91,12 @@ fun NavController.navigateToDestination(
         is RouteDestination.ExpenseDetailToUpdateExpenseDetail -> {
             navigate(
                 Routes.updateExpenseDetail(
-                    destination.trno, destination.idExpense, destination.netAmount, destination.note
+                    destination.trno,
+                    destination.idExpense,
+                    destination.netAmount,
+                    destination.note,
+                    destination.initKm,
+                    destination.finalKm
                 )
             ) { launchSingleTop = true }
         }
@@ -87,6 +109,31 @@ fun NavController.navigateToDestination(
             navigate(Routes.checkInVisit(destination.idVisit, destination.type)) {
                 launchSingleTop = true
             }
+        }
+
+        RouteDestination.SettingToConnection -> {
+            navigate(Routes.CONNECTION_SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToResultDownload -> {
+            navigate(Routes.RESULT_DOWNLOAD) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.LoginToConnection -> {
+            navigate(Routes.CONNECTION) { launchSingleTop = true }
+        }
+
+        RouteDestination.MasterDataToMasterDataExpense -> {
+            navigate(Routes.MASTER_DATA_EXPENSE) { launchSingleTop = true }
         }
     }
 

@@ -50,6 +50,7 @@ fun VisitForm(
 ) {
     val isCheckIn = typeVisit == CHECK_IN
     var photoError by remember { mutableStateOf<String?>(null) }
+    var descError by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -109,7 +110,6 @@ fun VisitForm(
         Spacer(Modifier.height(Dimens.MediumMargin))
 
         if (isCheckIn) {
-
             Text(
                 text = stringResource(R.string.text_description_visit),
                 style = BodyPopBold,
@@ -121,12 +121,23 @@ fun VisitForm(
             CustomTextField(
                 value = descVisit,
                 onValueChange = {
+                    descError = null
                     onDescChange(it)
                 },
                 modifier = Modifier.height(80.dp),
                 isMultiline = true,
                 hint = stringResource(R.string.text_input_note)
             )
+            descError?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    style = BodyPopRegular,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 2.dp)
+                )
+            }
 
             Spacer(Modifier.height(Dimens.MediumMargin))
         }
@@ -163,6 +174,12 @@ fun VisitForm(
             text = stringResource(R.string.text_save), onClick = {
                 var hasError = false
                 if (isCheckIn) {
+
+                    if (descVisit.isBlank()) {
+                        descError = "Catatan tidak boleh kosong"
+                        hasError = true
+                    }
+
                     if (photos.isEmpty()) {
                         photoError = "Minimal 1 foto harus ditambahkan"
                         hasError = true

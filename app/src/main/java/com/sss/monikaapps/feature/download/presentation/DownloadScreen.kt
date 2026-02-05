@@ -64,7 +64,6 @@ fun DownloadScreen(
         }
     }
 
-    // ===== Fetch table saat screen dibuka =====
     LaunchedEffect(Unit) {
         viewModel.fetchConfigDownload()
     }

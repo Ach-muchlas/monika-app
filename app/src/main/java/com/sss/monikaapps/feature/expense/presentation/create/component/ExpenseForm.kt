@@ -45,12 +45,11 @@ fun ExpenseForm(
     onNoteChange: (String) -> Unit,
     onSubmit: () -> Unit = {},
 ) {
-    var selectedDateMillis by remember {
-        mutableStateOf<Long?>(null)
-    }
-
+    var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
+    var descError by remember { mutableStateOf<String?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showDateError by remember { mutableStateOf(false) }
+
 
     val formattedDateDisplay = remember(selectedDateMillis) {
         FormatterDate.formatTimestampToIndoDisplay(selectedDateMillis)
@@ -119,7 +118,7 @@ fun ExpenseForm(
         Spacer(Modifier.height(Dimens.MediumMargin))
 
         Text(
-            text = stringResource(R.string.text_description_activity),
+            text = stringResource(R.string.text_description_expense),
             style = BodyPopBold,
             modifier = Modifier.fillMaxWidth()
         )
@@ -129,12 +128,24 @@ fun ExpenseForm(
         CustomTextField(
             value = note,
             onValueChange = {
+                descError = null
                 onNoteChange(it)
             },
             modifier = Modifier.height(80.dp),
             isMultiline = true,
-            hint = "Masukan Note Pengeluaran"
+            hint = "Masukan catatan pengeluaran"
         )
+
+        descError?.let { error ->
+            Text(
+                text = error,
+                color = Color.Red,
+                style = BodyPopRegular,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp)
+            )
+        }
 
 
         Spacer(Modifier.height(Dimens.ExtraExtraLargeMargin))
@@ -147,6 +158,11 @@ fun ExpenseForm(
 
                 if (selectedDateMillis == null) {
                     showDateError = true
+                    hasError = true
+                }
+
+                if (note.isBlank()) {
+                    descError = "Catatan tidak boleh kosong"
                     hasError = true
                 }
 

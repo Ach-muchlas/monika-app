@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class MasteringExpenseResponse(
 
     @field:SerializedName("data")
-    val data: List<DataItemMasteringExpense?>? = null,
+    val data: List<DataItemMasteringExpense>? = null,
 
     @field:SerializedName("jumlah_data")
     val totalData: Int? = null,

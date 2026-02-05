@@ -15,7 +15,10 @@ interface PhotoDao {
     fun observePhotos(parentId: String, parentType: String): Flow<List<PhotoEntity>>
 
     @Query("SELECT * FROM photo_table WHERE parentId = :parentId AND parentType = :parentType ORDER BY createdAt ASC")
-    suspend fun fetchPhotoByParentIdAndParentType(parentId: String, parentType: String): List<PhotoEntity>
+    suspend fun fetchPhotoByParentIdAndParentType(
+        parentId: String,
+        parentType: String,
+    ): List<PhotoEntity>
 
     @Query("SELECT * FROM photo_table WHERE parentId = :parentId ORDER BY createdAt ASC")
     suspend fun fetchPhotosByParentId(parentId: String): List<PhotoEntity>

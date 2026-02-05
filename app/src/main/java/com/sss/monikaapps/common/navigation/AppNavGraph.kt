@@ -1,5 +1,7 @@
 package com.sss.monikaapps.common.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -8,9 +10,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.FINAL_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.INIT_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
@@ -23,11 +27,14 @@ import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_DOWNLOAD
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_MASTER_DATA
+import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_SETTING
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.feature.activity.ui.screen.ActivitiesScreen
 import com.sss.monikaapps.feature.activity.ui.screen.ActivityDetailScreen
 import com.sss.monikaapps.feature.activity.ui.screen.CreateActivityScreen
+import com.sss.monikaapps.feature.connection.presentation.ConnectionScreen
 import com.sss.monikaapps.feature.download.presentation.DownloadScreen
 import com.sss.monikaapps.feature.expense.presentation.create.CreateAndUpdateExpenseDetailScreen
 import com.sss.monikaapps.feature.expense.presentation.create.CreateExpenseScreen
@@ -35,11 +42,16 @@ import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScree
 import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
 import com.sss.monikaapps.feature.home.ui.screen.HomeScreen
 import com.sss.monikaapps.feature.login.ui.screen.LoginScreen
+import com.sss.monikaapps.feature.mastering.presentation.MasterScreen
+import com.sss.monikaapps.feature.mastering.presentation.MasteringCategoryExpenseScreen
+import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadScreen
+import com.sss.monikaapps.feature.setting.presentation.SettingScreen
 import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailScreen
 import com.sss.monikaapps.feature.visit.presentation.list.VisitListScreen
 import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitScreen
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavGraph(
     navController: NavHostController = rememberNavController(),
@@ -49,7 +61,11 @@ fun AppNavGraph(
     }
 
     val startDestination = remember {
-        if (sessionManager.isUserLogin()) Routes.HOME else Routes.LOGIN
+        if (sessionManager.isFirstTime()) {
+            Routes.CONNECTION
+        } else {
+            if (sessionManager.isUserLogin()) Routes.HOME else Routes.LOGIN
+        }
     }
 
     NavHost(
@@ -57,6 +73,7 @@ fun AppNavGraph(
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(
+                onSettingConnection = { navController.navigateToDestination(RouteDestination.LoginToConnection) },
                 onSuccessLoginSuccess = {
                     navController.navigateToDestination(
                         RouteDestination.LoginToHome
@@ -64,21 +81,32 @@ fun AppNavGraph(
                 })
         }
 
+        composable(Routes.CONNECTION) {
+            ConnectionScreen(
+                navController = navController, isFirstTime = true, onClickLogin = {
+                    navController.navigateToDestination(RouteDestination.ConnectionToLogin)
+                })
+        }
+
         composable(Routes.HOME) {
-            HomeScreen { idMenu ->
+            HomeScreen(
+                onNavigate = { destination ->
+                    navController.navigateToDestination(destination)
+                }
+            )
+        }
+
+
+        composable(Routes.MASTER_DATA) {
+            MasterScreen(navController) { idMenu ->
                 when (idMenu) {
-                    FEATURE_ACTIVITIES -> navController.navigateToDestination(
-                        RouteDestination.HomeToActivities
-                    )
-
-                    FEATURE_EXPENSES -> navController.navigateToDestination(
-                        RouteDestination.HomeToExpanses
-                    )
-
-                    FEATURE_DOWNLOAD -> navController.navigateToDestination(RouteDestination.HomeToDownload)
-                    FEATURE_VISIT -> navController.navigateToDestination(RouteDestination.HomeToVisit)
+                    FEATURE_EXPENSES -> navController.navigateToDestination(RouteDestination.MasterDataToMasterDataExpense)
                 }
             }
+        }
+
+        composable(Routes.MASTER_DATA_EXPENSE){
+            MasteringCategoryExpenseScreen(navController)
         }
 
         composable(Routes.ACTIVITIES) {
@@ -99,6 +127,7 @@ fun AppNavGraph(
         composable(Routes.DOWNLOAD) {
             DownloadScreen(navController = navController)
         }
+
 
         composable(Routes.VISIT) {
             VisitListScreen(navController = navController, onclickDetail = { id ->
@@ -174,27 +203,22 @@ fun AppNavGraph(
         }
 
         composable(
-            Routes.DETAIL_EXPENSES,
-            arguments = listOf(
+            Routes.DETAIL_EXPENSES, arguments = listOf(
                 navArgument(TRNO_EXPENSE) { type = NavType.StringType },
             )
         ) { backStackEntry ->
             val trno = backStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
-            ExpanseDetailScreen(
-                navController,
-                trno = trno,
-                onAddExpenseDetail = { trnoExpense ->
-                    navController.navigateToDestination(
-                        RouteDestination.ExpenseDetailToCreateExpenseDetail(trnoExpense)
+            ExpanseDetailScreen(navController, trno = trno, onAddExpenseDetail = { trnoExpense ->
+                navController.navigateToDestination(
+                    RouteDestination.ExpenseDetailToCreateExpenseDetail(trnoExpense)
+                )
+            }, onEditExpenseDetail = { trnoDetail, idDetail, netAmount, note, initialKm, finalKm ->
+                navController.navigateToDestination(
+                    RouteDestination.ExpenseDetailToUpdateExpenseDetail(
+                        trnoDetail, idDetail, netAmount, note, initialKm, finalKm
                     )
-                },
-                onEditExpenseDetail = { trnoDetail, idDetail, netAmount, note ->
-                    navController.navigateToDestination(
-                        RouteDestination.ExpenseDetailToUpdateExpenseDetail(
-                            trnoDetail, idDetail, netAmount, note
-                        )
-                    )
-                })
+                )
+            })
         }
 
         composable(Routes.CREATE_EXPENSE_HEADER) {
@@ -215,15 +239,22 @@ fun AppNavGraph(
                 navArgument(ID_EXPENSE) { type = NavType.StringType },
                 navArgument(NET_AMOUNT) { type = NavType.StringType },
                 navArgument(NOTE) { type = NavType.StringType },
+                navArgument(INIT_KM) { type = NavType.StringType },
+                navArgument(FINAL_KM) { type = NavType.StringType },
             )
         ) { navBackStackEntry ->
             val trno = navBackStackEntry.arguments?.getString(TRNO_EXPENSE).orEmpty()
             val idExpense = navBackStackEntry.arguments?.getString(ID_EXPENSE).orEmpty()
             val netAmount = navBackStackEntry.arguments?.getString(NET_AMOUNT).orEmpty()
             val note = navBackStackEntry.arguments?.getString(NOTE).orEmpty()
+            val initialKm = navBackStackEntry.arguments?.getString(INIT_KM) ?: "0"
+            val finalKm = navBackStackEntry.arguments?.getString(FINAL_KM) ?: "0"
+
             CreateAndUpdateExpenseDetailScreen(
                 navController,
                 trno = trno,
+                dataInitialKm = initialKm,
+                dataFinalKm = finalKm,
                 dataIdDetail = idExpense,
                 dataNetAmount = netAmount,
                 dataNote = note
@@ -257,6 +288,25 @@ fun AppNavGraph(
             UpdateVisitScreen(
                 navController = navController, typeVisit = type, idMobile = trnoMobile
             )
+        }
+
+        composable(Routes.SETTING) {
+            SettingScreen(
+                navController = navController,
+                onClickConnection = { navController.navigateToDestination(RouteDestination.SettingToConnection) },
+                onClickDownload = { navController.navigateToDestination(RouteDestination.SettingToResultDownload) },
+                onClickLogout = { navController.navigateToDestination(RouteDestination.SettingToLogin) }
+            )
+        }
+
+        composable(Routes.CONNECTION_SETTING) {
+            ConnectionScreen(navController, isFirstTime = false, onClickLogin = {
+                navController.navigateToDestination(RouteDestination.LoginToConnection)
+            })
+        }
+
+        composable(Routes.RESULT_DOWNLOAD) {
+            ResultDownloadScreen(navController)
         }
     }
 }

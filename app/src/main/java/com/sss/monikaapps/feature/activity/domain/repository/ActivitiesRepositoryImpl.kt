@@ -1,6 +1,5 @@
 package com.sss.monikaapps.feature.activity.domain.repository
 
-import android.util.Log
 import com.sss.monikaapps.common.db.entity.PhotoEntity
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.common.manager.SessionManager
@@ -76,16 +75,7 @@ class ActivitiesRepositoryImpl(
 
     override suspend fun fetchActivities(): List<DataItemActivities> {
         val localData = MapperActivity.mapperActivities(local.fetchActivities())
-
-        Log.e("NETWORK", "isConnected = ${networkChecker.isConnected()}")
-        Log.e("DATA", "data = $localData")
-
-        if (!networkChecker.isConnected()) return localData
-
-        val serverData = remote.fetchActivities(getCurrentDate())
-            .map { it.copy(locationData = 1) }
-
-        return (localData + serverData).distinctBy { it.trnoMobile }
+        return localData
     }
 
     override suspend fun fetchDetailLocal(
@@ -94,6 +84,7 @@ class ActivitiesRepositoryImpl(
 
         val headerEntity = local.fetchDetailActivity(trno)
         val user = sessionManager.getDataUser()
+
         val photos = local.fetchPhotos(trno)
 
         val photoResponse =
@@ -111,12 +102,20 @@ class ActivitiesRepositoryImpl(
     override suspend fun fetchDetailRemote(
         trno: String,
     ): DataItemDetailActivity? {
-        return remote.fetchDetail(trno)
+        val remoteData = remote.fetchDetail(trno) ?: return null
+
+        val syncStatusLocal = local.getSyncStatus(trno)
+
+        return remoteData.copy(
+            header = remoteData.header?.copy(
+                isSyncDataLocal = syncStatusLocal
+            )
+        )
     }
 
     override suspend fun insertLogActivities(title: String, desc: String) =
         local.insertLog(title, desc)
 
-    override suspend fun fetchActivitiesLocal(): List<ActivityEntity> = local.fetchActivities()
+    override suspend fun fetchActivitiesLocal(): List<ActivityEntity> = local.fetchActivitiesLocalDatabase()
 
 }

@@ -6,9 +6,10 @@ import com.sss.monikaapps.feature.visit.domain.model.CheckInVisitRequest
 import com.sss.monikaapps.feature.visit.domain.model.CheckOutVisitRequest
 
 interface VisitRepository {
-    suspend fun fetchVisitLocalDatabase(): List<VisitEntity>
+    suspend fun fetchVisitLocalDatabase(keyword : String? , status :Int?): List<VisitEntity>
+    suspend fun fetchVisitNotSync(): List<VisitEntity>
     suspend fun fetchVisitDetail(idVisit: String): VisitEntity
-
+    suspend fun countStillCheckIn(): Int
     suspend fun checkInVisitRemote(payload: CheckInVisitRequest): String?
 
     suspend fun checkInVisit(
@@ -29,5 +30,12 @@ interface VisitRepository {
     suspend fun fetchPhotoByParentId(parentId: String): List<PhotoEntity>
 
     suspend fun insertLogActivities(title: String, desc: String)
+
+     fun calculateDistanceInMeters(
+        customerLat: String,
+        customerLong: String,
+        userLat: Double,
+        userLong: Double,
+    ): Double
 
 }

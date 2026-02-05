@@ -8,12 +8,21 @@ import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 class VisitLocalDataSourceImpl(private val dao: VisitDao, private val photoDao: PhotoDao) :
     VisitLocalDataSource {
-    override suspend fun fetchDataVisit(): List<VisitEntity> {
-        return dao.fetchVisitLocalDatabase()
+
+    override suspend fun fetchDataVisit(keyword: String?, status: Int?): List<VisitEntity> {
+        return dao.fetchVisitLocalDatabase(keyword, status)
+    }
+
+    override suspend fun fetchDataVisitNotSync(): List<VisitEntity> {
+        return dao.fetchVisitNotSync()
     }
 
     override suspend fun fetchDetailVisit(idVisit: String): VisitEntity {
         return dao.fetchVisitDetail(idVisit)
+    }
+
+    override suspend fun countStillCheckIn(): Int {
+        return dao.countStillCheckIn()
     }
 
     override suspend fun checkInVisit(

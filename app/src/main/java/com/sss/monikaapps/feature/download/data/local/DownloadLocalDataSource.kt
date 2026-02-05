@@ -10,6 +10,7 @@ interface DownloadLocalDataSource {
     suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity>
     suspend fun returnDataConfigDownload()
     suspend fun countPendingDownload(): Int
+    suspend fun getDateConfig(): String
 
     suspend fun deleteVisit()
     suspend fun countVisit(): Int

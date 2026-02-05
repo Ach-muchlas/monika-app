@@ -32,6 +32,7 @@ import com.sss.monikaapps.feature.mastering.data.response.DataItemMasteringExpen
 @Composable
 fun ExpenseDetailForm(
     isEditMode: Boolean,
+    idDetail: Int,
     categories: List<DataItemMasteringExpense>,
     selectedCategory: DataItemMasteringExpense?,
     onCategorySelected: (DataItemMasteringExpense) -> Unit,
@@ -53,6 +54,8 @@ fun ExpenseDetailForm(
     var initialKilometerError by remember { mutableStateOf<String?>(null) }
     var finalKilometerError by remember { mutableStateOf<String?>(null) }
     var photoError by remember { mutableStateOf<String?>(null) }
+    val isBBM = selectedCategory?.name == "BBM"
+    val isPhotoRequired = selectedCategory?.isRequiredFoto == "1"
 
     Column(
         modifier = Modifier
@@ -100,7 +103,7 @@ fun ExpenseDetailForm(
                 )
             }
         }
-        if (selectedCategory?.name == "BBM") {
+        if (isBBM) {
             Spacer(Modifier.height(Dimens.MediumMargin))
 
             Text(

@@ -14,13 +14,16 @@ import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 @Database(
     entities = [ActivityEntity::class, PhotoEntity::class, VisitEntity::class, LogEntity::class, ConfigDownloadDataEntity::class],
-    version = 8,
+    version = 11,
     exportSchema = false
 )
-
 abstract class AppDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun visitDao(): VisitDao
     abstract fun configDownload(): ConfigDownloadDataDao
     abstract fun photoDao(): PhotoDao
+
+    companion object {
+        const val DB_NAME = "app_database"
+    }
 }

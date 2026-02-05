@@ -20,7 +20,6 @@ class PhotoRepositoryImpl(private val dao: PhotoDao) : PhotoRepository {
                 parentType = parentType,
                 parentFeature = parentFeature,
                 filePath = path,
-                syncStatus = 0
             )
         )
     }

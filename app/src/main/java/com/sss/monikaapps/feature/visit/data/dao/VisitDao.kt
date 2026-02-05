@@ -13,14 +13,38 @@ interface VisitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCustomerVisit(data: List<VisitEntity>)
 
-    @Query("SELECT * FROM visit_table")
-    suspend fun fetchVisitLocalDatabase(): List<VisitEntity>
+    @Query(
+        """
+        SELECT * FROM visit_table
+        WHERE (:keyword IS NULL 
+               OR customerId LIKE '%' || :keyword || '%' 
+               OR customerName LIKE '%' || :keyword || '%')
+          AND (:statusFilter IS NULL 
+               OR (:statusFilter = 0 AND syncStatus = 0)
+               OR (:statusFilter = 1 AND syncStatus IN (1,2))
+               OR (:statusFilter = 2 AND syncStatus IN (3,4))
+               OR (:statusFilter = 3 AND syncStatus IN (1,3))
+               OR (:statusFilter = 7)
+              )
+        ORDER BY customerId ASC 
+    """
+    )
+    suspend fun fetchVisitLocalDatabase(
+        keyword: String? = null,
+        statusFilter: Int? = null,
+    ): List<VisitEntity>
+
+    @Query("SELECT * FROM visit_table WHERE syncStatus in(1,3)")
+    suspend fun fetchVisitNotSync(): List<VisitEntity>
 
     @Query("SELECT * FROM visit_table WHERE id = :idVisit")
     suspend fun fetchVisitDetail(idVisit: String): VisitEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLogVisit(data: LogEntity)
+
+    @Query("SELECT count(*) from visit_table WHERE syncStatus in (1,2)")
+    suspend fun countStillCheckIn(): Int
 
     @Query(
         """
@@ -31,7 +55,7 @@ interface VisitDao {
     )
     suspend fun checkInVisit(
         idVisit: String,
-        desc : String,
+        desc: String,
         timeCheckIn: String,
         startLat: String,
         starLng: String,

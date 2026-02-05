@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sss.monikaapps.common.exention.UiExtension.singleClick
 import com.sss.monikaapps.common.theme.Dimens
 
 
@@ -20,7 +21,7 @@ fun CustomRoundedIconContainer(
     content: @Composable BoxScope.() -> Unit
 ) {
     CustomPressableCard(
-        modifier = modifier.size(size),
+        modifier = modifier.size(size).singleClick {onClick()},
         shape = RoundedCornerShape(Dimens.ExtraExtraLargeMargin),
         elevation = 8.dp,
         backgroundBrush = Brush.linearGradient(
@@ -29,12 +30,5 @@ fun CustomRoundedIconContainer(
         onClick = onClick
     ) {
         content()
-//        Image(
-//            painter = painterResource(icon),
-//            contentDescription = null,
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(padding)
-//        )
     }
 }

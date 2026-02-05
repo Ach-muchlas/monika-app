@@ -8,6 +8,7 @@ import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.download.domain.usecase.DownloadUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.FetchConfigDownloadUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.InsertDownloadUseCase
 import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
 import kotlinx.coroutines.launch
 

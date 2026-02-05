@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
@@ -30,7 +31,9 @@ import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
+import com.sss.monikaapps.common.theme.DarkRed
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.feature.activity.ui.component.CardDetailItemActivity
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveLatVisit
@@ -49,7 +52,6 @@ fun VisitDetailScreen(
     val result by viewModel.visitDetailResult.observeAsState()
     var isStatus = 0
 
-    Log.e("CHECK_D", "Data id detail $idVisit")
     LaunchedEffect(Unit) {
         viewModel.fetchVisitDetail(idVisit)
     }
@@ -107,18 +109,20 @@ fun VisitDetailScreen(
 
                     if (isStatus != 0) {
                         dataStatusActivities.forEach { status ->
-                            Log.e("CHECK_DATA", "status : $status")
+
                             if (status.id == CHECK_OUT && dataStatusSync) return@forEach
 
                             val photosByStatus = photos?.filter { it.parentType == status.id }
-
-                            Log.e("CHECK_DATA", "data foto detail visit : $photos")
-                            Log.e(
-                                "CHECK_DATA", "data foto by status detail visit  : $photosByStatus"
-                            )
+                            val cardColor = when {
+                                status.id == CHECK_IN && isStatus == 1 -> DarkRed
+                                status.id == CHECK_OUT && isStatus == 3 -> DarkRed
+                                visit?.trno?.isBlank() == true -> DarkRed
+                                else -> Primary
+                            }
 
                             CardDetailItemActivity(
                                 title = status.title,
+                                color = cardColor,
                                 dateTime = status.resolveTimeVisit(visit),
                                 latitude = status.resolveLatVisit(visit),
                                 longitude = status.resolveLngVisit(visit),

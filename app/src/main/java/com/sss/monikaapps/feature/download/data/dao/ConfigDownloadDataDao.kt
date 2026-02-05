@@ -27,4 +27,8 @@ interface ConfigDownloadDataDao {
 
     @Query("UPDATE config_download_data_table SET  statusTotalDownload = 0,totalDataServer = 0,totalDataMobile = 0")
     suspend fun returnDataConfigDownload()
+
+    @Query("SELECT DISTINCT(createAd) FROM config_download_data_table LIMIT 1")
+    suspend fun getDownloadDate(): String
+
 }

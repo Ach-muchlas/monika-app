@@ -2,10 +2,11 @@ package com.sss.monikaapps.feature.utils.device.domain.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 
 class DeviceInfoRepositoryImpl(
-    private val context: Context
+    private val context: Context,
 ) : DeviceInfoRepository {
 
     @SuppressLint("HardwareIds")
@@ -19,5 +20,9 @@ class DeviceInfoRepositoryImpl(
     override suspend fun getAppVersion(): String {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         return "${packageInfo.versionName}"
+    }
+
+    override suspend fun getSystemOperation(): String {
+        return "Android ${Build.VERSION.RELEASE} (${Build.VERSION.SDK_INT})"
     }
 }

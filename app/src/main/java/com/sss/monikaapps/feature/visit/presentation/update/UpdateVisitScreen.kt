@@ -29,7 +29,7 @@ import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
-import com.sss.monikaapps.common.constanta.NameFeatureConstant.ACTIVITY
+import com.sss.monikaapps.common.constanta.NameFeatureConstant.VISIT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.helper.PhotoHelper
@@ -62,7 +62,7 @@ fun UpdateVisitScreen(
     var desc by remember { mutableStateOf("") }
 
     val photoHelper = remember {
-        PhotoHelper(context, ACTIVITY, typeVisit) { newPhoto ->
+        PhotoHelper(context, VISIT, typeVisit) { newPhoto ->
             photoViewModel.addPhoto(
                 parentId = idMobile.toString(),
                 parentType = typeVisit,

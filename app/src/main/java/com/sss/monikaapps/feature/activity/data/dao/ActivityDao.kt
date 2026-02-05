@@ -4,14 +4,17 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.common.db.entity.LogEntity
+import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 
 @Dao
 interface ActivityDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertActivity(data: ActivityEntity)
+
+    @Query("SELECT * FROM activity_table WHERE createdAt = :now ORDER BY startAt DESC")
+    suspend fun fetchActivity(now : String): List<ActivityEntity>
 
     @Query("SELECT * FROM activity_table WHERE syncStatus in (1,3) ORDER BY startAt DESC")
     suspend fun fetchDataActivityLocalDatabase(): List<ActivityEntity>
@@ -24,6 +27,9 @@ interface ActivityDao {
 
     @Query("SELECT count(*) from activity_table WHERE activityStatus = 1")
     suspend fun countStillCheckIn(): Int
+
+    @Query("SELECT syncStatus from activity_table WHERE trno = :trnoMobile")
+    suspend fun getSyncData(trnoMobile: String): Int
 
 
     // checkout

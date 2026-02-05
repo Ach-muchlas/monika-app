@@ -27,7 +27,7 @@ class CheckOutVisitUseCase(
                 "Check Out",
                 "Tidak ada koneksi internet. Data hanya disimpan secara lokal. ID = $idVisit"
             )
-            return Result.success("Aktivitas checkin disimpan di perangkat. Silakan sync manual.")
+            return Result.success("Aktivitas checkout disimpan di perangkat. Silakan sync manual.")
         }
 
         var entity = repository.fetchVisitDetail(idVisit)
