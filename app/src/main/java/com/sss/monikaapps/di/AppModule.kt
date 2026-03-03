@@ -24,17 +24,19 @@ import com.sss.monikaapps.feature.activity.domain.usecase.CreateActivityUseCase
 import com.sss.monikaapps.feature.activity.domain.usecase.FetchActivitiesUseCase
 import com.sss.monikaapps.feature.activity.domain.usecase.FetchDetailActivityUseCase
 import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
-import com.sss.monikaapps.feature.activity.utils.NetworkChecker
-import com.sss.monikaapps.feature.activity.utils.NetworkCheckerImpl
 import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSource
 import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSourceImpl
-import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSource
-import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSourceImpl
 import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepository
 import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepositoryImpl
 import com.sss.monikaapps.feature.connection.domain.usecase.ChangeServerUseCase
 import com.sss.monikaapps.feature.connection.domain.usecase.FetchServerUrlUseCase
 import com.sss.monikaapps.feature.connection.presentation.ConnectionViewModel
+import com.sss.monikaapps.feature.device.domain.repository.DeviceInfoRepository
+import com.sss.monikaapps.feature.device.domain.repository.DeviceInfoRepositoryImpl
+import com.sss.monikaapps.feature.device.domain.usecase.GetAppVersionUseCase
+import com.sss.monikaapps.feature.device.domain.usecase.GetDeviceIdUseCase
+import com.sss.monikaapps.feature.device.domain.usecase.GetSystemOperationUseCase
+import com.sss.monikaapps.feature.device.presentation.DeviceViewModel
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSource
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSourceImpl
 import com.sss.monikaapps.feature.download.data.remote.DownloadRemoteDataSource
@@ -43,6 +45,7 @@ import com.sss.monikaapps.feature.download.domain.repository.DownloadRepository
 import com.sss.monikaapps.feature.download.domain.repository.DownloadRepositoryImpl
 import com.sss.monikaapps.feature.download.domain.usecase.DownloadUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.FetchConfigDownloadUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.GetInvoiceCountUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.InsertDownloadUseCase
 import com.sss.monikaapps.feature.download.presentation.DownloadViewModel
 import com.sss.monikaapps.feature.expense.data.remote.ExpensesRemoteDataSource
@@ -62,7 +65,17 @@ import com.sss.monikaapps.feature.expense.presentation.create.ExpenseCreateAndUp
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpenseDetailViewModel
 import com.sss.monikaapps.feature.expense.presentation.list.ExpensesViewModel
 import com.sss.monikaapps.feature.home.domain.usecase.CheckPendingDataDownloadUseCase
+import com.sss.monikaapps.feature.home.domain.usecase.ListTableConfigUseCase
 import com.sss.monikaapps.feature.home.presentasi.HomeViewModel
+import com.sss.monikaapps.feature.invoice.data.local.InvoiceLocalDataSource
+import com.sss.monikaapps.feature.invoice.data.local.InvoiceLocalDataSourceImpl
+import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSource
+import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSourceImpl
+import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepository
+import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepositoryImpl
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetListCustomerInvoiceUseCase
+import com.sss.monikaapps.feature.invoice.domain.usecase.SearchListCustomerInvoiceUseCase
+import com.sss.monikaapps.feature.invoice.presentation.InvoiceViewModel
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSource
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSourceImpl
 import com.sss.monikaapps.feature.login.domain.repository.AuthRepository
@@ -81,12 +94,12 @@ import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemote
 import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemoteRepositoryImpl
 import com.sss.monikaapps.feature.result_download.domain.usecase.SendEmailUseCase
 import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadViewModel
-import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepository
-import com.sss.monikaapps.feature.utils.device.domain.repository.DeviceInfoRepositoryImpl
-import com.sss.monikaapps.feature.utils.device.domain.usecase.GetAppVersionUseCase
-import com.sss.monikaapps.feature.utils.device.domain.usecase.GetDeviceIdUseCase
-import com.sss.monikaapps.feature.utils.device.domain.usecase.GetSystemOperationUseCase
-import com.sss.monikaapps.feature.utils.device.presentation.DeviceViewModel
+import com.sss.monikaapps.feature.version_check.data.remote.VersionRemoteDataSource
+import com.sss.monikaapps.feature.version_check.data.remote.VersionRemoteDataSourceImpl
+import com.sss.monikaapps.feature.version_check.domain.repository.VersionRepository
+import com.sss.monikaapps.feature.version_check.domain.repository.VersionRepositoryImpl
+import com.sss.monikaapps.feature.version_check.domain.usecase.FetchVersionAppsUseCase
+import com.sss.monikaapps.feature.version_check.persentation.VersionViewModel
 import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSource
 import com.sss.monikaapps.feature.visit.data.local.VisitLocalDataSourceImpl
 import com.sss.monikaapps.feature.visit.data.remote.VisitRemoteDataSource
@@ -102,6 +115,9 @@ import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailViewModel
 import com.sss.monikaapps.feature.visit.presentation.list.VisitViewModel
 import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitViewModel
 import com.sss.monikaapps.network.ApiConfig
+import com.sss.monikaapps.network.domain.NetworkChecker
+import com.sss.monikaapps.network.domain.NetworkCheckerImpl
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -121,6 +137,7 @@ object AppModule {
         single { get<AppDatabase>().visitDao() }
         single { get<AppDatabase>().configDownload() }
         single { get<AppDatabase>().activityDao() }
+        single { get<AppDatabase>().invoiceDao() }
     }
 
     val repositoryModule = module {
@@ -133,10 +150,20 @@ object AppModule {
         single<ActivitiesRepository> { ActivitiesRepositoryImpl(get(), get(), get(), get()) }
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
-        single<DownloadRepository> { DownloadRepositoryImpl(androidContext(), get(),get(), get()) }
+        single<DownloadRepository> {
+            DownloadRepositoryImpl(
+                androidContext(),
+                get(),
+                get(),
+                get(),
+                get()
+            )
+        }
         single<VisitRepository> { VisitRepositoryImpl(get(), get()) }
         single<ConnectionRepository> { ConnectionRepositoryImpl(get(), get()) }
         single<BackupRemoteRepository> { BackupRemoteRepositoryImpl(get()) }
+        single<VersionRepository> { VersionRepositoryImpl(get()) }
+        single<InvoiceRepository> { InvoiceRepositoryImpl(get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -155,12 +182,15 @@ object AppModule {
         single<ActivityLocalDataSource> { ActivityLocalDataSourceImpl(get(), get()) }
         single<ExpensesRemoteDataSource> { ExpensesRemoteDataSourceImpl(get()) }
         single<MasteringRemoteSource> { MasteringRemoteSourceImpl(get()) }
-        single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get()) }
+        single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get(), get()) }
         single<DownloadRemoteDataSource> { DownloadRemoteDataSourceImpl(get()) }
         single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get(), get()) }
         single<VisitRemoteDataSource> { VisitRemoteDataSourceImpl(get()) }
+        single<InvoiceLocalDataSource> { InvoiceLocalDataSourceImpl(get()) }
+        single<InvoiceRemoteDataSource> { InvoiceRemoteDataSourceImpl(get()) }
+
         single<ConnectionLocalDataSource> { ConnectionLocalDataSourceImpl(get()) }
-        single<ConnectionRemoteDataSource> { ConnectionRemoteDataSourceImpl(get()) }
+        single<VersionRemoteDataSource> { VersionRemoteDataSourceImpl(get()) }
         single<BackupRemoteDataSource> { BackupRemoteDataSourceImpl(get()) }
     }
 
@@ -197,6 +227,11 @@ object AppModule {
         single { SendEmailUseCase(get()) }
         single { SyncManualVisitUseCase(get(), get()) }
         single { CheckPendingDataDownloadUseCase(get()) }
+        single { FetchVersionAppsUseCase(get()) }
+        single { ListTableConfigUseCase(get()) }
+        single { GetInvoiceCountUseCase(get()) }
+        single { GetListCustomerInvoiceUseCase(get()) }
+        single { SearchListCustomerInvoiceUseCase(get()) }
     }
 
     val viewModelModule = module {
@@ -205,7 +240,7 @@ object AppModule {
         viewModel { ExpensesViewModel(get()) }
         viewModel { ExpenseDetailViewModel(get(), get(), get(), get(), get()) }
         viewModel { ExpenseCreateAndUpdateViewModel(get(), get(), get(), get()) }
-        viewModel { HomeViewModel(get(), get()) }
+        viewModel { HomeViewModel(androidApplication(), get(), get(), get(), get(), get()) }
         viewModel { PhotoViewModel(get()) }
         viewModel { LocationViewModel(get()) }
         viewModel { MasteringViewModel(get()) }
@@ -216,5 +251,7 @@ object AppModule {
         viewModel { ConnectionViewModel(get(), get()) }
         viewModel { DeviceViewModel(get(), get(), get()) }
         viewModel { ResultDownloadViewModel(get(), get()) }
+        viewModel { VersionViewModel() }
+        viewModel { InvoiceViewModel(get(), get()) }
     }
 }

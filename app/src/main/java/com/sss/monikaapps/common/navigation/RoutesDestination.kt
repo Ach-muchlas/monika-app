@@ -10,6 +10,7 @@ sealed class RouteDestination {
     data object HomeToVisit : RouteDestination()
     data object HomeToDownload : RouteDestination()
     data object HomeToMaster : RouteDestination()
+    data object HomeToInvoice : RouteDestination()
     data object HomeToSetting : RouteDestination()
 
     data object ConnectionToLogin : RouteDestination()
@@ -25,7 +26,6 @@ sealed class RouteDestination {
     data class ActivityToDetail(
         val trno: String,
         val idMobile: String,
-        val locationData: Int,
     ) : RouteDestination()
 
     data class ExpensesToExpenseDetail(val trno: String) : RouteDestination()
@@ -51,4 +51,5 @@ sealed class RouteDestination {
     data object SettingToResultDownload : RouteDestination()
 
     data object MasterDataToMasterDataExpense : RouteDestination()
+    data class ToDetailPhoto(val urlPhoto: String) : RouteDestination()
 }

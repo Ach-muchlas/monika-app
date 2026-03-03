@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -54,6 +57,8 @@ fun CreateExpenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Dimens.MediumMargin)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
         ) {
             CustomTopBar(
                 title = "Buat Pengeluaran",
@@ -89,6 +94,7 @@ fun CreateExpenseScreen(
                         SnackbarManager.showSnackbar(
                             SnackbarData(result.data?.message.toString(), SnackbarType.SUCCESS)
                         )
+                        viewModel.clearHeaderCreateState()
                         navController.popBackStack()
                     }
                 }
@@ -98,6 +104,7 @@ fun CreateExpenseScreen(
                         SnackbarManager.showSnackbar(
                             SnackbarData(result.message ?: "Terjadi kesalahan", SnackbarType.ERROR)
                         )
+                        viewModel.clearHeaderCreateState()
                     }
                 }
             }

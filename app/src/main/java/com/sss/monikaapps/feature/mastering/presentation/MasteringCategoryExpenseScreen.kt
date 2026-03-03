@@ -9,19 +9,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.sss.monikaapps.R
+import com.sss.monikaapps.common.component.CustomLoadingDialog
+import com.sss.monikaapps.common.component.CustomNotFoundAnimation
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.theme.BackgroundLayout
@@ -35,6 +36,10 @@ fun MasteringCategoryExpenseScreen(
     navController: NavController,
     viewModel: MasteringViewModel = koinViewModel(),
 ) {
+    val composition by rememberLottieComposition(
+        LottieCompositionSpec.RawRes(R.raw.animation_loading)
+    )
+
     val result by viewModel.masteringExpense.observeAsState()
 
     LaunchedEffect(Unit) {
@@ -58,15 +63,9 @@ fun MasteringCategoryExpenseScreen(
 
             Spacer(modifier = Modifier.height(Dimens.MediumMargin))
 
-            Spacer(modifier = Modifier.height(Dimens.MediumMargin))
-
             when (result?.status) {
                 StatusNetwork.LOADING -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    CustomLoadingDialog()
                 }
 
                 StatusNetwork.SUCCESS -> {
@@ -78,10 +77,14 @@ fun MasteringCategoryExpenseScreen(
                         LazyColumn {
                             items(masterData) { data ->
                                 CadItemMastering(data.name.toString())
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(Dimens.SmallMargin))
                             }
                         }
                     }
+                }
+
+                StatusNetwork.ERROR -> {
+                    CustomNotFoundAnimation()
                 }
 
                 else -> Unit

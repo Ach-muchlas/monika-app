@@ -26,6 +26,7 @@ val dataStatusExpanses = listOf(
     Status("4", "Diajukan", R.drawable.icon_submit, PieGray),
     Status("1", "Disetujui", R.drawable.icon_approve, PieGray),
     Status("2", "Terkonfirmasi", R.drawable.icon_confirm, PieGray),
+    Status("3", "Dicairkan", R.drawable.icon_done_expense, PieGray),
     Status("5", "Ditolak", R.drawable.icon_reject, PieGray),
 )
 

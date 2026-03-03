@@ -34,7 +34,6 @@ import com.sss.monikaapps.feature.download.presentation.component.CustomTableDow
 import com.sss.monikaapps.feature.result_download.presentation.component.BackupBottomSheet
 import org.koin.androidx.compose.koinViewModel
 
-
 @Composable
 fun ResultDownloadScreen(
     navController: NavController,
@@ -51,39 +50,46 @@ fun ResultDownloadScreen(
 
     var showBackupSheet by remember { mutableStateOf(false) }
 
+    // fetch awal
     LaunchedEffect(Unit) {
         viewModel.fetchConfigDownload()
     }
 
-    backupResult?.let {
+    // 🔥 HANDLE EVENT SEKALI PAKAI
+    LaunchedEffect(backupResult) {
         when (backupResult?.status) {
-            StatusNetwork.LOADING -> {
-                CustomLoadingDialog("Loading mengirim data ke server")
-            }
-
             StatusNetwork.SUCCESS -> {
-                LaunchedEffect(backupResult) {
-                    SnackbarManager.showSnackbar(
-                        SnackbarData(backupResult?.data.toString(), SnackbarType.SUCCESS)
+                SnackbarManager.showSnackbar(
+                    SnackbarData(
+                        backupResult?.data?.message.orEmpty(),
+                        SnackbarType.SUCCESS
                     )
-                }
+                )
                 showBackupSheet = false
+                backUpViewModel.clearResult()
             }
 
             StatusNetwork.ERROR -> {
-                LaunchedEffect(backupResult) {
-                    SnackbarManager.showSnackbar(
-                        SnackbarData(backupResult?.message.toString(), SnackbarType.SUCCESS)
+                SnackbarManager.showSnackbar(
+                    SnackbarData(
+                        backupResult?.message.orEmpty(),
+                        SnackbarType.ERROR
                     )
-                }
+                )
                 showBackupSheet = false
+                backUpViewModel.clearResult()
             }
 
             else -> Unit
         }
     }
 
+    // 🔥 LOADING DIALOG DIPISAH
+    if (backupResult?.status == StatusNetwork.LOADING) {
+        CustomLoadingDialog("Loading mengirim data ke server")
+    }
 
+    // 🔥 BOTTOM SHEET
     if (showBackupSheet) {
         BackupBottomSheet(
             onDismiss = { showBackupSheet = false },
@@ -103,22 +109,23 @@ fun ResultDownloadScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
         CustomTopBar(
             title = "Hasil Download",
             onBackClick = { navController.popBackStack() }
         )
+
         Spacer(modifier = Modifier.height(Dimens.LargeMargin))
 
         when (configResult.status) {
             StatusNetwork.LOADING -> {
-                Text("Memuat data...")
+                Text("Memuat data")
             }
 
             StatusNetwork.SUCCESS -> {
                 val data = configResult.data ?: emptyList()
                 CustomTableDownload(data = data)
             }
-
 
             StatusNetwork.ERROR -> {
                 Text("Gagal memuat tabel")

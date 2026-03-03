@@ -14,11 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.common.component.CustomDropdownTextField
-import com.sss.monikaapps.common.component.CustomMultiPhotoCard
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTextField
 import com.sss.monikaapps.common.helper.ThousandsSeparatorTransformationHelper
@@ -26,13 +28,14 @@ import com.sss.monikaapps.common.theme.BodyBitterBold
 import com.sss.monikaapps.common.theme.BodyPopBold
 import com.sss.monikaapps.common.theme.BodyPopRegular
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.LightGray
 import com.sss.monikaapps.feature.expense.data.validator.validateInputExpenseDetail
 import com.sss.monikaapps.feature.mastering.data.response.DataItemMasteringExpense
+import com.sss.monikaapps.feature.photo.CustomMultiPhotoCard
 
 @Composable
 fun ExpenseDetailForm(
     isEditMode: Boolean,
-    idDetail: Int,
     categories: List<DataItemMasteringExpense>,
     selectedCategory: DataItemMasteringExpense?,
     onCategorySelected: (DataItemMasteringExpense) -> Unit,
@@ -55,7 +58,15 @@ fun ExpenseDetailForm(
     var finalKilometerError by remember { mutableStateOf<String?>(null) }
     var photoError by remember { mutableStateOf<String?>(null) }
     val isBBM = selectedCategory?.name == "BBM"
-    val isPhotoRequired = selectedCategory?.isRequiredFoto == "1"
+    val isOutTownMeal = selectedCategory?.name == "Uang Makan Luar Kota"
+
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val textTitlePhoto = when (selectedCategory?.name) {
+        "BBM" -> "Foto Km Dan Foto Nota *"
+        "Entertain" -> "Foto Bukti *"
+        else -> "Foto Nota *"
+    }
 
     Column(
         modifier = Modifier
@@ -102,7 +113,24 @@ fun ExpenseDetailForm(
                         .padding(top = 2.dp)
                 )
             }
+        } else {
+            Text(
+                text = "Kategori Pengeluaran *",
+                style = BodyPopBold,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
+            CustomTextField(
+                value = selectedCategory?.name.toString(),
+                onValueChange = {},
+                backgroundColor = LightGray,
+                hint = "Kategori Pengeluaran",
+                readOnly = true
+            )
         }
+
         if (isBBM) {
             Spacer(Modifier.height(Dimens.MediumMargin))
 
@@ -121,7 +149,8 @@ fun ExpenseDetailForm(
                 },
                 hint = "Masukan kilomter awal",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = ThousandsSeparatorTransformationHelper()
+                visualTransformation = ThousandsSeparatorTransformationHelper(),
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
             )
 
             initialKilometerError?.let { error ->
@@ -152,7 +181,8 @@ fun ExpenseDetailForm(
                 },
                 hint = "Masukan kilomter akhir",
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = ThousandsSeparatorTransformationHelper()
+                visualTransformation = ThousandsSeparatorTransformationHelper(),
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
             )
 
             finalKilometerError?.let { error ->
@@ -184,7 +214,8 @@ fun ExpenseDetailForm(
             },
             hint = "Masukkan jumlah pengeluaran",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = ThousandsSeparatorTransformationHelper()
+            visualTransformation = ThousandsSeparatorTransformationHelper(),
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
         )
 
         netAmountError?.let { error ->
@@ -213,30 +244,36 @@ fun ExpenseDetailForm(
         )
 
         Spacer(Modifier.height(Dimens.MediumMargin))
-        Text(
-            text = if (selectedCategory?.isRequiredFoto == "1") "Foto Nota" else "Foto Nota *",
-            style = BodyPopBold,
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
-
-        CustomMultiPhotoCard(
-            photos = photos, title = "Masukkan foto nota", onAddPhoto = {
-                photoError = null
-                onAddPhoto()
-            }, onDeletePhoto = onDeletePhoto
-        )
-
-        photoError?.let { error ->
+        if (!isOutTownMeal) {
             Text(
-                text = error,
-                color = Color.Red,
-                style = BodyPopRegular,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 2.dp)
+                text = textTitlePhoto,
+                style = BodyPopBold,
+                modifier = Modifier.fillMaxWidth()
             )
+
+            Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
+            CustomMultiPhotoCard(
+                photos = photos,
+                title = "Masukkan foto ",
+                onAddPhoto = {
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                    photoError = null
+                    onAddPhoto()
+                }, onDeletePhoto = onDeletePhoto
+            )
+            photoError?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    style = BodyPopRegular,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 2.dp)
+                )
+            }
         }
 
         Spacer(Modifier.height(Dimens.ExtraExtraLargeMargin))

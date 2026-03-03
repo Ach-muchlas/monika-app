@@ -41,8 +41,10 @@ fun CustomTextField(
     onValueChange: (String) -> Unit,
     hint: String,
     modifier: Modifier = Modifier,
+    forceUppercase: Boolean = false,
     readOnly: Boolean = false,
     textColor: Color = Color.Black,
+    backgroundColor : Color = Color.White,
     trailingIcon: (@Composable () -> Unit)? = null,
     leadingIcon: (@Composable () -> Unit)? = null,
     isMultiline: Boolean = false,
@@ -68,7 +70,7 @@ fun CustomTextField(
 
     Surface(
         shape = RoundedCornerShape(Dimens.SmallCornerRadius),
-        color = Color.White,
+        color = backgroundColor,
         tonalElevation = 2.dp,
         shadowElevation = 4.dp,
         border = BorderStroke(
@@ -78,7 +80,10 @@ fun CustomTextField(
     ) {
         BasicTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = {
+                val newValue = if (forceUppercase) it.uppercase() else it
+                onValueChange(newValue)
+            },
             readOnly = readOnly,
             textStyle = BodyPopMedium.copy(color = textColor),
             visualTransformation = visualTransformation,

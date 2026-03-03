@@ -10,25 +10,11 @@ object ApiConstant {
         return "$serverAddress/monika-app-backend/"
     }
 
-    fun urlDomainForPhoto(): String {
-        val serverAddress = ServerManager.getInstance().getServerAddress().trimEnd('/')
-        return "$serverAddress/monika-app-backend/"
-    }
-
-    fun urlDomainForPhotoExternalProject(): String {
-        val domain = when (ServerManager.getInstance().getServerAddress()) {
-            ServerConstant.BASE_URL_OFFICE -> ServerConstant.BASE_URL_OFFICE
-            else -> ServerConstant.BASE_URL_PUBLIC_PHOTO
-        }
-        val serverAddress = domain.trimEnd('/')
-        return "$serverAddress/"
-    }
-
-
     private const val ACTIVITIES = "aktivitas"
     private const val EXPANSE = "pengeluaran"
     private const val VISIT = "kunjungan"
     private const val MASTER = "master"
+    private const val INVOICE = "tagihan"
     private const val HEADER = "hdr"
     private const val DETAIL = "dtl"
 
@@ -56,4 +42,9 @@ object ApiConstant {
 
     const val FETCH_MASTERING_EXPENSE = "${MASTER}-${EXPANSE}-get"
     const val SEND_EMAIL = "send-export-to-email"
+
+    const val FETCH_DOWNLOAD_INVOICE_CUSTOMER = "${INVOICE}-customer-download"
+    const val FETCH_DOWNLOAD_INVOICE_NOTA = "${INVOICE}-nota-download"
+    const val CHECK_INVOICE_NOTA = "${INVOICE}-nota-check-data-download"
+    const val CHECK_INVOICE_CUSTOMER = "${INVOICE}-customer-check-data-download"
 }

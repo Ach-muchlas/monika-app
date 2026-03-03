@@ -8,10 +8,9 @@ import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.login.data.model.LoginRequest
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
 import com.sss.monikaapps.feature.login.domain.usecase.LoginUseCase
-import com.sss.monikaapps.feature.utils.device.domain.usecase.GetAppVersionUseCase
-import com.sss.monikaapps.feature.utils.device.domain.usecase.GetDeviceIdUseCase
+import com.sss.monikaapps.feature.device.domain.usecase.GetAppVersionUseCase
+import com.sss.monikaapps.feature.device.domain.usecase.GetDeviceIdUseCase
 import kotlinx.coroutines.launch
-
 
 class AuthViewModel(
     private val loginUseCase: LoginUseCase,

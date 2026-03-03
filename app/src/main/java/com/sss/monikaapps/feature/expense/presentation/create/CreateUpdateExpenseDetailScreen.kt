@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,19 +61,16 @@ fun CreateAndUpdateExpenseDetailScreen(
 ) {
     val isEditMode = dataIdDetail != null
 
-    var netAmount by rememberSaveable {
-        mutableStateOf(dataNetAmount ?: "")
+    var netAmount by rememberSaveable { mutableStateOf(dataNetAmount ?: "") }
+    var note by rememberSaveable { mutableStateOf(dataNote ?: "") }
+
+    val initialKilometer by viewModel.initialKm.collectAsState()
+    val finalKilometer by viewModel.finalKm.collectAsState()
+
+    val parentIdPhoto = remember {
+        if (isEditMode) "${trno}_${dataIdDetail}"
+        else "${trno}_${generateRandomId()}"
     }
-
-    var note by rememberSaveable {
-        mutableStateOf(dataNote ?: "")
-    }
-
-    var initialKilometer by rememberSaveable { mutableStateOf(dataInitialKm ?: "0") }
-    var finalKilometer by rememberSaveable { mutableStateOf(dataFinalKm ?: "0") }
-
-    val generatedId = rememberSaveable { generateRandomId() }
-    val parentIdPhoto = trno + "_" + generatedId
 
     val photos by photoViewModel.observePhotos(parentIdPhoto, FEATURE_EXPENSES.toString())
         .collectAsState()
@@ -105,6 +103,9 @@ fun CreateAndUpdateExpenseDetailScreen(
     LaunchedEffect(categories) {
         if (isEditMode && selectedCategory == null && dataIdDetail != null) {
             viewModel.setSelectedCategoryById(dataIdDetail)
+
+            viewModel.setInitialKm(dataInitialKm ?: "0")
+            viewModel.setFinalKm(dataFinalKm ?: "0")
         }
     }
 
@@ -118,6 +119,7 @@ fun CreateAndUpdateExpenseDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(Dimens.MediumMargin)
+                .imePadding()
         ) {
             CustomTopBar(
                 title = "Buat Detail Pengeluaran", onBackClick = { navController.popBackStack() })
@@ -131,48 +133,68 @@ fun CreateAndUpdateExpenseDetailScreen(
             ) {
                 ExpenseDetailForm(
                     isEditMode = isEditMode,
-                    idDetail = if (isEditMode) dataIdDetail?.toInt() ?: 0 else 0,
                     categories = categories,
                     selectedCategory = selectedCategory,
                     onCategorySelected = { viewModel.selectExpenseCategory(it) },
+
                     netAmount = netAmount,
                     onNetAmountChange = { netAmount = it },
+
                     note = note,
                     onNoteChange = { note = it },
+
                     initialKilometer = initialKilometer,
-                    onInitialKilometerChange = { initialKilometer = it },
+                    onInitialKilometerChange = { viewModel.setInitialKm(it) },
+
                     finalKilometer = finalKilometer,
-                    onFinalKilometerChange = { finalKilometer = it },
+                    onFinalKilometerChange = { viewModel.setFinalKm(it) },
+
                     photos = photos.map { it.filePath },
-                    onAddPhoto = {
-                        showPhotoSheet = true
-                    },
+
+                    onAddPhoto = { showPhotoSheet = true },
+
                     onDeletePhoto = { path ->
                         photos.firstOrNull { it.filePath == path }?.let {
                             photoViewModel.deletePhoto(it)
                         }
                     },
+
                     onSubmit = {
+                        val isBBM = selectedCategory?.name == "BBM"
+
+                        val safeInitialKm = if (isBBM) initialKilometer else "0"
+                        val safeFinalKm = if (isBBM) finalKilometer else "0"
+
                         val categoryId = viewModel.getSelectedExpenseCategoryId()
+
                         val payloadCreate = ExpenseDetailRequest(
                             idCategoryExpense = categoryId.toString(),
                             netAmount = netAmount,
-                            initialKilometer = initialKilometer,
-                            finalKilometer = finalKilometer,
+                            initialKilometer = safeInitialKm,
+                            finalKilometer = safeFinalKm,
                             note = note,
-                            photos = photos.map { File(it.filePath) })
+                            photos = photos.map { File(it.filePath) }
+                        )
 
                         val payloadEdit = ExpenseUpdateDetailRequest(
                             netAmount = netAmount,
                             note = note,
-                            initialKilometer = initialKilometer,
-                            finalKilometer = finalKilometer,
-                            photos = photos.map { File(it.filePath) })
+                            initialKilometer = safeInitialKm,
+                            finalKilometer = safeFinalKm,
+                            photos = photos.map { File(it.filePath) }
+                        )
 
-                        if (isEditMode) viewModel.updateExpenseDetail(
-                            trno, dataIdDetail.toString(), payloadEdit
-                        ) else viewModel.createExpenseDetail(trno, payloadCreate)
-                    })
+                        if (isEditMode) {
+                            viewModel.updateExpenseDetail(
+                                trno,
+                                dataIdDetail.toString(),
+                                payloadEdit
+                            )
+                        } else {
+                            viewModel.createExpenseDetail(trno, payloadCreate)
+                        }
+                    }
+                )
             }
         }
 
@@ -189,18 +211,21 @@ fun CreateAndUpdateExpenseDetailScreen(
             }
         )
 
-
-        createDetailResult?.let { result ->
+        (createDetailResult ?: updateDetailResult)?.let { result ->
             when (result.status) {
-                StatusNetwork.LOADING -> {
-                    CustomLoadingDialog("Loading mengirim data ke server")
-                }
+                StatusNetwork.LOADING ->
+                    CustomLoadingDialog("Mengirim data ke server")
 
                 StatusNetwork.SUCCESS -> {
                     LaunchedEffect(result) {
                         SnackbarManager.showSnackbar(
-                            SnackbarData(result.data?.message.toString(), SnackbarType.SUCCESS)
+                            SnackbarData(
+                                result.data?.message.orEmpty(),
+                                SnackbarType.SUCCESS
+                            )
                         )
+                        viewModel.clearDetailCreateState()
+                        viewModel.clearDetailUpdateState()
                         navController.popBackStack()
                     }
                 }
@@ -208,37 +233,16 @@ fun CreateAndUpdateExpenseDetailScreen(
                 StatusNetwork.ERROR -> {
                     LaunchedEffect(result) {
                         SnackbarManager.showSnackbar(
-                            SnackbarData(result.message ?: "Terjadi kesalahan", SnackbarType.ERROR)
+                            SnackbarData(
+                                result.message ?: "Terjadi kesalahan",
+                                SnackbarType.ERROR
+                            )
                         )
+                        viewModel.clearDetailCreateState()
+                        viewModel.clearDetailUpdateState()
                     }
                 }
             }
         }
-
-        updateDetailResult?.let { result ->
-            when (result.status) {
-                StatusNetwork.LOADING -> {
-                    CustomLoadingDialog("Loading mengirim data ke server")
-                }
-
-                StatusNetwork.SUCCESS -> {
-                    LaunchedEffect(result) {
-                        SnackbarManager.showSnackbar(
-                            SnackbarData(result.data?.message.toString(), SnackbarType.SUCCESS)
-                        )
-                        navController.popBackStack()
-                    }
-                }
-
-                StatusNetwork.ERROR -> {
-                    LaunchedEffect(result) {
-                        SnackbarManager.showSnackbar(
-                            SnackbarData(result.message ?: "Terjadi kesalahan", SnackbarType.ERROR)
-                        )
-                    }
-                }
-            }
-        }
-
     }
 }

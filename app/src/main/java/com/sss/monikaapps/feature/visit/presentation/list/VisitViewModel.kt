@@ -11,8 +11,7 @@ import kotlinx.coroutines.launch
 
 class VisitViewModel(
     private val fetchVisitLocalDatabaseUseCase: FetchVisitLocalDatabaseUseCase,
-) :
-    ViewModel() {
+) : ViewModel() {
 
     private val _visitResult = MutableLiveData<Result<List<VisitEntity>>>()
     val visitResult: LiveData<Result<List<VisitEntity>>> = _visitResult

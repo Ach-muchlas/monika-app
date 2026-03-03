@@ -14,7 +14,7 @@
     <string name="text_full_name_apps">Monitoring Absensi Karyawan</string>
     <string name="text_input_imei">Masukan IMEI</string>
     <string name="text_input_employee_id">Masukan id karyawan anda.</string>
-    <string name="text_copy_right">Copyright © 2025 PT Saktisetia Santosa. All rights reserved</string>
+    <string name="text_copy_right">Copyright © 2026 PT Saktisetia Santosa. All rights reserved</string>
     <string name="text_employee_id">ID Karyawan</string>
     <string name="list_activity">List Aktivitas</string>
     <string name="text_detail_activity">Detail Aktivitas</string>
@@ -44,9 +44,9 @@
     <string name="text_form_check_in_visit">Form Kunjungan</string>
     <string name="text_form_check_out_visit">Form Penyelesaian Kunjungan</string>
     <string name="text_coordinates">Koordinate</string>
-    <string name="text_description_visit">Catatan</string>
+    <string name="text_description_visit">Catatan *</string>
     <string name="text_input_note">Masukan catatan</string>
-    <string name="text_evidence_visit">Bukti Foto Kunjungan</string>
+    <string name="text_evidence_visit">Bukti Foto Kunjungan *</string>
     <string name="text_save">Simpan</string>
     <string name="text_feature_setting">Pengaturan</string>
     <string name="text_desc_feature_setting">Pengaturan aplikasi untuk melihat profile, kirim backup, dan konfigurasi koneksi</string>
@@ -61,5 +61,13 @@
     <string name="text_desc_master_feature_expanses">Daftar master kategori pengeluaran</string>
     <string name="master_expense">Master Pengeluaran</string>
     <string name="text_description_expense">Catatan *</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="text_gmaps">Lihat Google Maps</string>
+    <string name="text_download">Download Apk</string>
+    <string name="text_update_version">"Update Versi Aplikasi"</string>
+    <string name="text_update_version_desc">"Versi aplikasi anda masih menggunakan versi lama. Update aplikasi anda ke versi yang terbaru. "</string>
+    <string name="text_feature_invoice">Tagihan</string>
+    <string name="text_desc_feature_invoice">Daftar tagihan yang dilakukan pada hari ini.</string>
+    <string name="list_invoice">List Tagihan</string>
 
 </resources>

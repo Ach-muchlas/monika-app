@@ -2,7 +2,7 @@ package com.sss.monikaapps.feature.visit.domain.usecase
 
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.result.Result
-import com.sss.monikaapps.feature.activity.utils.NetworkChecker
+import com.sss.monikaapps.network.domain.NetworkChecker
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper
 import com.sss.monikaapps.feature.visit.domain.repository.VisitRepository
 
@@ -37,12 +37,12 @@ class CheckInVisitUseCase(
             userLong = userLng
         )
 
-//        if (distanceInMeters > 50.0) {
-//            return Result.error(
-//                "Gagal",
-//                "Gagal checkin, karena jarak anda terlalu jauh dari titik pelanggan"
-//            )
-//        }
+        if (distanceInMeters > 50.0) {
+            return Result.error(
+                "Gagal",
+                "Gagal checkin, karena jarak anda terlalu jauh dari titik pelanggan"
+            )
+        }
 
         repository.checkInVisit(idVisit, desc, timeCheckIn, startLat, startLng)
 

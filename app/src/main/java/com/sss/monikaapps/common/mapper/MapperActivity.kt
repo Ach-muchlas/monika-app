@@ -18,7 +18,6 @@ object MapperActivity {
                 description = activity.description,
                 isSync = activity.activityStatus.toString(),
                 startAt = activity.startAt,
-                locationData = 0,
                 endAt = "",
                 employeeId = "",
             )

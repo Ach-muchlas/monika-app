@@ -11,6 +11,6 @@ data class UrlModel(
 val listUrl = listOf(
     UrlModel("Public", BASE_URL_PUBLIC),
     UrlModel("Office", BASE_URL_OFFICE),
-    UrlModel("Testing", "http://192.168.20.57:80"),
+    UrlModel("Testing", "http://192.168.20.174:80"),
     UrlModel("Lainnya", "")
 )

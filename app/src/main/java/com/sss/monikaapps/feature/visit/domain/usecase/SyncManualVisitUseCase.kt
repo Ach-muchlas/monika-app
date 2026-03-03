@@ -3,7 +3,7 @@ package com.sss.monikaapps.feature.visit.domain.usecase
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.result.Result
-import com.sss.monikaapps.feature.activity.utils.NetworkChecker
+import com.sss.monikaapps.network.domain.NetworkChecker
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper
 import com.sss.monikaapps.feature.visit.domain.repository.VisitRepository
 

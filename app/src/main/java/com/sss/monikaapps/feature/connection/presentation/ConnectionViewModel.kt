@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.common.result.Result
-import com.sss.monikaapps.feature.connection.data.response.VersionResponse
+import com.sss.monikaapps.feature.version_check.data.response.VersionResponse
 import com.sss.monikaapps.feature.connection.domain.usecase.ChangeServerUseCase
 import com.sss.monikaapps.feature.connection.domain.usecase.FetchServerUrlUseCase
 import kotlinx.coroutines.launch

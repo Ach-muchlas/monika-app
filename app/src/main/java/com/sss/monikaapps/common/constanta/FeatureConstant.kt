@@ -7,6 +7,7 @@ object HomeFeatureConstant {
     const val FEATURE_EXPENSES = 4
     const val FEATURE_MASTER_DATA = 5
     const val FEATURE_SETTING = 6
+    const val FEATURE_INVOICE = 7
 }
 
 object FeatureActivityConstant {
@@ -20,6 +21,14 @@ object NameFeatureConstant {
     const val VISIT = "visit"
 }
 
-object TableNameConstant{
+object TableNameConstant {
     const val VISIT_TABLE = "visit_table"
+    const val CUSTOMER_INVOICE_TABLE = "customer_invoice_table"
+    const val NOTA_INVOICE_TABLE = "nota_invoice_table"
+}
+
+object TableIdConstant {
+    const val VISIT = 2
+    const val CUSTOMER_INVOICE = 3
+    const val NOTA_INVOICE = 4
 }

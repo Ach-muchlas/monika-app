@@ -22,7 +22,7 @@ data class ExpenseUpdateDetailRequest(
     val finalKilometer: String? ="0",
     val netAmount: String,
     val note: String? = null,
-    val photos: List<File>,
+    val photos: List<File>?,
 )
 
 fun ExpenseUpdateDetailRequest.toMultipartBody(): Map<String, RequestBody> {
@@ -70,10 +70,25 @@ fun ExpenseDetailRequest.toMultipartImageParts(): List<MultipartBody.Part> {
 }
 
 fun ExpenseUpdateDetailRequest.toMultipartImageParts(): List<MultipartBody.Part> {
+    if (photos.isNullOrEmpty()) {
+        val emptyBody =
+            "".toRequestBody("text/plain".toMediaTypeOrNull())
+
+        return listOf(
+            createFormData(
+                name = "foto_nota[]",
+                filename = "",
+                body = emptyBody
+            )
+        )
+    }
+
     return photos.map { file ->
         val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
         createFormData(
-            name = "foto_nota[]", filename = file.name, body = requestBody
+            name = "foto_nota[]",
+            filename = file.name,
+            body = requestBody
         )
     }
 }

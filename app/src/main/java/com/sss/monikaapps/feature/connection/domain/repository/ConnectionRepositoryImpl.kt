@@ -2,12 +2,12 @@ package com.sss.monikaapps.feature.connection.domain.repository
 
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSource
-import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSource
-import com.sss.monikaapps.feature.connection.data.response.VersionResponse
+import com.sss.monikaapps.feature.version_check.data.remote.VersionRemoteDataSource
+import com.sss.monikaapps.feature.version_check.data.response.VersionResponse
 import com.sss.monikaapps.network.ApiConfig
 
 class ConnectionRepositoryImpl(
-    private val remote: ConnectionRemoteDataSource,
+    private val remote: VersionRemoteDataSource,
     private val local: ConnectionLocalDataSource,
 ) : ConnectionRepository {
     override suspend fun changeServer(serverUrl: String): Result<VersionResponse> {

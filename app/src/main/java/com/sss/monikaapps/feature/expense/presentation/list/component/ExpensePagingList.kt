@@ -3,60 +3,55 @@ package com.sss.monikaapps.feature.expense.presentation.list.component
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.sss.monikaapps.common.component.CustomCardListHeader
+import com.sss.monikaapps.common.component.CustomNotFoundAnimation
 import com.sss.monikaapps.common.formatter.FormatterCurrency.formatCurrency
 import com.sss.monikaapps.common.formatter.FormatterDate.formatDateToIndoDisplay
 import com.sss.monikaapps.common.model.dataStatusExpanses
 import com.sss.monikaapps.feature.expense.data.response.DataItemExpenses
-
 @Composable
 fun ExpanseList(
     lazyPagingItems: LazyPagingItems<DataItemExpenses>,
     onClick: (trno: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier) {
-        // Items
-        items(
-            count = lazyPagingItems.itemCount
-        ) { index ->
-            lazyPagingItems[index]?.let { data ->
-                ExpansesListItem(
-                    data = data,
+    Box(modifier = modifier.fillMaxSize()) {
 
-                    onClick = { onClick(data.trno.toString()) }
-                )
+        // LIST
+        LazyColumn {
+            items(lazyPagingItems.itemCount) { index ->
+                lazyPagingItems[index]?.let { data ->
+                    ExpansesListItem(
+                        data = data,
+                        onClick = { onClick(data.trno.toString()) }
+                    )
+                }
+            }
+            
+            item {
+                PagingLoadingItem(loadState = lazyPagingItems.loadState.append)
             }
         }
-
-        // Loading pagination
-        item {
-            PagingLoadingItem(loadState = lazyPagingItems.loadState.append)
-        }
-
-        // Empty state
-        if (lazyPagingItems.itemCount == 0 &&
+        if (
+            lazyPagingItems.itemCount == 0 &&
             lazyPagingItems.loadState.refresh is LoadState.NotLoading
         ) {
-            item {
-                EmptyStateItem()
-            }
+            CustomNotFoundAnimation(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
+
 
 @Composable
 fun ExpansesListItem(
@@ -89,28 +84,9 @@ fun PagingLoadingItem(
 ) {
     when (loadState) {
         is LoadState.Loading -> {
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
+            CustomNotFoundAnimation()
         }
 
         else -> Unit
     }
-}
-
-@Composable
-fun EmptyStateItem(
-    message: String = "Tidak ada aktivitas",
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = message,
-        color = Color.Gray,
-        modifier = modifier.padding(16.dp)
-    )
 }

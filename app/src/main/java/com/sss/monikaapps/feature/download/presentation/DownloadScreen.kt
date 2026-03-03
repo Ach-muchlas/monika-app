@@ -127,7 +127,7 @@ fun DownloadScreen(
                     LaunchedEffect(downloadResult) {
                         SnackbarManager.showSnackbar(
                             SnackbarData(
-                                downloadResult.data?.message ?: "Download selesai",
+                                 "Download semua data selesai",
                                 SnackbarType.SUCCESS
                             )
                         )

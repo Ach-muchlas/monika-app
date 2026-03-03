@@ -37,10 +37,10 @@ import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.feature.expense.data.event.ExpenseUiEvent
+import com.sss.monikaapps.feature.expense.data.handler.ExpanseDetailActionHandler
 import com.sss.monikaapps.feature.expense.presentation.detail.component.CardDetailItemExpense
 import com.sss.monikaapps.feature.expense.presentation.detail.component.CardHeaderExpanseDetail
-import com.sss.monikaapps.feature.expense.presentation.detail.handler.ExpanseDetailActionHandler
-import com.sss.monikaapps.feature.expense.presentation.detail.handler.ExpanseDetailResultHandler
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -50,18 +50,21 @@ fun ExpanseDetailScreen(
     viewModel: ExpenseDetailViewModel = koinViewModel(),
     onAddExpenseDetail: (trno: String) -> Unit,
     onEditExpenseDetail: (trno: String, idExpense: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
+    clickDetailPhoto: (url: String) -> Unit,
 ) {
-    var status = "0"
+    var status by remember { mutableStateOf("0") }
     var dialogAction by remember { mutableStateOf<ExpenseDetailDialogAction?>(null) }
 
     val result by viewModel.detailExpanseResult.observeAsState()
-    val deleteExpenseDetailResult by viewModel.deleteDetailExpenseResult.observeAsState()
-    val deleteExpenseHeaderResult by viewModel.deleteHeaderExpenseResult.observeAsState()
-    val submitExpenseResult by viewModel.submitExpenseResult.observeAsState()
-    val unSubmitExpenseResult by viewModel.unSubmitExpenseResult.observeAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchDetailExpanse(trno)
+    }
+
+    LaunchedEffect(result) {
+        if (result?.status == StatusNetwork.SUCCESS) {
+            status = result?.data?.data?.header?.isStatus.orEmpty()
+        }
     }
 
     Box(
@@ -86,7 +89,6 @@ fun ExpanseDetailScreen(
                     StatusNetwork.SUCCESS -> {
                         val header = result?.data?.data?.header
                         val detail = result?.data?.data?.detail
-                        status = result?.data?.data?.header?.isStatus.toString()
 
                         CustomTopBar(
                             title = stringResource(R.string.text_detail_expanse),
@@ -127,7 +129,9 @@ fun ExpanseDetailScreen(
                                 onClickDeleted = { trnoDetail, idDetail ->
                                     dialogAction =
                                         ExpenseDetailDialogAction.DeleteDetail(trnoDetail, idDetail)
-                                })
+                                },
+                                clickDetailPhoto = clickDetailPhoto
+                            )
 
                             Spacer(modifier = Modifier.height(Dimens.LargeMargin))
                         }
@@ -180,22 +184,39 @@ fun ExpanseDetailScreen(
             }
         }
 
+        LaunchedEffect(Unit) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is ExpenseUiEvent.Success -> {
+                        SnackbarManager.showSnackbar(
+                            SnackbarData(event.message, SnackbarType.SUCCESS)
+                        )
+                    }
+
+                    is ExpenseUiEvent.Error -> {
+                        SnackbarManager.showSnackbar(
+                            SnackbarData(event.message, SnackbarType.ERROR)
+                        )
+                    }
+
+                    ExpenseUiEvent.NavigateBack -> {
+                        navController.popBackStack()
+                    }
+
+                    ExpenseUiEvent.RefreshDetail -> {
+                        viewModel.fetchDetailExpanse(trno)
+                    }
+                }
+            }
+        }
+
+
+
         ExpanseDetailActionHandler(
             action = dialogAction,
             viewModel = viewModel,
             onClearAction = { dialogAction = null },
             onEditAction = onEditExpenseDetail
-        )
-
-
-        ExpanseDetailResultHandler(
-            submitResult = submitExpenseResult,
-            unSubmitResult = unSubmitExpenseResult,
-            deleteHeaderResult = deleteExpenseHeaderResult,
-            deleteDetailResult = deleteExpenseDetailResult,
-            trno = trno,
-            navController = navController,
-            viewModel = viewModel
         )
     }
 }

@@ -15,35 +15,32 @@ import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.INIT_KM
-import com.sss.monikaapps.common.constanta.ArgumentsConstant.LOCATION_DATA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_EXPENSE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TYPE_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TYPE_VISIT
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.URL_PHOTO
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_ACTIVITIES
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_DOWNLOAD
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_EXPENSES
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_MASTER_DATA
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_SETTING
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
 import com.sss.monikaapps.common.manager.SessionManager
-import com.sss.monikaapps.feature.activity.ui.screen.ActivitiesScreen
-import com.sss.monikaapps.feature.activity.ui.screen.ActivityDetailScreen
-import com.sss.monikaapps.feature.activity.ui.screen.CreateActivityScreen
+import com.sss.monikaapps.feature.activity.presentation.ActivitiesScreen
+import com.sss.monikaapps.feature.activity.presentation.ActivityDetailScreen
+import com.sss.monikaapps.feature.activity.presentation.CreateActivityScreen
 import com.sss.monikaapps.feature.connection.presentation.ConnectionScreen
 import com.sss.monikaapps.feature.download.presentation.DownloadScreen
 import com.sss.monikaapps.feature.expense.presentation.create.CreateAndUpdateExpenseDetailScreen
 import com.sss.monikaapps.feature.expense.presentation.create.CreateExpenseScreen
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScreen
 import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
-import com.sss.monikaapps.feature.home.ui.screen.HomeScreen
-import com.sss.monikaapps.feature.login.ui.screen.LoginScreen
+import com.sss.monikaapps.feature.home.presentasi.HomeScreen
+import com.sss.monikaapps.feature.invoice.presentation.InvoiceListScreen
+import com.sss.monikaapps.feature.login.presentation.LoginScreen
 import com.sss.monikaapps.feature.mastering.presentation.MasterScreen
 import com.sss.monikaapps.feature.mastering.presentation.MasteringCategoryExpenseScreen
+import com.sss.monikaapps.feature.photo.PhotoDetailScreen
 import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadScreen
 import com.sss.monikaapps.feature.setting.presentation.SettingScreen
 import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailScreen
@@ -92,8 +89,7 @@ fun AppNavGraph(
             HomeScreen(
                 onNavigate = { destination ->
                     navController.navigateToDestination(destination)
-                }
-            )
+                })
         }
 
 
@@ -105,16 +101,20 @@ fun AppNavGraph(
             }
         }
 
-        composable(Routes.MASTER_DATA_EXPENSE){
+        composable(Routes.INVOICE) {
+            InvoiceListScreen(navController)
+        }
+
+        composable(Routes.MASTER_DATA_EXPENSE) {
             MasteringCategoryExpenseScreen(navController)
         }
 
         composable(Routes.ACTIVITIES) {
             ActivitiesScreen(
                 navController = navController,
-                onClick = { trno, idMobile, locationData ->
+                onClick = { trno, idMobile ->
                     navController.navigateToDestination(
-                        RouteDestination.ActivityToDetail(trno, idMobile, locationData)
+                        RouteDestination.ActivityToDetail(trno, idMobile)
                     )
                 },
                 onClickAddActivity = {
@@ -151,17 +151,22 @@ fun AppNavGraph(
             arguments = listOf(
                 navArgument(TRNO_ACTIVITY) { type = NavType.StringType },
                 navArgument(ID_MOBILE_ACTIVITY) { type = NavType.StringType },
-                navArgument(LOCATION_DATA) { type = NavType.IntType })
+            )
         ) { backStackEntry ->
             val trno = backStackEntry.arguments?.getString(TRNO_ACTIVITY).orEmpty()
             val idMobile = backStackEntry.arguments?.getString(ID_MOBILE_ACTIVITY).orEmpty()
-            val locationData = backStackEntry.arguments?.getInt(LOCATION_DATA) ?: 1
 
             ActivityDetailScreen(
                 navController = navController,
                 trno = trno,
                 idMobile = idMobile,
-                locationData = locationData,
+                clickDetailPhoto = { url ->
+                    navController.navigateToDestination(
+                        RouteDestination.ToDetailPhoto(
+                            url
+                        )
+                    )
+                },
                 onCheckOutData = { trnoServer, dataIdMobile ->
                     navController.navigateToDestination(
                         RouteDestination.DetailActivityToCheckOutActivity(
@@ -218,6 +223,10 @@ fun AppNavGraph(
                         trnoDetail, idDetail, netAmount, note, initialKm, finalKm
                     )
                 )
+            }, clickDetailPhoto = { url ->
+                navController.navigateToDestination(
+                    RouteDestination.ToDetailPhoto(url)
+                )
             })
         }
 
@@ -269,6 +278,9 @@ fun AppNavGraph(
             VisitDetailScreen(
                 idVisit = trnoMobile,
                 navController = navController,
+                clickDetailPhoto = { url ->
+                    navController.navigateToDestination(RouteDestination.ToDetailPhoto(url))
+                },
                 onClickButton = { idVisit, type ->
                     navController.navigateToDestination(
                         RouteDestination.VisitDetailToCheckInVisit(idVisit, type)
@@ -295,8 +307,7 @@ fun AppNavGraph(
                 navController = navController,
                 onClickConnection = { navController.navigateToDestination(RouteDestination.SettingToConnection) },
                 onClickDownload = { navController.navigateToDestination(RouteDestination.SettingToResultDownload) },
-                onClickLogout = { navController.navigateToDestination(RouteDestination.SettingToLogin) }
-            )
+                onClickLogout = { navController.navigateToDestination(RouteDestination.SettingToLogin) })
         }
 
         composable(Routes.CONNECTION_SETTING) {
@@ -307,6 +318,14 @@ fun AppNavGraph(
 
         composable(Routes.RESULT_DOWNLOAD) {
             ResultDownloadScreen(navController)
+        }
+
+        composable(
+            Routes.DETAIL_PHOTO, arguments = listOf(
+                navArgument(URL_PHOTO) { type = NavType.StringType })
+        ) { navBackStackEntry ->
+            val urlPhoto = navBackStackEntry.arguments?.getString(URL_PHOTO).orEmpty()
+            PhotoDetailScreen(urlPhoto, navController)
         }
     }
 }
