@@ -41,6 +41,7 @@ fun HomeScreen(
     val user by viewModel.user.collectAsState()
     val menuItems by viewModel.menuItems.collectAsStateWithLifecycle()
     val blockSheet by viewModel.blockSheetState.collectAsStateWithLifecycle()
+    val downloadDate by viewModel.downloadDate.collectAsStateWithLifecycle()
     val versionApps by deviceViewModel.versionApps.observeAsState("")
 
     val context = LocalContext.current
@@ -59,7 +60,8 @@ fun HomeScreen(
     HomeContent(
         user = user,
         menuItems = menuItems,
-        onMenuClick = viewModel::onMenuClicked
+        onMenuClick = viewModel::onMenuClicked,
+        downloadDate = downloadDate
     )
 
     HomeOverlays(blockSheet)
@@ -68,6 +70,7 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     user: DataItemUserLogin,
+    downloadDate: String,
     menuItems: List<HomeMenuItem>,
     onMenuClick: (Int) -> Unit,
 ) {
@@ -80,7 +83,8 @@ private fun HomeContent(
         HomeHeader(
             userName = user.employeeName ?: "-",
             userRole = user.roleName ?: "-",
-            nameDepo = user.namaDepo ?: "-"
+            nameDepo = user.namaDepo ?: "-",
+            downloadDate = downloadDate
         )
 
         Spacer(modifier = Modifier.height(Dimens.LargeMargin))

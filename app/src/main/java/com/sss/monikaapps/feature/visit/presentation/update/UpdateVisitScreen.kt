@@ -57,7 +57,6 @@ fun UpdateVisitScreen(
 ) {
     val context = LocalContext.current
 
-    Log.e("CHECK_DATA", "Data Id : $idMobile")
     val isCheckOut = typeVisit == CHECK_OUT
 
     var latitude by remember { mutableStateOf("") }

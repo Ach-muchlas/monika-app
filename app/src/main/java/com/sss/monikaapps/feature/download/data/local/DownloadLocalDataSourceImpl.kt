@@ -3,7 +3,6 @@ package com.sss.monikaapps.feature.download.data.local
 import android.content.Context
 import android.util.Log
 import androidx.room.RoomDatabase
-import com.sss.monikaapps.common.constanta.TableNameConstant.VISIT_TABLE
 import com.sss.monikaapps.common.helper.StorageHelper.deleteDir
 import com.sss.monikaapps.database.AppDatabase
 import com.sss.monikaapps.feature.download.data.dao.ConfigDownloadDataDao
@@ -11,6 +10,7 @@ import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.visit.data.dao.VisitDao
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -24,12 +24,8 @@ class DownloadLocalDataSourceImpl(
         configDao.upsertConfigDownload(data)
     }
 
-    override suspend fun saveConfigDownloadList(data: List<ConfigDownloadDataEntity>) {
-        configDao.upsertConfigList(data)
-    }
-
-    override suspend fun insertConfigDownload(data: ConfigDownloadDataEntity) {
-        configDao.insertConfigDownload(data)
+    override suspend fun insertConfigDownload(data: List<ConfigDownloadDataEntity>) {
+        configDao.insertListConfigDownload(data)
     }
 
     override suspend fun checkIsExist(tableName: String): Boolean {
@@ -56,7 +52,7 @@ class DownloadLocalDataSourceImpl(
         dao.deleteVisit()
     }
 
-    override suspend fun countVisit(): Int = dao.countDataVisit()
+    override fun countVisit(): Flow<Int> = dao.countDataVisit()
 
     override suspend fun insertCustomerVisitBatch(
         data: List<VisitEntity>,

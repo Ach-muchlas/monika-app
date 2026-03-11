@@ -47,4 +47,9 @@ object ApiConstant {
     const val FETCH_DOWNLOAD_INVOICE_NOTA = "${INVOICE}-nota-download"
     const val CHECK_INVOICE_NOTA = "${INVOICE}-nota-check-data-download"
     const val CHECK_INVOICE_CUSTOMER = "${INVOICE}-customer-check-data-download"
+
+    const val SUBMIT_INVOICE = "${INVOICE}-add"
+    const val FETCH_REASON_INVOICE = "${INVOICE}-reason-download"
+    const val CHECK_REASON_INVOICE = "${INVOICE}-reason-check-data-download"
+
 }

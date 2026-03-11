@@ -19,4 +19,13 @@ data class InvoiceEntity(
     val status: Int = 0,
     val reasonId: Int = 0,
     val reason: String? = null,
+
+    val entryTime: String? = null,
+
+    val gpsLatUser: String? = null,
+    val gpsLngUser: String? = null,
+    val distanceDifference: String? = null,
+
+    //  0 : Belum transaksi, 1 : Masih dilokal, 2 : Sudah sinkron
+    val syncStatus: Int = 0,
 )

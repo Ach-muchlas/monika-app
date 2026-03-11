@@ -13,4 +13,10 @@ object ArgumentsConstant {
     const val INIT_KM = "initial_km"
     const val FINAL_KM = "final_km"
     const val URL_PHOTO = "url"
+
+    const val CUSTOMER_ID = "customer_id"
+    const val NOMOR_NOTA = "nomor_nota"
+    const val ID_INVOICE = "id_invoice"
+
+
 }

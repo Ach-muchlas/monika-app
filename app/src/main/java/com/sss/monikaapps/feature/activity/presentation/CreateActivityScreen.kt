@@ -63,7 +63,7 @@ fun CreateActivityScreen(
     val isCheckOut = trno != null && typeActivity == CHECK_OUT
 
     val generatedId = rememberSaveable { generateRandomId() }
-    val parentId = if (isCheckOut) trno!! else generatedId
+    val parentId = if (isCheckOut) trno else generatedId
     val parentIdPhoto = if (isCheckOut) idMobile!! else generatedId
 
     var title by remember { mutableStateOf("") }

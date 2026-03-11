@@ -52,4 +52,12 @@ sealed class RouteDestination {
 
     data object MasterDataToMasterDataExpense : RouteDestination()
     data class ToDetailPhoto(val urlPhoto: String) : RouteDestination()
+
+    data class ListInvoiceToDetailInvoice(val customerId: String) : RouteDestination()
+    data class DetailInvoiceToPaymentInvoice(
+        val idInvoice: String,
+        val nomorNota: String,
+        val customerId: String,
+    ) :
+        RouteDestination()
 }

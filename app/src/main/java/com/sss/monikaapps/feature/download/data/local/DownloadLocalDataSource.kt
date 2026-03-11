@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
+import kotlinx.coroutines.flow.Flow
 
 interface DownloadLocalDataSource {
     suspend fun saveConfigDownload(data: ConfigDownloadDataEntity)
-    suspend fun saveConfigDownloadList(data : List<ConfigDownloadDataEntity>)
-    suspend fun insertConfigDownload(data: ConfigDownloadDataEntity)
+    suspend fun insertConfigDownload(data: List<ConfigDownloadDataEntity>)
     suspend fun checkIsExist(tableName: String): Boolean
     suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity>
     suspend fun returnDataVisitCustomerConfigDownload(tableName: String)
@@ -16,7 +16,7 @@ interface DownloadLocalDataSource {
     suspend fun getDateConfig(): String
 
     suspend fun deleteVisit()
-    suspend fun countVisit(): Int
+    fun countVisit(): Flow<Int>
     suspend fun insertCustomerVisitBatch(
         data: List<VisitEntity>,
         onProgress: (Float) -> Unit,

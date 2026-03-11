@@ -35,7 +35,7 @@ fun NavController.navigateToDestination(
         }
 
         RouteDestination.HomeToInvoice -> {
-            navigate(Routes.INVOICE){ launchSingleTop = true }
+            navigate(Routes.INVOICE) { launchSingleTop = true }
         }
 
         RouteDestination.ConnectionToLogin -> {
@@ -139,6 +139,20 @@ fun NavController.navigateToDestination(
 
         is RouteDestination.ToDetailPhoto -> {
             navigate(Routes.detailPhoto(destination.urlPhoto)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ListInvoiceToDetailInvoice -> {
+            navigate(Routes.detailInvoice(destination.customerId)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.DetailInvoiceToPaymentInvoice -> {
+            navigate(
+                Routes.paymentInvoice(
+                    destination.idInvoice,
+                    destination.nomorNota,
+                    destination.customerId
+                )
+            ) { launchSingleTop = true }
         }
     }
 

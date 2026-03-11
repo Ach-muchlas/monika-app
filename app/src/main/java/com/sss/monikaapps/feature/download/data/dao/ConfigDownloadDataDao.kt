@@ -12,11 +12,12 @@ interface ConfigDownloadDataDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertConfigDownload(data: ConfigDownloadDataEntity)
-    @Upsert
-    suspend fun upsertConfigDownload(data: ConfigDownloadDataEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertListConfigDownload(data: List<ConfigDownloadDataEntity>)
 
     @Upsert
-    suspend fun upsertConfigList(data: List<ConfigDownloadDataEntity>)
+    suspend fun upsertConfigDownload(data: ConfigDownloadDataEntity)
 
     @Query("SELECT EXISTS(SELECT 1 FROM config_download_data_table WHERE tableName = :tableName)")
     suspend fun isTableExist(tableName: String): Boolean
@@ -28,7 +29,7 @@ interface ConfigDownloadDataDao {
     suspend fun countPendingDownload(): Int
 
     @Query("UPDATE config_download_data_table SET  statusTotalDownload = 0,totalDataServer = 0,totalDataMobile = 0 WHERE tableName = :tableName")
-    suspend fun returnDataConfigDownload(tableName : String)
+    suspend fun returnDataConfigDownload(tableName: String)
 
     @Query("SELECT DISTINCT(createAd) FROM config_download_data_table LIMIT 1")
     suspend fun getDownloadDate(): String

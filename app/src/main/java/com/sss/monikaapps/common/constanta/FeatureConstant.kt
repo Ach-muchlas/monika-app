@@ -19,16 +19,19 @@ object NameFeatureConstant {
     const val ACTIVITY = "activity"
     const val EXPENSE = "expense"
     const val VISIT = "visit"
+    const val INVOICE = "invoice"
 }
 
 object TableNameConstant {
     const val VISIT_TABLE = "visit_table"
     const val CUSTOMER_INVOICE_TABLE = "customer_invoice_table"
     const val NOTA_INVOICE_TABLE = "nota_invoice_table"
+    const val REASON_INVOICE_TABLE = "reason_table"
 }
 
 object TableIdConstant {
     const val VISIT = 2
     const val CUSTOMER_INVOICE = 3
     const val NOTA_INVOICE = 4
+    const val REASON_INVOICE = 5
 }

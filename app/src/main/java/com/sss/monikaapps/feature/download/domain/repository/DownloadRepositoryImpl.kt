@@ -3,11 +3,12 @@ package com.sss.monikaapps.feature.download.domain.repository
 import android.content.Context
 import com.sss.monikaapps.common.constanta.TableIdConstant.CUSTOMER_INVOICE
 import com.sss.monikaapps.common.constanta.TableIdConstant.NOTA_INVOICE
+import com.sss.monikaapps.common.constanta.TableIdConstant.REASON_INVOICE
 import com.sss.monikaapps.common.constanta.TableIdConstant.VISIT
 import com.sss.monikaapps.common.constanta.TableNameConstant.CUSTOMER_INVOICE_TABLE
 import com.sss.monikaapps.common.constanta.TableNameConstant.NOTA_INVOICE_TABLE
+import com.sss.monikaapps.common.constanta.TableNameConstant.REASON_INVOICE_TABLE
 import com.sss.monikaapps.common.constanta.TableNameConstant.VISIT_TABLE
-import com.sss.monikaapps.common.formatter.FormatterDate
 import com.sss.monikaapps.common.helper.StorageHelper
 import com.sss.monikaapps.common.mapper.MapperInvoice.toEntity
 import com.sss.monikaapps.common.result.Result
@@ -20,8 +21,10 @@ import com.sss.monikaapps.feature.invoice.data.local.InvoiceLocalDataSource
 import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSource
 import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
 import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
 import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 
 class DownloadRepositoryImpl(
     private val context: Context,
@@ -52,11 +55,14 @@ class DownloadRepositoryImpl(
 
             val notaInvoiceData = fetchAndSaveNotaInvoice(onProgress)
 
+            val reason = fetchAndSaveReasonInvoice(onProgress)
+
             Result.success(
                 DownloadDataResponse(
                     visit = visitData,
                     customerInvoice = invoiceCustomerData,
-                    notaInvoice = notaInvoiceData
+                    notaInvoice = notaInvoiceData,
+                    reason = reason
                 )
             )
         } catch (e: Exception) {
@@ -69,18 +75,8 @@ class DownloadRepositoryImpl(
         return local.countPendingDownload()
     }
 
-    override suspend fun insertDownloadData(data: List<ConfigDownloadDataEntity>) {
-        data.map { config ->
-            if (local.getDateConfig() != FormatterDate.getCurrentDate()) {
-                local.saveConfigDownload(config)
-            } else {
-                val exists = local.checkIsExist(config.tableName)
-                if (!exists) {
-                    local.insertConfigDownload(config)
-                }
-            }
-        }
-    }
+    override suspend fun insertDownloadData(data: List<ConfigDownloadDataEntity>) =
+        local.insertConfigDownload(data)
 
     override suspend fun listTableConfig(): List<ConfigDownloadDataEntity> {
         return listOf(
@@ -105,23 +101,36 @@ class DownloadRepositoryImpl(
                 totalDataServer = 0,
                 statusTotalDownload = false
             ),
+            ConfigDownloadDataEntity(
+                id = REASON_INVOICE,
+                tableName = REASON_INVOICE_TABLE,
+                totalDataMobile = 0,
+                totalDataServer = 0,
+                statusTotalDownload = false
+            ),
         )
     }
 
     override fun getInvoiceCount(): Flow<Int> = localInvoice.getInvoiceCount()
+    override fun getVisitCount(): Flow<Int> = local.countVisit()
+
 
     private suspend fun initializeDownload(onProgress: (Float) -> Unit) {
-        onProgress(0.05f)
+        onProgress(0.01f)
         local.deleteAllLocalData(context)
+        onProgress(0.02f)
         StorageHelper.deleteAppStorage(context)
+        onProgress(0.03f)
         StorageHelper.clearAppCache(context)
-        local.saveConfigDownloadList(listTableConfig())
+        onProgress(0.04f)
+        local.insertConfigDownload(listTableConfig())
+        onProgress(0.05f)
     }
 
     private suspend fun fetchAndSaveVisitData(
         onProgress: (Float) -> Unit,
     ): VisitDownloadResponse? {
-        onProgress(0.1f)
+        onProgress(0.05f)
 
         val visitData = remote.fetchDownloadVisit()
             ?: return null
@@ -129,10 +138,10 @@ class DownloadRepositoryImpl(
         val entities = serverToEntity(visitData.data ?: emptyList())
 
         local.insertCustomerVisitBatch(entities) { insertProgress ->
-            onProgress(0.1f + insertProgress * 0.4f)
+            onProgress(0.05f + insertProgress * 0.35f)
         }
 
-        val totalLocal = local.countVisit()
+        val totalLocal = local.countVisit().firstOrNull() ?: 0
         val isValid = remote.checkDataDownloadVisit(totalLocal) == "1"
 
         if (isValid) {
@@ -150,13 +159,13 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveCustomerInvoice(
         onProgress: (Float) -> Unit,
     ): CustomerInvoiceResponse? {
-        onProgress(0.6f)
+        onProgress(0.40f)
 
         val invoiceData = remoteInvoice.getCustomerInvoice()
 
         val entities = invoiceData?.data?.map { it.toEntity() } ?: emptyList()
         localInvoice.insertCustomerInvoiceBatch(entities) { insertProgress ->
-            onProgress(0.6f + insertProgress * 0.2f)
+            onProgress(0.40f + insertProgress * 0.20f)
         }
 
         val totalLocal = localInvoice.countCustomerInvoice()
@@ -171,7 +180,7 @@ class DownloadRepositoryImpl(
             )
         } else {
             localInvoice.clearCustomerInvoice()
-            local.returnDataVisitCustomerConfigDownload(VISIT_TABLE)
+            local.returnDataVisitCustomerConfigDownload(CUSTOMER_INVOICE_TABLE)
             onProgress(0f)
             throw IllegalStateException("Jumlah data customer tagihan tidak cocok. Local = $totalLocal, Server = ${invoiceData?.totalData}")
         }
@@ -182,13 +191,13 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveNotaInvoice(
         onProgress: (Float) -> Unit,
     ): NotaInvoiceResponse? {
-        onProgress(0.8f)
+        onProgress(0.60f)
 
         val notaData = remoteInvoice.getNotaInvoice()
 
         val entities = notaData?.data?.map { it.toEntity() } ?: emptyList()
         localInvoice.insertNotaInvoiceBatch(entities) { insertProgress ->
-            onProgress(0.8f + insertProgress * 0.2f)
+            onProgress(0.60f + insertProgress * 0.20f)
         }
 
         val totalLocal = localInvoice.countNotaInvoice()
@@ -211,6 +220,40 @@ class DownloadRepositoryImpl(
         }
 
         return notaData
+    }
+
+    private suspend fun fetchAndSaveReasonInvoice(
+        onProgress: (Float) -> Unit,
+    ): ReasonInvoiceResponse? {
+        onProgress(0.80f)
+
+        val reasonData = remoteInvoice.getReasonInvoice()
+
+        val entities = reasonData?.data?.map { it.toEntity() } ?: emptyList()
+        localInvoice.insertReasonInvoiceBatch(entities) { insertProgress ->
+            onProgress(0.80f + insertProgress * 0.20f)
+        }
+
+        val totalLocal = localInvoice.countReasonInvoice()
+        val isValid = remoteInvoice.checkReasonInvoice(totalLocal) == "1"
+
+        if (isValid) {
+            updateConfigStatus(
+                REASON_INVOICE,
+                REASON_INVOICE_TABLE,
+                totalLocal,
+                reasonData?.totalData ?: 0
+            )
+        } else {
+            localInvoice.clearReasonInvoice()
+            local.returnDataVisitCustomerConfigDownload(REASON_INVOICE_TABLE)
+            onProgress(0f)
+            throw IllegalStateException(
+                "Jumlah data alasan tagihan tidak cocok. Local = $totalLocal, Server = ${reasonData?.totalData}"
+            )
+        }
+
+        return reasonData
     }
 
     private suspend fun updateConfigStatus(

@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.download.presentation
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,19 +21,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.BodyPopBold
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Gray
 import com.sss.monikaapps.common.theme.LightRed
 import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.feature.download.presentation.component.CustomTableDownload
@@ -45,7 +50,7 @@ fun DownloadScreen(
     viewModel: DownloadViewModel = koinViewModel(),
 ) {
     // ===== Observe Download Result =====
-    val downloadResult by viewModel.downloadResult.observeAsState(Result.loading(null, 0f))
+    val downloadResult by viewModel.downloadResult.observeAsState(Result.success(null))
 
     // ===== Observe Config Table Result =====
     val configResult by viewModel.configDownloadResult
@@ -53,8 +58,17 @@ fun DownloadScreen(
 
     var allDownloaded by remember { mutableStateOf(false) }
 
-    // ===== Progress yang stabil =====
+
     var displayProgress by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(configResult.status) {
+        if (configResult.status == StatusNetwork.SUCCESS) {
+            val data = configResult.data ?: emptyList()
+            if (data.isEmpty()) {
+                viewModel.initConfigIfEmpty()
+            }
+        }
+    }
 
     LaunchedEffect(downloadResult.status, downloadResult.progress) {
         displayProgress = when (downloadResult.status) {
@@ -75,6 +89,14 @@ fun DownloadScreen(
             downloadResult.status == StatusNetwork.ERROR
         ) {
             viewModel.fetchConfigDownload()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.messageEvent.collect { message ->
+            SnackbarManager.showSnackbar(
+                SnackbarData(message, SnackbarType.SUCCESS)
+            )
         }
     }
 
@@ -103,54 +125,60 @@ fun DownloadScreen(
         )
 
         // ===== Status Text =====
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            when (downloadResult.status) {
 
-                StatusNetwork.LOADING -> {
-                    Text(
-                        "${"%.0f".format(displayProgress * 100)}%",
-                        style = BodyPopBold.copy(fontSize = 25.sp)
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val percentageText = "${"%.0f".format(displayProgress * 100)}%"
 
-                StatusNetwork.SUCCESS -> {
-                    Text(
-                        "100%",
-                        style = BodyPopBold.copy(fontSize = 25.sp, color = Primary)
-                    )
-
-                    LaunchedEffect(downloadResult) {
-                        SnackbarManager.showSnackbar(
-                            SnackbarData(
-                                 "Download semua data selesai",
-                                SnackbarType.SUCCESS
-                            )
+                when (downloadResult.status) {
+                    StatusNetwork.LOADING -> {
+                        Text(
+                            percentageText,
+                            style = BodyPopBold.copy(fontSize = 25.sp)
                         )
                     }
-                }
 
-                StatusNetwork.ERROR -> {
-                    Text(
-                        "${"%.0f".format(displayProgress * 100)}%",
-                        style = BodyPopBold.copy(fontSize = 25.sp, color = LightRed)
-                    )
+                    StatusNetwork.SUCCESS -> {
+                        val colorText = if (allDownloaded) Primary else Gray
 
-                    LaunchedEffect(downloadResult) {
-                        SnackbarManager.showSnackbar(
-                            SnackbarData(
-                                downloadResult.message ?: "Terjadi kesalahan",
-                                SnackbarType.ERROR
-                            )
+                        Text(
+                            if (downloadResult.data != null) "100%" else percentageText,
+                            style = BodyPopBold.copy(fontSize = 25.sp, color = colorText)
                         )
+
+                        LaunchedEffect(downloadResult) {
+                            if (downloadResult.data != null) {
+                                SnackbarManager.showSnackbar(
+                                    SnackbarData(
+                                        "Download semua data selesai",
+                                        SnackbarType.SUCCESS
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    StatusNetwork.ERROR -> {
+                        Text(
+                            percentageText,
+                            style = BodyPopBold.copy(fontSize = 25.sp, color = LightRed)
+                        )
+
+                        LaunchedEffect(downloadResult) {
+                            SnackbarManager.showSnackbar(
+                                SnackbarData(
+                                    downloadResult.message ?: "Terjadi kesalahan",
+                                    SnackbarType.ERROR
+                                )
+                            )
+                        }
                     }
                 }
             }
-        }
 
         when (configResult.status) {
             StatusNetwork.LOADING -> {
@@ -159,32 +187,41 @@ fun DownloadScreen(
 
             StatusNetwork.SUCCESS -> {
                 val data = configResult.data ?: emptyList()
+                val currentDate = getCurrentDate()
+                val lastDownloadDate = data.firstOrNull()?.createAd ?: ""
 
-                CustomTableDownload(data = data)
+                CustomTableDownload(data)
 
-                // ✅ LOGIKA INTI
-                allDownloaded = data.isNotEmpty() &&
-                        data.none { !it.statusTotalDownload }
+                val isSameDay = lastDownloadDate == currentDate
+                val isAllStatusSuccess = data.isNotEmpty() && data.none { !it.statusTotalDownload }
 
-                if (allDownloaded) {
-                    displayProgress = 1f
+                allDownloaded = isSameDay && isAllStatusSuccess
+
+                if (downloadResult.status != StatusNetwork.LOADING) {
+                    if (!isSameDay) {
+                        displayProgress = 0f
+                    } else {
+                        val totalTabel = data.size
+                        val tabelSukses = data.count { it.statusTotalDownload }
+
+                        displayProgress = if (totalTabel > 0) {
+                            tabelSukses.toFloat() / totalTabel.toFloat()
+                        } else 0f
+                    }
                 }
             }
-
 
             StatusNetwork.ERROR -> {
                 Text("Gagal memuat tabel")
             }
-
-
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
         CustomPrimaryButton(
-            text = if (allDownloaded) "Semua Data Sudah Download" else "Download Data",
+            text = if (allDownloaded) "Semua Data Sudah Download" else stringResource(R.string.text_download_data),
             enabled = !allDownloaded,
-            onClick = { viewModel.fetchDownload() }
+            onClick = { viewModel.checkAndFetchDownload() }
         )
     }
 }

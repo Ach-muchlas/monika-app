@@ -69,5 +69,15 @@
     <string name="text_feature_invoice">Tagihan</string>
     <string name="text_desc_feature_invoice">Daftar tagihan yang dilakukan pada hari ini.</string>
     <string name="list_invoice">List Tagihan</string>
+    <string name="text_date_note">Tanggal Nota</string>
+    <string name="text_due_date">Tanggal Jatuh tempo</string>
+    <string name="text_payment_invoice">Pelunasan Tagihan</string>
+    <string name="text_customer_data">Nama pelanggan</string>
+    <string name="text_nomor_nota">Nomor Nota</string>
+    <string name="text_outstanding_nota">Total Tagihan</string>
+    <string name="text_total_paid">Uang Yang Dibayarkan</string>
+    <string name="text_evidence_reason">Foto Bukti</string>
+    <string name="text_form_payment_invoice">Form Pelunasan Tagihan</string>
+    <string name="text_download_data">Download Data</string>
 
 </resources>

@@ -23,6 +23,7 @@ class VisitViewModel(
         _visitResult.value = Result.loading(null)
         _visitResult.value = fetchVisitLocalDatabaseUseCase(keyword, status)
     }
+
     fun setStatus(status: Int) {
         currentStatus = status
         fetchVisit(currentKeyword, currentStatus)

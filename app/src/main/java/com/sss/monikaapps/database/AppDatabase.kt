@@ -12,13 +12,14 @@ import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.invoice.data.dao.InvoiceDao
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
+import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
 import com.sss.monikaapps.feature.visit.data.dao.VisitDao
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 @Database(
     entities = [ActivityEntity::class, PhotoEntity::class, VisitEntity::class,
-                LogEntity::class, ConfigDownloadDataEntity::class, InvoiceEntity::class, CustomerInvoiceEntity::class],
-    version = 14,
+                LogEntity::class, ConfigDownloadDataEntity::class, InvoiceEntity::class, CustomerInvoiceEntity::class, ReasonEntity::class],
+    version = 24,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

@@ -9,6 +9,7 @@ import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_VISIT
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_REASON_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_HEADER_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_DETAIL_EXPENSE
@@ -21,8 +22,10 @@ import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_INVOICE_CU
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_INVOICE_NOTA
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_MASTERING_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_REASON_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.SEND_EMAIL
 import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.UN_SUBMIT_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
@@ -32,6 +35,7 @@ import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
 import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
 import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
 import com.sss.monikaapps.feature.mastering.data.response.MasteringExpenseResponse
 import com.sss.monikaapps.feature.version_check.data.response.VersionResponse
@@ -203,5 +207,22 @@ interface ApiService {
     @POST(CHECK_INVOICE_NOTA)
     suspend fun checkNotaInvoice(
         @Field("total_data_mobile") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @GET(FETCH_REASON_INVOICE)
+    suspend fun fetchReasonInvoice(): Response<ReasonInvoiceResponse>
+
+    @FormUrlEncoded
+    @POST(CHECK_REASON_INVOICE)
+    suspend fun checkReasonInvoice(
+        @Field("total_data_mobile") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST(SUBMIT_INVOICE)
+    suspend fun submitInvoice(
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part buktiFoto: List<MultipartBody.Part>?,
+        @Part("created_at[]") createdAt: List<@JvmSuppressWildcards RequestBody>?,
     ): Response<DefaultAddResponse>
 }

@@ -1,12 +1,15 @@
 package com.sss.monikaapps.common.navigation
 
 import android.net.Uri
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.CUSTOMER_ID
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.FINAL_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_INVOICE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.INIT_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOMOR_NOTA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_EXPENSE
@@ -47,6 +50,8 @@ object Routes {
 
     const val DETAIL_VISIT = "detail_visit/{$ID_VISIT}"
     const val CHECK_IN_VISIT = "check_in_visit/{$ID_VISIT}/{$TYPE_VISIT}"
+    const val DETAIL_INVOICE = "detail_invoice/{$CUSTOMER_ID}"
+    const val PAYMENT_INVOICE = "payment_invoice/{$ID_INVOICE}/{$NOMOR_NOTA}/{$CUSTOMER_ID}"
 
     fun detailActivities(trno: String, idMobile: String): String {
         return "detail_activities/$trno/$idMobile"
@@ -67,7 +72,12 @@ object Routes {
         initKm: String,
         finalKm: String,
     ) = "update_expense_detail/$trno/$idExpense/$netAmount/$note/$initKm/$finalKm"
+
     fun detailVisit(idVisit: String): String = "detail_visit/$idVisit"
     fun checkInVisit(idVisit: String, type: String) = "check_in_visit/$idVisit/$type"
     fun detailPhoto(url: String): String = "detail_photo/${Uri.encode(url)}"
+
+    fun detailInvoice(customerId: String): String = "detail_invoice/$customerId"
+    fun paymentInvoice(idInvoice: String, nomorNota: String, customerId: String): String =
+        "payment_invoice/$idInvoice/$nomorNota/$customerId"
 }

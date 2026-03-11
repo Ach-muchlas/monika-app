@@ -12,53 +12,59 @@ import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_MASTER_DA
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_SETTING
 import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
 import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.formatter.FormatterDate.formatDateToIndoDisplay
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.common.navigation.RouteDestination
-import com.sss.monikaapps.feature.download.domain.usecase.GetInvoiceCountUseCase
-import com.sss.monikaapps.feature.download.domain.usecase.InsertDownloadUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.FetchConfigDownloadUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.GetCountInvoiceAndVisitUseCase
 import com.sss.monikaapps.feature.home.data.model.BlockSheetType
 import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
 import com.sss.monikaapps.feature.home.data.sealed.HomeNavEvent
 import com.sss.monikaapps.feature.home.domain.usecase.CheckPendingDataDownloadUseCase
-import com.sss.monikaapps.feature.home.domain.usecase.ListTableConfigUseCase
+import com.sss.monikaapps.feature.home.domain.usecase.GetCountInvoicePendingUseCase
 import com.sss.monikaapps.feature.version_check.domain.usecase.FetchVersionAppsUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val app: Application,
-    private val insertDownloadUseCase: InsertDownloadUseCase,
     private val checkPendingDataDownloadUseCase: CheckPendingDataDownloadUseCase,
     private val fetchVersionAppsUseCase: FetchVersionAppsUseCase,
-    private val listTableConfigUseCase: ListTableConfigUseCase,
-    getInvoiceCountUseCase: GetInvoiceCountUseCase,
+    private val fetchConfigDownloadUseCase: FetchConfigDownloadUseCase,
+    private val getCountInvoicePendingUseCase: GetCountInvoicePendingUseCase,
+    getCountInvoiceAndVisitUseCase: GetCountInvoiceAndVisitUseCase,
 ) : ViewModel() {
 
     private val sessionManager = SessionManager.getInstance()
 
     private val _user = MutableStateFlow(sessionManager.getDataUser())
     val user = _user.asStateFlow()
+    private val _downloadDate = MutableStateFlow("")
+    val downloadDate = _downloadDate.asStateFlow()
 
     val menuItems: StateFlow<List<HomeMenuItem>> =
-        getInvoiceCountUseCase().map { count -> createMenuBasedOnData(count) }
+        getCountInvoiceAndVisitUseCase()
+            .combine(_user) { (invoiceCount, visitCount), _ ->
+                createMenuBasedOnData(invoiceCount, visitCount)
+            }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
 
-    private val _blockSheetState =
-        MutableStateFlow(BlockSheetType.NONE)
+    private val _blockSheetState = MutableStateFlow(BlockSheetType.NONE)
 
-    val blockSheetState: StateFlow<BlockSheetType> =
-        _blockSheetState
+    val blockSheetState: StateFlow<BlockSheetType> = _blockSheetState
 
 
     private val _navEvent = Channel<HomeNavEvent>(Channel.BUFFERED)
@@ -67,10 +73,10 @@ class HomeViewModel(
 
     init {
         _user.value = sessionManager.getDataUser()
-        initConfigDownload()
+        fetchLastDownloadDate()
     }
 
-    private fun createMenuBasedOnData(invoiceCount: Int): List<HomeMenuItem> {
+    private fun createMenuBasedOnData(invoiceCount: Int, visitCount: Int): List<HomeMenuItem> {
         val items = mutableListOf<HomeMenuItem>()
 
         items.add(
@@ -91,14 +97,16 @@ class HomeViewModel(
             )
         )
 
-        items.add(
-            HomeMenuItem(
-                FEATURE_VISIT,
-                app.getString(R.string.text_feature_visited),
-                app.getString(R.string.text_desc_feature_visited),
-                R.drawable.icon_visited
+        if (visitCount > 0) {
+            items.add(
+                HomeMenuItem(
+                    FEATURE_VISIT,
+                    app.getString(R.string.text_feature_visited),
+                    app.getString(R.string.text_desc_feature_visited),
+                    R.drawable.icon_visited
+                )
             )
-        )
+        }
 
         if (invoiceCount > 0) {
             items.add(
@@ -140,31 +148,45 @@ class HomeViewModel(
 
     fun clearUserSession() = sessionManager.clearSession()
 
-    private fun initConfigDownload() {
-        viewModelScope.launch {
-            val defaultConfig = listTableConfigUseCase.invoke()
-            insertDownloadUseCase(defaultConfig)
-        }
-    }
 
     fun onMenuClicked(idMenu: Int) {
         viewModelScope.launch {
+            val currentDate = getCurrentDate()
+            val configData = fetchConfigDownloadUseCase()
+
+            val invoicePendingResult = getCountInvoicePendingUseCase().first()
+            val totalInvoicePending = invoicePendingResult.first + invoicePendingResult.second
+
             val pending = checkPendingDataDownloadUseCase().data ?: 0
+            val lastDownloadDate = configData.data?.firstOrNull()?.createAd ?: ""
 
             when {
-                idMenu == FEATURE_DOWNLOAD -> {
+
+                idMenu == FEATURE_DOWNLOAD || idMenu == FEATURE_SETTING -> {
+                    val dest =
+                        if (idMenu == FEATURE_DOWNLOAD) RouteDestination.HomeToDownload else RouteDestination.HomeToSetting
+                    _navEvent.send(HomeNavEvent.Navigate(dest))
+                }
+
+                idMenu == FEATURE_INVOICE && totalInvoicePending > 0 -> {
+                    _navEvent.send(HomeNavEvent.Navigate(RouteDestination.HomeToInvoice))
+                }
+
+
+                lastDownloadDate != currentDate -> {
                     _navEvent.send(
-                        HomeNavEvent.Navigate(RouteDestination.HomeToDownload)
+                        HomeNavEvent.Blocked("Data belum di-download untuk hari ini")
                     )
                 }
 
-                idMenu == FEATURE_SETTING -> {
+                pending > 0 -> {
                     _navEvent.send(
-                        HomeNavEvent.Navigate(RouteDestination.HomeToSetting)
+                        HomeNavEvent.Blocked("Download data belum lengkap")
                     )
                 }
 
-                pending == 0 -> {
+
+                else -> {
                     val destination = when (idMenu) {
                         FEATURE_ACTIVITIES -> RouteDestination.HomeToActivities
                         FEATURE_EXPENSES -> RouteDestination.HomeToExpanses
@@ -175,18 +197,8 @@ class HomeViewModel(
                     }
 
                     destination?.let {
-                        _navEvent.send(
-                            HomeNavEvent.Navigate(it)
-                        )
+                        _navEvent.send(HomeNavEvent.Navigate(it))
                     }
-                }
-
-                else -> {
-                    _navEvent.send(
-                        HomeNavEvent.Blocked(
-                            "Download data belum lengkap"
-                        )
-                    )
                 }
             }
         }
@@ -219,4 +231,22 @@ class HomeViewModel(
         }
     }
 
+    private fun fetchLastDownloadDate() {
+        viewModelScope.launch {
+            val result = fetchConfigDownloadUseCase()
+            if (result.status == StatusNetwork.SUCCESS) {
+                val rawDate = result.data?.firstOrNull()?.createAd
+
+                val formattedDate = if (rawDate.isNullOrEmpty()) {
+                    "-"
+                } else {
+                    formatDateToIndoDisplay(rawDate).ifEmpty { "-" }
+                }
+
+                _downloadDate.value = formattedDate
+            } else {
+                _downloadDate.value = "-"
+            }
+        }
+    }
 }

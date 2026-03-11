@@ -3,7 +3,6 @@ package com.sss.monikaapps.feature.download.domain.repository
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.download.data.model.DownloadDataResponse
-import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
 import kotlinx.coroutines.flow.Flow
 
 interface DownloadRepository {
@@ -17,5 +16,6 @@ interface DownloadRepository {
 
     suspend fun listTableConfig(): List<ConfigDownloadDataEntity>
 
-    fun getInvoiceCount() : Flow<Int>
+    fun getInvoiceCount(): Flow<Int>
+    fun getVisitCount(): Flow<Int>
 }

@@ -1,10 +1,14 @@
 package com.sss.monikaapps.feature.invoice.data.remote
 
-import android.util.Log
-import com.sss.monikaapps.common.db.entity.LogEntity
 import com.sss.monikaapps.common.helper.ResponseHelper.parseErrorResponse
+import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
 import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
+import com.sss.monikaapps.feature.invoice.domain.model.PaymentInvoiceRequest
+import com.sss.monikaapps.feature.invoice.domain.model.toCreatedAtParts
+import com.sss.monikaapps.feature.invoice.domain.model.toMultipartBody
+import com.sss.monikaapps.feature.invoice.domain.model.toMultipartImageParts
 import com.sss.monikaapps.network.ApiService
 
 class InvoiceRemoteDataSourceImpl(private val apiService: ApiService) : InvoiceRemoteDataSource {
@@ -55,5 +59,42 @@ class InvoiceRemoteDataSourceImpl(private val apiService: ApiService) : InvoiceR
         } catch (e: Exception) {
             null
         }
+    }
+
+    override suspend fun getReasonInvoice(): ReasonInvoiceResponse? {
+        val response = apiService.fetchReasonInvoice()
+
+        if (!response.isSuccessful) {
+            throw RuntimeException(parseErrorResponse(response))
+        }
+        return response.body()
+    }
+
+    override suspend fun checkReasonInvoice(totalData: Int): String? {
+        return try {
+            val response = apiService.checkReasonInvoice(totalData)
+
+            if (!response.isSuccessful) {
+                null
+            } else {
+                response.body()?.data
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override suspend fun submitInvoice(payload: PaymentInvoiceRequest): DefaultAddResponse? {
+        val response = apiService.submitInvoice(
+            payload.toMultipartBody(),
+            payload.toMultipartImageParts(),
+            payload.toCreatedAtParts()
+        )
+
+        if (!response.isSuccessful) {
+            throw RuntimeException(parseErrorResponse(response))
+        }
+
+        return response.body()
     }
 }

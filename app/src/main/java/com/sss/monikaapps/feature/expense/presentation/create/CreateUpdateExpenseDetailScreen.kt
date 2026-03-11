@@ -101,9 +101,8 @@ fun CreateAndUpdateExpenseDetailScreen(
     }
 
     LaunchedEffect(categories) {
-        if (isEditMode && selectedCategory == null && dataIdDetail != null) {
+        if (isEditMode && selectedCategory == null) {
             viewModel.setSelectedCategoryById(dataIdDetail)
-
             viewModel.setInitialKm(dataInitialKm ?: "0")
             viewModel.setFinalKm(dataFinalKm ?: "0")
         }

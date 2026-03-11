@@ -1,7 +1,5 @@
 package com.sss.monikaapps.feature.visit.presentation.detail
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomPrimaryButton
@@ -31,6 +28,7 @@ import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.helper.MapsHelper.openGoogleMaps
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
@@ -65,7 +63,6 @@ fun VisitDetailScreen(
     LaunchedEffect(Unit) {
         viewModel.fetchVisitDetail(idVisit)
     }
-
 
     Column(
         modifier = Modifier
@@ -198,22 +195,3 @@ fun VisitDetailScreen(
     }
 }
 
-
-fun openGoogleMaps(context: Context, lat: String, lng: String) {
-    if (lat == "0" || lng == "0") return
-
-    val gmmIntentUri = "google.navigation:q=$lat,$lng".toUri()
-    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
-        setPackage("com.google.android.apps.maps")
-    }
-
-    try {
-        context.startActivity(mapIntent)
-    } catch (e: Exception) {
-        val fallbackIntent = Intent(
-            Intent.ACTION_VIEW,
-            "https://www.google.com/maps/dir/?api=1&destination=$lat,$lng".toUri()
-        )
-        context.startActivity(fallbackIntent)
-    }
-}

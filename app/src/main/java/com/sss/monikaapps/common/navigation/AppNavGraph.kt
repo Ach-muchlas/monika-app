@@ -10,12 +10,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.CUSTOMER_ID
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.FINAL_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_EXPENSE
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_INVOICE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_MOBILE_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.ID_VISIT
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.INIT_KM
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NET_AMOUNT
+import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOMOR_NOTA
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.NOTE
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_ACTIVITY
 import com.sss.monikaapps.common.constanta.ArgumentsConstant.TRNO_EXPENSE
@@ -36,7 +39,9 @@ import com.sss.monikaapps.feature.expense.presentation.create.CreateExpenseScree
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScreen
 import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
 import com.sss.monikaapps.feature.home.presentasi.HomeScreen
-import com.sss.monikaapps.feature.invoice.presentation.InvoiceListScreen
+import com.sss.monikaapps.feature.invoice.presentation.detail.InvoiceDetailScreen
+import com.sss.monikaapps.feature.invoice.presentation.list.InvoiceListScreen
+import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceScreen
 import com.sss.monikaapps.feature.login.presentation.LoginScreen
 import com.sss.monikaapps.feature.mastering.presentation.MasterScreen
 import com.sss.monikaapps.feature.mastering.presentation.MasteringCategoryExpenseScreen
@@ -102,7 +107,13 @@ fun AppNavGraph(
         }
 
         composable(Routes.INVOICE) {
-            InvoiceListScreen(navController)
+            InvoiceListScreen(navController, onItemClick = { customerId ->
+                navController.navigateToDestination(
+                    RouteDestination.ListInvoiceToDetailInvoice(
+                        customerId
+                    )
+                )
+            })
         }
 
         composable(Routes.MASTER_DATA_EXPENSE) {
@@ -110,18 +121,15 @@ fun AppNavGraph(
         }
 
         composable(Routes.ACTIVITIES) {
-            ActivitiesScreen(
-                navController = navController,
-                onClick = { trno, idMobile ->
-                    navController.navigateToDestination(
-                        RouteDestination.ActivityToDetail(trno, idMobile)
-                    )
-                },
-                onClickAddActivity = {
-                    navController.navigateToDestination(
-                        RouteDestination.ActivityToCreateActivity(CHECK_IN)
-                    )
-                })
+            ActivitiesScreen(navController = navController, onClick = { trno, idMobile ->
+                navController.navigateToDestination(
+                    RouteDestination.ActivityToDetail(trno, idMobile)
+                )
+            }, onClickAddActivity = {
+                navController.navigateToDestination(
+                    RouteDestination.ActivityToCreateActivity(CHECK_IN)
+                )
+            })
         }
 
         composable(Routes.DOWNLOAD) {
@@ -147,8 +155,7 @@ fun AppNavGraph(
         }
 
         composable(
-            route = Routes.DETAIL_ACTIVITIES,
-            arguments = listOf(
+            route = Routes.DETAIL_ACTIVITIES, arguments = listOf(
                 navArgument(TRNO_ACTIVITY) { type = NavType.StringType },
                 navArgument(ID_MOBILE_ACTIVITY) { type = NavType.StringType },
             )
@@ -326,6 +333,36 @@ fun AppNavGraph(
         ) { navBackStackEntry ->
             val urlPhoto = navBackStackEntry.arguments?.getString(URL_PHOTO).orEmpty()
             PhotoDetailScreen(urlPhoto, navController)
+        }
+
+        composable(
+            Routes.DETAIL_INVOICE, arguments = listOf(
+                navArgument(CUSTOMER_ID) { type = NavType.StringType })
+        ) { _ ->
+            InvoiceDetailScreen(
+                navController,
+                onClickPayment = { idInvoice, nomorNota, customerId ->
+                    navController.navigateToDestination(
+                        RouteDestination.DetailInvoiceToPaymentInvoice(
+                            idInvoice, nomorNota, customerId
+                        )
+                    )
+                },
+                clickDetailPhoto = { url ->
+                    navController.navigateToDestination(
+                        RouteDestination.ToDetailPhoto(url)
+                    )
+                }
+            )
+        }
+
+        composable(
+            Routes.PAYMENT_INVOICE, arguments = listOf(
+                navArgument(NOMOR_NOTA) { type = NavType.StringType },
+                navArgument(ID_INVOICE) { type = NavType.StringType },
+                navArgument(CUSTOMER_ID) { type = NavType.StringType }
+            )) { _ ->
+            PaymentInvoiceScreen(navController)
         }
     }
 }

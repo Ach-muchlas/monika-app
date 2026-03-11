@@ -38,9 +38,10 @@ fun CustomTableDownload(
                 .background(Primary)
                 .padding(vertical = 12.dp)
         ) {
-            TableCell("Nama Table", weight = 1.5f, isHeader = true)
-            TableCell("Total Data Local", weight = 1f, isHeader = true)
-            TableCell("Total Data Server", weight = 1f, isHeader = true)
+            TableCell("Nama Table", weight = 1f, isHeader = true)
+            TableCell("Data Local", weight = 0.8f, isHeader = true)
+            TableCell("Data Server", weight = 0.8f, isHeader = true)
+            TableCell("Is Download", weight = 0.8f, isHeader = true)
         }
 
         Divider(color = Color.Gray)
@@ -55,9 +56,10 @@ fun CustomTableDownload(
                     .background(bgColor)
                     .padding(vertical = 10.dp)
             ) {
-                TableCell(item.tableName, weight = 1.5f)
-                TableCell(item.totalDataMobile.toString(), weight = 1f)
-                TableCell(item.totalDataServer.toString(), weight = 1f)
+                TableCell(item.tableName, weight = 1f)
+                TableCell(item.totalDataMobile.toString(), weight = 0.8f)
+                TableCell(item.totalDataServer.toString(), weight = 0.8f)
+                TableCell(item.statusTotalDownload.toString(), weight = 0.8f)
             }
 
             Divider(color = Color(0xFFE0E0E0))

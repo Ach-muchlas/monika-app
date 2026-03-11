@@ -1,3 +1,6 @@
+import org.gradle.kotlin.dsl.libs
+import org.jetbrains.kotlin.ir.backend.js.lower.collectNativeImplementations
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -55,6 +58,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.play.services.location)
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.compose.material3)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -93,5 +97,7 @@ dependencies {
 
     implementation(libs.lottie.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.compose.shimmer)
 
+    implementation(libs.androidx.compose.material.icons.extended)
 }

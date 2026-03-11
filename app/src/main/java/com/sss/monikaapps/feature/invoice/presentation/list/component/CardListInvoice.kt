@@ -1,4 +1,4 @@
-package com.sss.monikaapps.feature.invoice.presentation.component
+package com.sss.monikaapps.feature.invoice.presentation.list.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -32,11 +32,7 @@ fun CardListInvoice(
     data: CustomerInvoiceEntity,
     onClick: () -> Unit,
 ) {
-    val color = when (data.syncStatus) {
-        1, 3 -> DarkRed
-        2, 4 -> Primary
-        else -> Gray
-    }
+    val color = if (data.syncStatus != 0) Primary else Gray
 
     Card(
         modifier = Modifier
@@ -80,13 +76,13 @@ fun CardListInvoice(
                 )
             }
 
-            Text(
-                text = when (data.syncStatus) {
-                    1, 2 -> "Check In"
-                    3, 4 -> "Check Out"
-                    else -> ""
-                }, style = BodyPopBold.copy(color = Gray, fontSize = Dimens.MediumFont)
-            )
+//            Text(
+//                text = when (data.syncStatus) {
+//                    1, 2 -> "Check In"
+//                    3, 4 -> "Check Out"
+//                    else -> ""
+//                }, style = BodyPopBold.copy(color = Gray, fontSize = Dimens.MediumFont)
+//            )
         }
     }
 }

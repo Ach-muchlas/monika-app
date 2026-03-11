@@ -45,7 +45,7 @@ import com.sss.monikaapps.feature.download.domain.repository.DownloadRepository
 import com.sss.monikaapps.feature.download.domain.repository.DownloadRepositoryImpl
 import com.sss.monikaapps.feature.download.domain.usecase.DownloadUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.FetchConfigDownloadUseCase
-import com.sss.monikaapps.feature.download.domain.usecase.GetInvoiceCountUseCase
+import com.sss.monikaapps.feature.download.domain.usecase.GetCountInvoiceAndVisitUseCase
 import com.sss.monikaapps.feature.download.domain.usecase.InsertDownloadUseCase
 import com.sss.monikaapps.feature.download.presentation.DownloadViewModel
 import com.sss.monikaapps.feature.expense.data.remote.ExpensesRemoteDataSource
@@ -65,6 +65,7 @@ import com.sss.monikaapps.feature.expense.presentation.create.ExpenseCreateAndUp
 import com.sss.monikaapps.feature.expense.presentation.detail.ExpenseDetailViewModel
 import com.sss.monikaapps.feature.expense.presentation.list.ExpensesViewModel
 import com.sss.monikaapps.feature.home.domain.usecase.CheckPendingDataDownloadUseCase
+import com.sss.monikaapps.feature.home.domain.usecase.GetCountInvoicePendingUseCase
 import com.sss.monikaapps.feature.home.domain.usecase.ListTableConfigUseCase
 import com.sss.monikaapps.feature.home.presentasi.HomeViewModel
 import com.sss.monikaapps.feature.invoice.data.local.InvoiceLocalDataSource
@@ -73,9 +74,15 @@ import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSource
 import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSourceImpl
 import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepository
 import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepositoryImpl
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetDetailInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.GetListCustomerInvoiceUseCase
-import com.sss.monikaapps.feature.invoice.domain.usecase.SearchListCustomerInvoiceUseCase
-import com.sss.monikaapps.feature.invoice.presentation.InvoiceViewModel
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetPaymentDataInvoiceUseCase
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetReasonUseCase
+import com.sss.monikaapps.feature.invoice.domain.usecase.SubmitPaymentInvoiceUseCase
+import com.sss.monikaapps.feature.invoice.domain.usecase.SyncManualInvoiceUseCase
+import com.sss.monikaapps.feature.invoice.presentation.detail.DetailInvoiceViewModel
+import com.sss.monikaapps.feature.invoice.presentation.list.InvoiceListViewModel
+import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceViewModel
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSource
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSourceImpl
 import com.sss.monikaapps.feature.login.domain.repository.AuthRepository
@@ -146,24 +153,19 @@ object AppModule {
             LocationServices.getFusedLocationProviderClient(androidContext())
         }
         single { SessionManager.getInstance() }
+
         single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
         single<ActivitiesRepository> { ActivitiesRepositoryImpl(get(), get(), get(), get()) }
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
         single<DownloadRepository> {
-            DownloadRepositoryImpl(
-                androidContext(),
-                get(),
-                get(),
-                get(),
-                get()
-            )
+            DownloadRepositoryImpl(androidContext(), get(), get(), get(), get())
         }
         single<VisitRepository> { VisitRepositoryImpl(get(), get()) }
         single<ConnectionRepository> { ConnectionRepositoryImpl(get(), get()) }
         single<BackupRemoteRepository> { BackupRemoteRepositoryImpl(get()) }
         single<VersionRepository> { VersionRepositoryImpl(get()) }
-        single<InvoiceRepository> { InvoiceRepositoryImpl(get()) }
+        single<InvoiceRepository> { InvoiceRepositoryImpl(get(), get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -229,9 +231,14 @@ object AppModule {
         single { CheckPendingDataDownloadUseCase(get()) }
         single { FetchVersionAppsUseCase(get()) }
         single { ListTableConfigUseCase(get()) }
-        single { GetInvoiceCountUseCase(get()) }
+        single { GetCountInvoiceAndVisitUseCase(get()) }
         single { GetListCustomerInvoiceUseCase(get()) }
-        single { SearchListCustomerInvoiceUseCase(get()) }
+        single { GetDetailInvoiceUseCase(get()) }
+        single { GetPaymentDataInvoiceUseCase(get()) }
+        single { GetReasonUseCase(get()) }
+        single { GetCountInvoicePendingUseCase(get()) }
+        single { SubmitPaymentInvoiceUseCase(get(), androidContext()) }
+        single { SyncManualInvoiceUseCase(get(), get()) }
     }
 
     val viewModelModule = module {
@@ -244,7 +251,7 @@ object AppModule {
         viewModel { PhotoViewModel(get()) }
         viewModel { LocationViewModel(get()) }
         viewModel { MasteringViewModel(get()) }
-        viewModel { DownloadViewModel(get(), get()) }
+        viewModel { DownloadViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { VisitViewModel(get()) }
         viewModel { VisitDetailViewModel(get()) }
         viewModel { UpdateVisitViewModel(get(), get(), get()) }
@@ -252,6 +259,8 @@ object AppModule {
         viewModel { DeviceViewModel(get(), get(), get()) }
         viewModel { ResultDownloadViewModel(get(), get()) }
         viewModel { VersionViewModel() }
-        viewModel { InvoiceViewModel(get(), get()) }
+        viewModel { InvoiceListViewModel(get(),get()) }
+        viewModel { DetailInvoiceViewModel(get(), get()) }
+        viewModel { PaymentInvoiceViewModel(get(), get(), get(), get()) }
     }
 }

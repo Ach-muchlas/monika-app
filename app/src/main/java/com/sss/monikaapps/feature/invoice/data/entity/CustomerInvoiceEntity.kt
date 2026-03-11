@@ -16,9 +16,5 @@ data class CustomerInvoiceEntity(
     val gpsLatCustomer: String,
     val gpsLngCustomer: String,
 
-    val gpsLatUser: String? = null,
-    val gpsLngUser: String? = null,
-
-    //  0 : Belum transaksi, 1 : Masih dilokal, 2 : Sudah sinkron
-    val syncStatus: Int = 0,
+    val syncStatus: Int = 0
 )

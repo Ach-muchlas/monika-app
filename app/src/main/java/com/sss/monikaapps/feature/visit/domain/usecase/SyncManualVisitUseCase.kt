@@ -82,6 +82,5 @@ class SyncManualVisitUseCase(
         return Result.success(
             "Sinkronisasi selesai. Berhasil: $successCount, Gagal: $failedCount"
         )
-
     }
 }
