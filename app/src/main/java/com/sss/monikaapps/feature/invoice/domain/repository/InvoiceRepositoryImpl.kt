@@ -1,10 +1,15 @@
 package com.sss.monikaapps.feature.invoice.domain.repository
 
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.NOT_PAID
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.RECEIPT
 import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSource
+import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
 import com.sss.monikaapps.feature.invoice.data.local.InvoiceLocalDataSource
 import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSource
+import com.sss.monikaapps.feature.invoice.data.response.GeneratePdfResponse
 import com.sss.monikaapps.feature.invoice.domain.model.DetailInvoiceData
 import com.sss.monikaapps.feature.invoice.domain.model.NotaWithPhotos
 import com.sss.monikaapps.feature.invoice.domain.model.PaymentInvoiceData
@@ -21,17 +26,12 @@ import java.io.File
 class InvoiceRepositoryImpl(
     private val local: InvoiceLocalDataSource,
     private val remote: InvoiceRemoteDataSource,
+    private val localConfig: DownloadLocalDataSource,
 ) : InvoiceRepository {
     override fun getCustomerInvoiceWithFilter(
         query: String,
         status: Int,
     ): Flow<List<CustomerInvoiceEntity>> = local.getCustomerInvoiceWithFilter(query, status)
-
-    override fun getCustomerInvoice(): Flow<List<CustomerInvoiceEntity>> =
-        local.getCustomerInvoice()
-
-    override fun searchCustomerInvoice(query: String): Flow<List<CustomerInvoiceEntity>> =
-        local.searchCustomerInvoice(query)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getDetailInvoice(customerId: String): Flow<DetailInvoiceData> {
@@ -66,9 +66,14 @@ class InvoiceRepositoryImpl(
         descReason: String,
         gpsLat: String,
         gpsLng: String,
+        dateReceipt: String,
+        paymentMethod : String,
+        idCoa : String,
     ): Int = local.submitPaymentInvoice(
-        nota, customerId, moneyPaid, status, reasonId, descReason, gpsLat, gpsLng
+        nota, customerId, moneyPaid, status, reasonId, descReason, gpsLat, gpsLng, dateReceipt, paymentMethod, idCoa
     )
+
+    override suspend fun getDateConfig(): String = localConfig.getDateConfig()
 
     override suspend fun submitPaymentInvoiceRemote(
         nota: String,
@@ -97,12 +102,29 @@ class InvoiceRepositoryImpl(
     override suspend fun getPaymentInvoiceNotSync(): List<PaymentInvoiceRequestDataLocal> =
         local.getPaymentInvoiceNotSync()
 
+    override suspend fun generatePdfInvoice(date: String): Result<GeneratePdfResponse> {
+        return try {
+            val response = remote.getDataInvoiceMakeGeneratePdf(date)
+
+            if (response != null && response.totalData != 0) {
+                Result.success(response)
+            } else {
+                Result.error(null, response?.message.toString())
+            }
+        } catch (e: Exception) {
+            Result.error(null, e.message ?: "Error Occurred")
+        }
+    }
+
+    override fun fetchBankReceipt(): Flow<List<BankReceiptEntity>> = local.getBankReceipt()
+
     private suspend fun getPaymentInvoiceDataLocal(
         nota: String,
         customerId: String,
     ): PaymentInvoiceRequest {
         val dataLocal = local.getPaymentInvoiceRequest(nota, customerId)
-        val photosLocal = local.getPhotoPaymentInvoice(dataLocal.idNota)
+        val parentFeature = if (dataLocal.isStatus == 2) NOT_PAID else RECEIPT
+        val photosLocal = local.getPhotoPaymentInvoice(dataLocal.idNota, parentFeature)
 
         return PaymentInvoiceRequest(
             idMobile = dataLocal.idNota,
@@ -123,9 +145,14 @@ class InvoiceRepositoryImpl(
             idReason = dataLocal.idReason,
             descReason = dataLocal.descReason,
             distanceDifference = dataLocal.distanceDifference,
+            dueDate = dataLocal.dueDate,
+            dateNota = dataLocal.dateNota,
+            amount = dataLocal.amount,
+            dateReceipt = dataLocal.dateReceipt,
+            paymentMethod = dataLocal.paymentMethod,
+            idCoa = dataLocal.idCoa,
             photos = photosLocal.map { File(it.filePath) },
             createdAtPhotos = photosLocal.map { it.createdAt },
         )
     }
-
 }

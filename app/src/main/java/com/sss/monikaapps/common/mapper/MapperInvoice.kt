@@ -1,8 +1,10 @@
 package com.sss.monikaapps.common.mapper
 
+import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
+import com.sss.monikaapps.feature.invoice.data.response.DataItemBankReceipt
 import com.sss.monikaapps.feature.invoice.data.response.DataItemCustomerInvoice
 import com.sss.monikaapps.feature.invoice.data.response.DataItemNotaInvoice
 import com.sss.monikaapps.feature.invoice.data.response.DataItemReason
@@ -29,6 +31,10 @@ object MapperInvoice {
                 ?.toDoubleOrNull()
                 ?.toLong()
                 ?.toString() ?: "0",
+            nominalNota = nominalNota
+                ?.toDoubleOrNull()
+                ?.toLong()
+                ?.toString() ?: "0",
             dueDate = dueDate ?: "",
             moneyPaid = 0,
         )
@@ -39,6 +45,14 @@ object MapperInvoice {
             idReason = idreason ?: "",
             descReason = descreason ?: "",
             status = status ?: ""
+        )
+    }
+
+    fun DataItemBankReceipt.toEntity() : BankReceiptEntity{
+        return BankReceiptEntity(
+            idCoa = idCoa ?: "",
+            bankName = namaBank ?: "",
+            codeBank = kodeBank ?: ""
         )
     }
 

@@ -1,12 +1,18 @@
 package com.sss.monikaapps.feature.invoice.presentation.list
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.formatter.FormatterDate
+import com.sss.monikaapps.common.helper.PdfInvoiceHelper
+import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetDataGeneratePdfUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.GetListCustomerInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.SyncManualInvoiceUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +30,9 @@ import kotlinx.coroutines.launch
 class InvoiceListViewModel(
     listCustomerInvoiceUseCase: GetListCustomerInvoiceUseCase,
     private val syncManualInvoiceUseCase: SyncManualInvoiceUseCase,
+    private val getDataGeneratePdfUseCase: GetDataGeneratePdfUseCase,
 ) : ViewModel() {
+    private val sessionManager = SessionManager.getInstance()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
@@ -33,6 +41,7 @@ class InvoiceListViewModel(
 
     private val _syncManualResult = MediatorLiveData<Result<String>?>()
     val syncManualResult: LiveData<Result<String>?> = _syncManualResult
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val customerInvoice: StateFlow<Result<List<CustomerInvoiceEntity>>> =
@@ -67,4 +76,6 @@ class InvoiceListViewModel(
     fun clearSyncState() {
         _syncManualResult.value = null
     }
+
+
 }

@@ -3,6 +3,7 @@ package com.sss.monikaapps.feature.invoice.data.remote
 import com.sss.monikaapps.common.helper.ResponseHelper.parseErrorResponse
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.GeneratePdfResponse
 import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
 import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
 import com.sss.monikaapps.feature.invoice.domain.model.PaymentInvoiceRequest
@@ -90,6 +91,16 @@ class InvoiceRemoteDataSourceImpl(private val apiService: ApiService) : InvoiceR
             payload.toMultipartImageParts(),
             payload.toCreatedAtParts()
         )
+
+        if (!response.isSuccessful) {
+            throw RuntimeException(parseErrorResponse(response))
+        }
+
+        return response.body()
+    }
+
+    override suspend fun getDataInvoiceMakeGeneratePdf(date: String): GeneratePdfResponse? {
+        val response = apiService.fetchDataInvoiceMakePdf(date)
 
         if (!response.isSuccessful) {
             throw RuntimeException(parseErrorResponse(response))

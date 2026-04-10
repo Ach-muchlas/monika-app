@@ -184,9 +184,9 @@ fun VisitDetailScreen(
                 .padding(horizontal = Dimens.MediumMargin),
             text = stringResource(R.string.text_gmaps),
             colors = listOf(
-                Color(0xFFFFC107),
-                Color(0xFF8BC34A),
-                Color(0xFFB1AA00)
+                Color(0xFF5ED293),
+                Color(0xFF27AE60),
+                Color(0xFF1E8449)
             ),
             onClick = {
                 openGoogleMaps(context, lat = customerLat, lng = customerLng)

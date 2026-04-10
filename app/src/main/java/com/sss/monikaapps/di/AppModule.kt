@@ -20,6 +20,7 @@ import com.sss.monikaapps.feature.activity.data.remote.ActivityRemoteDataSourceI
 import com.sss.monikaapps.feature.activity.data.validator.ActivityValidator
 import com.sss.monikaapps.feature.activity.domain.repository.ActivitiesRepository
 import com.sss.monikaapps.feature.activity.domain.repository.ActivitiesRepositoryImpl
+import com.sss.monikaapps.feature.activity.domain.usecase.CountDataNotSyncUseCase
 import com.sss.monikaapps.feature.activity.domain.usecase.CreateActivityUseCase
 import com.sss.monikaapps.feature.activity.domain.usecase.FetchActivitiesUseCase
 import com.sss.monikaapps.feature.activity.domain.usecase.FetchDetailActivityUseCase
@@ -74,6 +75,8 @@ import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSource
 import com.sss.monikaapps.feature.invoice.data.remote.InvoiceRemoteDataSourceImpl
 import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepository
 import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepositoryImpl
+import com.sss.monikaapps.feature.invoice.domain.usecase.FetchBankReceiptUseCase
+import com.sss.monikaapps.feature.invoice.domain.usecase.GetDataGeneratePdfUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.GetDetailInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.GetListCustomerInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.GetPaymentDataInvoiceUseCase
@@ -81,6 +84,7 @@ import com.sss.monikaapps.feature.invoice.domain.usecase.GetReasonUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.SubmitPaymentInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.domain.usecase.SyncManualInvoiceUseCase
 import com.sss.monikaapps.feature.invoice.presentation.detail.DetailInvoiceViewModel
+import com.sss.monikaapps.feature.invoice.presentation.generate_pdf.GeneratePdfViewModel
 import com.sss.monikaapps.feature.invoice.presentation.list.InvoiceListViewModel
 import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceViewModel
 import com.sss.monikaapps.feature.login.data.remote.AuthRemoteDataSource
@@ -101,6 +105,11 @@ import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemote
 import com.sss.monikaapps.feature.result_download.domain.repository.BackupRemoteRepositoryImpl
 import com.sss.monikaapps.feature.result_download.domain.usecase.SendEmailUseCase
 import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadViewModel
+import com.sss.monikaapps.feature.update_data.presentation.UpdateDataViewModel
+import com.sss.monikaapps.feature.update_data_invoice.domain.repository.UpdateDataInvoiceRepository
+import com.sss.monikaapps.feature.update_data_invoice.domain.repository.UpdateDataInvoiceRepositoryImpl
+import com.sss.monikaapps.feature.update_data_invoice.domain.usecase.UpdateDataInvoiceUseCase
+import com.sss.monikaapps.feature.update_data_invoice.presentation.UpdateDataInvoiceViewModel
 import com.sss.monikaapps.feature.version_check.data.remote.VersionRemoteDataSource
 import com.sss.monikaapps.feature.version_check.data.remote.VersionRemoteDataSourceImpl
 import com.sss.monikaapps.feature.version_check.domain.repository.VersionRepository
@@ -137,7 +146,8 @@ object AppModule {
     val databaseModule = module {
         single {
             Room.databaseBuilder(androidContext(), AppDatabase::class.java, AppDatabase.DB_NAME)
-                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE).fallbackToDestructiveMigration()
+                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+                .fallbackToDestructiveMigration(false)
                 .build().also { AppDatabaseManager.setDatabase(it) }
         }
         single { get<AppDatabase>().photoDao() }
@@ -145,6 +155,7 @@ object AppModule {
         single { get<AppDatabase>().configDownload() }
         single { get<AppDatabase>().activityDao() }
         single { get<AppDatabase>().invoiceDao() }
+        single { get<AppDatabase>().bankReceiptDao() }
     }
 
     val repositoryModule = module {
@@ -165,7 +176,8 @@ object AppModule {
         single<ConnectionRepository> { ConnectionRepositoryImpl(get(), get()) }
         single<BackupRemoteRepository> { BackupRemoteRepositoryImpl(get()) }
         single<VersionRepository> { VersionRepositoryImpl(get()) }
-        single<InvoiceRepository> { InvoiceRepositoryImpl(get(), get()) }
+        single<InvoiceRepository> { InvoiceRepositoryImpl(get(), get(), get()) }
+        single<UpdateDataInvoiceRepository> { UpdateDataInvoiceRepositoryImpl(get(), get(), get()) }
 
         single<PhotoRepository> { PhotoRepositoryImpl(get()) }
         single<LocationRepository> { LocationRepositoryImpl(get()) }
@@ -184,11 +196,11 @@ object AppModule {
         single<ActivityLocalDataSource> { ActivityLocalDataSourceImpl(get(), get()) }
         single<ExpensesRemoteDataSource> { ExpensesRemoteDataSourceImpl(get()) }
         single<MasteringRemoteSource> { MasteringRemoteSourceImpl(get()) }
-        single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get(), get()) }
+        single<DownloadLocalDataSource> { DownloadLocalDataSourceImpl(get(), get(), get(), get()) }
         single<DownloadRemoteDataSource> { DownloadRemoteDataSourceImpl(get()) }
         single<VisitLocalDataSource> { VisitLocalDataSourceImpl(get(), get()) }
         single<VisitRemoteDataSource> { VisitRemoteDataSourceImpl(get()) }
-        single<InvoiceLocalDataSource> { InvoiceLocalDataSourceImpl(get()) }
+        single<InvoiceLocalDataSource> { InvoiceLocalDataSourceImpl(get(), get()) }
         single<InvoiceRemoteDataSource> { InvoiceRemoteDataSourceImpl(get()) }
 
         single<ConnectionLocalDataSource> { ConnectionLocalDataSourceImpl(get()) }
@@ -239,6 +251,10 @@ object AppModule {
         single { GetCountInvoicePendingUseCase(get()) }
         single { SubmitPaymentInvoiceUseCase(get(), androidContext()) }
         single { SyncManualInvoiceUseCase(get(), get()) }
+        single { GetDataGeneratePdfUseCase(get()) }
+        single { CountDataNotSyncUseCase(get()) }
+        single { UpdateDataInvoiceUseCase(get()) }
+        single { FetchBankReceiptUseCase(get()) }
     }
 
     val viewModelModule = module {
@@ -247,11 +263,11 @@ object AppModule {
         viewModel { ExpensesViewModel(get()) }
         viewModel { ExpenseDetailViewModel(get(), get(), get(), get(), get()) }
         viewModel { ExpenseCreateAndUpdateViewModel(get(), get(), get(), get()) }
-        viewModel { HomeViewModel(androidApplication(), get(), get(), get(), get(), get()) }
+        viewModel { HomeViewModel(androidApplication(), get(), get(), get(), get(), get(), get()) }
         viewModel { PhotoViewModel(get()) }
         viewModel { LocationViewModel(get()) }
         viewModel { MasteringViewModel(get()) }
-        viewModel { DownloadViewModel(get(), get(), get(), get(), get(), get()) }
+        viewModel { DownloadViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { VisitViewModel(get()) }
         viewModel { VisitDetailViewModel(get()) }
         viewModel { UpdateVisitViewModel(get(), get(), get()) }
@@ -259,8 +275,11 @@ object AppModule {
         viewModel { DeviceViewModel(get(), get(), get()) }
         viewModel { ResultDownloadViewModel(get(), get()) }
         viewModel { VersionViewModel() }
-        viewModel { InvoiceListViewModel(get(),get()) }
+        viewModel { InvoiceListViewModel(get(), get(), get()) }
         viewModel { DetailInvoiceViewModel(get(), get()) }
-        viewModel { PaymentInvoiceViewModel(get(), get(), get(), get()) }
+        viewModel { PaymentInvoiceViewModel(get(), get(), get(), get(), get()) }
+        viewModel { GeneratePdfViewModel(get(), get(), get()) }
+        viewModel { UpdateDataViewModel(get()) }
+        viewModel { UpdateDataInvoiceViewModel(get(), get()) }
     }
 }

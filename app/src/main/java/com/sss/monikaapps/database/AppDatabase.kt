@@ -9,7 +9,9 @@ import com.sss.monikaapps.feature.activity.data.dao.ActivityDao
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.feature.download.data.dao.ConfigDownloadDataDao
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
+import com.sss.monikaapps.feature.invoice.data.dao.BankReceiptDao
 import com.sss.monikaapps.feature.invoice.data.dao.InvoiceDao
+import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
@@ -18,8 +20,9 @@ import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 
 @Database(
     entities = [ActivityEntity::class, PhotoEntity::class, VisitEntity::class,
-                LogEntity::class, ConfigDownloadDataEntity::class, InvoiceEntity::class, CustomerInvoiceEntity::class, ReasonEntity::class],
-    version = 24,
+                LogEntity::class, ConfigDownloadDataEntity::class, InvoiceEntity::class,
+                CustomerInvoiceEntity::class, ReasonEntity::class, BankReceiptEntity::class],
+    version = 29,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun configDownload(): ConfigDownloadDataDao
     abstract fun photoDao(): PhotoDao
     abstract fun invoiceDao(): InvoiceDao
+    abstract fun bankReceiptDao() : BankReceiptDao
 
     companion object {
         const val DB_NAME = "app_database"

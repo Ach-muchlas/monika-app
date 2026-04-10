@@ -30,6 +30,10 @@ fun NavController.navigateToDestination(
             navigate(Routes.SETTING) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToUpdateData -> {
+            navigate(Routes.UPDATE_DATA) { launchSingleTop = true }
+        }
+
         RouteDestination.HomeToMaster -> {
             navigate(Routes.MASTER_DATA) { launchSingleTop = true }
         }
@@ -153,6 +157,14 @@ fun NavController.navigateToDestination(
                     destination.customerId
                 )
             ) { launchSingleTop = true }
+        }
+
+        RouteDestination.InvoiceToGeneratePdf -> {
+            navigate(Routes.GENERATE_PDF) { launchSingleTop = true }
+        }
+
+        RouteDestination.UpdateDataToUpdateInvoice -> {
+            navigate(Routes.UPDATE_DATA_INVOICE) { launchSingleTop = true }
         }
     }
 

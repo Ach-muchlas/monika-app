@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -42,7 +43,7 @@ fun CheckDeveloperModeBottomSheet() {
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
-        confirmValueChange = { false }
+        confirmValueChange = { it != SheetValue.Hidden }
     )
 
     val composition by rememberLottieComposition(
@@ -75,7 +76,7 @@ fun CheckDeveloperModeBottomSheet() {
                 progress = { progress },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .size(250.dp)
             )
 
             Spacer(Modifier.height(16.dp))
@@ -97,7 +98,7 @@ fun CheckDeveloperModeBottomSheet() {
                 }
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
         }
     }
 }

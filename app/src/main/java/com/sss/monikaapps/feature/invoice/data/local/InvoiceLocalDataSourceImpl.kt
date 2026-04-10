@@ -3,7 +3,9 @@ package com.sss.monikaapps.feature.invoice.data.local
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDateTime
 import com.sss.monikaapps.common.helper.MapsHelper
 import com.sss.monikaapps.feature.activity.data.response.PhotoItem
+import com.sss.monikaapps.feature.invoice.data.dao.BankReceiptDao
 import com.sss.monikaapps.feature.invoice.data.dao.InvoiceDao
+import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
@@ -13,7 +15,8 @@ import com.sss.monikaapps.feature.invoice.domain.model.PhotoPaymentInvoice
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalDataSource {
+class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao, private val bankDao: BankReceiptDao) :
+    InvoiceLocalDataSource {
 
     override suspend fun insertCustomerInvoiceBatch(
         data: List<CustomerInvoiceEntity>,
@@ -63,22 +66,34 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalData
         }
     }
 
+    override suspend fun insertBankReceiptBatch(
+        data: List<BankReceiptEntity>,
+        onProgress: (Float) -> Unit,
+    ) {
+        val total = data.size
+        var inserted = 0
+
+        data.chunked(500).forEach { batch ->
+            bankDao.insertBankReceipt(batch)
+
+            inserted += batch.size
+            val progress = inserted.toFloat() / total.toFloat()
+            onProgress(progress)
+        }
+    }
+
     override suspend fun countCustomerInvoice(): Int = dao.countCustomerInvoice()
     override suspend fun countNotaInvoice(): Int = dao.countNotaInvoice()
     override suspend fun countReasonInvoice(): Int = dao.countReasonInvoice()
 
 
     override fun getInvoiceCount(): Flow<Int> = dao.observeInvoiceCount()
-    override fun getCustomerInvoice(): Flow<List<CustomerInvoiceEntity>> =
-        dao.observeCustomerInvoice()
 
     override fun getCustomerInvoiceWithFilter(
         query: String,
         status: Int,
     ): Flow<List<CustomerInvoiceEntity>> = dao.observeFilteredInvoice(query, status)
 
-    override fun searchCustomerInvoice(query: String): Flow<List<CustomerInvoiceEntity>> =
-        dao.searchCustomerInvoice(query)
 
     override fun getCustomerInvoiceByCustomerId(customerId: String): Flow<CustomerInvoiceEntity> =
         dao.observeCustomerInvoiceByCustomerId(customerId)
@@ -103,6 +118,9 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalData
         descReason: String,
         gpsLat: String,
         gpsLng: String,
+        dateReceipt: String,
+        paymentMethod : String,
+        idCoa : String,
     ): Int {
         // get data customer
         val customer = dao.observeCustomerInvoiceByCustomerId(customerId).first()
@@ -114,8 +132,9 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalData
             gpsLng
         )
         return dao.paidInvoice(
-            nota, customerId, moneyPaid, status,
-            reasonId, descReason, getCurrentDateTime(), gpsLat, gpsLng, distanceDifference
+            nota, customerId, moneyPaid, status, reasonId, descReason,
+            getCurrentDateTime(), gpsLat, gpsLng, distanceDifference, dateReceipt,
+            paymentMethod, idCoa
         )
     }
 
@@ -125,9 +144,11 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalData
     ): PaymentInvoiceRequestDataLocal = dao.observerPaymentRequest(nota, customerId)
 
 
-    override suspend fun getPhotoPaymentInvoice(idNota: String): List<PhotoPaymentInvoice> =
-        dao.getPhotoPaymentInvoice(idNota)
-
+    override suspend fun getPhotoPaymentInvoice(
+        idNota: String,
+        featureType: Int,
+    ): List<PhotoPaymentInvoice> =
+        dao.getPhotoPaymentInvoice(idNota, featureType)
 
     override suspend fun clearCustomerInvoice() = dao.clearCustomerInvoice()
     override suspend fun clearNotaInvoice() = dao.clearNotaInvoice()
@@ -139,7 +160,16 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao) : InvoiceLocalData
     override fun countInvoiceNotSync(): Flow<Int> = dao.countDataNotSync()
 
     override fun countInvoicePending(): Flow<Int> = dao.countDataPending()
+
     override suspend fun getPaymentInvoiceNotSync(): List<PaymentInvoiceRequestDataLocal> =
         dao.observerPaymentNotSync()
+
+    override suspend fun getCustomerIdInCustomerTable(): List<String> =
+        dao.getCustomerIdInCustomerTable()
+
+    override suspend fun getCustomerIdInInvoiceTable(): List<String> =
+        dao.getCustomerIdInInvoiceTable()
+
+    override fun getBankReceipt(): Flow<List<BankReceiptEntity>> = bankDao.observerBankReceipt()
 
 }

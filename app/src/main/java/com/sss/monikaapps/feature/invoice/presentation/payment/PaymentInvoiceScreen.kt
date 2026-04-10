@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +32,9 @@ import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomLoadingView
 import com.sss.monikaapps.common.component.CustomTopBar
-import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_INVOICE
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.NOT_PAID
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.PAID_TRANSFER
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.RECEIPT
 import com.sss.monikaapps.common.constanta.NameFeatureConstant.INVOICE
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
@@ -60,29 +64,62 @@ fun PaymentInvoiceScreen(
     val reasonState by viewModel.reason.collectAsStateWithLifecycle()
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
+    var date by remember { mutableStateOf("-") }
     val statusPaid by viewModel.statusPaid.collectAsStateWithLifecycle()
+    val parentType =
+        when (statusPaid) {
+            1 -> PAID_TRANSFER
+            2 -> NOT_PAID
+            3 -> RECEIPT
+            else -> 0
+        }
+
     val totalPaid by viewModel.totalPaid.collectAsStateWithLifecycle()
     val selectedReason by viewModel.selectedReason.collectAsStateWithLifecycle()
-
+    val selectedBankReceipt by viewModel.selectedBankReceipt.collectAsStateWithLifecycle()
+    val paymentMethod by viewModel.paymentMethod.collectAsStateWithLifecycle()
+    val bankReceipts by viewModel.bankReceipts.collectAsState()
 
     val photoHelper = remember {
         PhotoHelper(context, INVOICE, viewModel.nomorNota) { newPhoto ->
             photoViewModel.addPhoto(
                 parentId = viewModel.idInvoice,
                 parentType = viewModel.nomorNota,
-                parentFeature = FEATURE_INVOICE,
+                parentFeature = NOT_PAID,
+                path = newPhoto
+            )
+        }
+    }
+
+    val photoHelperForReceipt = remember {
+        PhotoHelper(context, INVOICE, viewModel.nomorNota) { newPhoto ->
+            photoViewModel.addPhoto(
+                parentId = viewModel.idInvoice,
+                parentType = viewModel.nomorNota,
+                parentFeature = RECEIPT,
+                path = newPhoto
+            )
+        }
+    }
+
+    val photoHelperEvidence = remember {
+        PhotoHelper(context, INVOICE, viewModel.nomorNota) { newPhoto ->
+            photoViewModel.addPhoto(
+                parentId = viewModel.idInvoice,
+                parentType = viewModel.nomorNota,
+                parentFeature = PAID_TRANSFER,
                 path = newPhoto
             )
         }
     }
 
     val launchCamera = photoHelper.rememberCameraLauncher()
+    val launchCameraForReceipt = photoHelperForReceipt.rememberCameraLauncher()
+    val launchCameraEvidencePaidTransfer = photoHelperEvidence.rememberCameraLauncher()
 
     val photos by photoViewModel
-        .observePhotos(viewModel.idInvoice, viewModel.nomorNota)
+        .observerPhotosInvoice(viewModel.idInvoice, viewModel.nomorNota, parentType)
         .collectAsState()
-
-
 
     Box(
         modifier = Modifier
@@ -128,24 +165,37 @@ fun PaymentInvoiceScreen(
                             totalOutstanding = formatCurrency(
                                 (dataPayment?.outstandingNota ?: 0).toLong()
                             ),
+                            totalNominalNota = formatCurrency(
+                                dataPayment?.nominalNota?.toLong() ?: 0
+                            ),
 
-                            // HUBUNGKAN DENGAN VIEWMODEL
+                            onDateChange = { date = it },
+
                             statusPaid = statusPaid,
                             totalPaid = totalPaid,
                             reasons = listReason,
                             selectedReason = selectedReason,
+                            selectedBankReceipt = selectedBankReceipt,
+                            paymentMethod = paymentMethod,
+
+                            listBankReceipt = bankReceipts,
 
                             onPaidChange = viewModel::onPaidChange,
                             onStatusPaidChange = viewModel::onStatusPaidChange,
                             onReasonChange = viewModel::onReasonChange,
+                            onBankReceiptSelected = viewModel::onBankChange,
+                            onPaymentMethodChange = viewModel::onPaymentMethodChange,
 
                             photos = photos.map { it.filePath },
                             onAddPhoto = { launchCamera() },
+                            onAddPhotoForReceipt = { launchCameraForReceipt() },
+                            onAddPhotoEvidenceTransfer = { launchCameraEvidencePaidTransfer() },
                             onDeletePhoto = { path ->
                                 photos.firstOrNull { it.filePath == path }?.let {
                                     photoViewModel.deletePhoto(it)
                                 }
                             },
+
                             onSubmit = { locationViewModel.fetchLocation() }
                         )
                     }
@@ -162,7 +212,7 @@ fun PaymentInvoiceScreen(
                 StatusNetwork.SUCCESS -> {
                     val (lat, lng) = locationState!!.data!!
 
-                    viewModel.submit(lat.toString(), lng.toString())
+                    viewModel.submit(lat.toString(), lng.toString(), date)
 
                     locationViewModel.clearState()
                 }

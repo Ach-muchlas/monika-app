@@ -25,7 +25,13 @@ data class PaymentInvoiceRequest(
     val dateDownload: String,
     val idReason: Int,
     val descReason: String,
-    val distanceDifference : String,
+    val distanceDifference: String,
+    val dueDate: String,
+    val dateNota: String,
+    val amount: String,
+    val dateReceipt: String,
+    val paymentMethod : String,
+    val idCoa : String,
     val photos: List<File>?,
     val createdAtPhotos: List<String>?,
 )
@@ -51,6 +57,12 @@ fun PaymentInvoiceRequest.toMultipartBody(): Map<String, RequestBody> {
         put("id_reason", idReason.toString().toRequestBody(mediaType))
         put("desc_reason", descReason.toRequestBody(mediaType))
         put("selisih_jarak", distanceDifference.toRequestBody(mediaType))
+        put("jatuh_tempo", dueDate.toRequestBody(mediaType))
+        put("tanggal_nota", dateNota.toRequestBody(mediaType))
+        put("nominal_nota", amount.toRequestBody(mediaType))
+        put("tanggal_tanda_terima", dateReceipt.toRequestBody(mediaType))
+        put("metode_pembayaran", paymentMethod.toRequestBody(mediaType))
+        put("id_coa", idCoa.toRequestBody(mediaType))
     }
 }
 

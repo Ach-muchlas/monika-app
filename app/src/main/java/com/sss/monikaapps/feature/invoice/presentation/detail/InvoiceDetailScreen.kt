@@ -32,6 +32,7 @@ import com.sss.monikaapps.common.model.dataStatusInvoice
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Spruce
 import com.sss.monikaapps.feature.invoice.presentation.detail.component.CardDetailItemNotaInvoice
 import com.sss.monikaapps.feature.invoice.presentation.detail.component.CardHeaderInvoiceDetail
 import org.koin.androidx.compose.koinViewModel
@@ -125,13 +126,17 @@ fun InvoiceDetailScreen(
             }
         }
 
-        // 4. Tombol statis di bawah (Sticky Bottom)
+
         CustomPrimaryButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(Dimens.MediumMargin),
             text = stringResource(R.string.text_gmaps),
-            colors = listOf(Color(0xFFFFC107), Color(0xFF8BC34A), Color(0xFFB1AA00)),
+            colors = listOf(
+                Color(0xFF5ED293),
+                Color(0xFF27AE60),
+                Color(0xFF1E8449)
+            ),
             onClick = {
                 openGoogleMaps(context, lat = customerLat, lng = customerLng)
             }

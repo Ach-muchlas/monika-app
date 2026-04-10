@@ -92,8 +92,7 @@ fun LoginScreen(
 
                             Manifest.permission.READ_MEDIA_IMAGES,
                             Manifest.permission.READ_EXTERNAL_STORAGE,
-                                ->
-                                "Izin galeri diperlukan"
+                                -> "Izin galeri diperlukan"
 
                             Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION,

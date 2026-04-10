@@ -16,6 +16,11 @@ class PhotoViewModel(private val repository: PhotoRepository) : ViewModel() {
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     }
 
+    fun observerPhotosInvoice(parentId: String, parentType: String, parentFeature: Int)  : StateFlow<List<PhotoEntity>> {
+        return repository.observePhotosInvoice(parentId, parentType, parentFeature)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
     fun addPhoto(parentId: String, parentFeature: Int, parentType: String, path: String) {
         viewModelScope.launch {
             repository.addPhoto(

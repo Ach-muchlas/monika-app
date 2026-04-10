@@ -12,6 +12,7 @@ sealed class RouteDestination {
     data object HomeToMaster : RouteDestination()
     data object HomeToInvoice : RouteDestination()
     data object HomeToSetting : RouteDestination()
+    data object HomeToUpdateData : RouteDestination()
 
     data object ConnectionToLogin : RouteDestination()
 
@@ -58,6 +59,9 @@ sealed class RouteDestination {
         val idInvoice: String,
         val nomorNota: String,
         val customerId: String,
-    ) :
-        RouteDestination()
+    ) : RouteDestination()
+
+    data object InvoiceToGeneratePdf : RouteDestination()
+
+    data object UpdateDataToUpdateInvoice : RouteDestination()
 }

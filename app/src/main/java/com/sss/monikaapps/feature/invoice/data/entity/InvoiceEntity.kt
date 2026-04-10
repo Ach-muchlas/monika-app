@@ -13,6 +13,7 @@ data class InvoiceEntity(
     val dateNota: String,
     val dueDate: String,
     val outstandingNota: String,
+    val nominalNota: String,
     val moneyPaid: Long,
 
     //  0 : Belum transaksi, 1 : Bayar, 2 : Tidak Bayar
@@ -26,6 +27,12 @@ data class InvoiceEntity(
     val gpsLngUser: String? = null,
     val distanceDifference: String? = null,
 
+    // 1 Cash, 2 transfer
+    val paymentMethod: Int? = null,
+    // id dari bank entity
+    val idCoaBankReceipt : String? = null,
+
+    val dateReceipt: String? = null,
     //  0 : Belum transaksi, 1 : Masih dilokal, 2 : Sudah sinkron
     val syncStatus: Int = 0,
 )

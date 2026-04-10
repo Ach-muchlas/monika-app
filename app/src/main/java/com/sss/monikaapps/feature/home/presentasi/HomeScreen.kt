@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.home.presentasi
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -121,8 +122,7 @@ private fun HomeOverlays(blockSheet: BlockSheetType) {
     when (blockSheet) {
         BlockSheetType.DEVELOPER_MODE -> CheckDeveloperModeBottomSheet()
         BlockSheetType.VERSION_UPDATE -> CheckVersionBottomSheet()
-        BlockSheetType.NONE -> { /* Do nothing */
-        }
+        BlockSheetType.NONE -> { /* Do nothing */ }
     }
 }
 

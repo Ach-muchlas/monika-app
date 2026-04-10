@@ -5,4 +5,5 @@ data class PaymentInvoiceData(
     val customerName: String,
     val nomorNota: String,
     val outstandingNota: Int,
+    val nominalNota : Int
 )

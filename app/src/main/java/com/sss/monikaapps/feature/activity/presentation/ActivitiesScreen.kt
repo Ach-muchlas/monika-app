@@ -115,7 +115,6 @@ fun ActivitiesScreen(
                 query = searchQuery, onQueryChange = { searchQuery = it })
 
 
-
             when (result?.status) {
                 StatusNetwork.LOADING -> {
                     CustomLoadingView()

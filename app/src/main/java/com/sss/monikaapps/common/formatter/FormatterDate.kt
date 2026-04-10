@@ -90,4 +90,14 @@ object FormatterDate {
         }
     }
 
+
+    // 11-mar-2026
+    fun formatDate(date: String): String {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val outputFormatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH)
+
+        val localDate = LocalDate.parse(date, inputFormatter)
+        return localDate.format(outputFormatter)
+    }
+
 }

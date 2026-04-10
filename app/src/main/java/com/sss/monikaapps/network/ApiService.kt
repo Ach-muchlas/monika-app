@@ -2,6 +2,7 @@ package com.sss.monikaapps.network
 
 import com.sss.monikaapps.common.constanta.ApiConstant.APP_VERSION
 import com.sss.monikaapps.common.constanta.ApiConstant.AUTH
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_BANK_RECEIPT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_DATA_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_CUSTOMER
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_NOTA
@@ -14,6 +15,7 @@ import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_HEADER_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_HEADER_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.DOWNLOAD_BANK_RECEIPT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_ACTIVITIES
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_EXPENSES
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_ACTIVITY
@@ -23,6 +25,8 @@ import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_INVOICE_NO
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_MASTERING_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_REASON_INVOICE
+import com.sss.monikaapps.common.constanta.ApiConstant.FIRST_CHECK_DOWNLOAD
+import com.sss.monikaapps.common.constanta.ApiConstant.GENERATE_PDF_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.SEND_EMAIL
 import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_INVOICE
@@ -31,9 +35,12 @@ import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
 import com.sss.monikaapps.feature.activity.data.response.DetailActivityResponse
+import com.sss.monikaapps.feature.download.data.response.CheckFirstDownloadResponse
 import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
+import com.sss.monikaapps.feature.invoice.data.response.BankReceiptResponse
 import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.GeneratePdfResponse
 import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
 import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
@@ -225,4 +232,25 @@ interface ApiService {
         @Part buktiFoto: List<MultipartBody.Part>?,
         @Part("created_at[]") createdAt: List<@JvmSuppressWildcards RequestBody>?,
     ): Response<DefaultAddResponse>
+
+
+    @GET("${FIRST_CHECK_DOWNLOAD}/{date_mobile}")
+    suspend fun fetchCheckFirstDownload(
+        @Path("date_mobile") dateMobile: String,
+    ): Response<CheckFirstDownloadResponse>
+
+
+    @GET("${GENERATE_PDF_INVOICE}/{date}")
+    suspend fun fetchDataInvoiceMakePdf(
+        @Path("date") date: String,
+    ): Response<GeneratePdfResponse>
+
+    @GET(DOWNLOAD_BANK_RECEIPT)
+    suspend fun fetchBankReceipt(): Response<BankReceiptResponse>
+
+    @GET("${CHECK_BANK_RECEIPT}/{total_mobile}")
+    suspend fun checkDataBankReceipt(
+        @Path("total_mobile") totalMobile: Int,
+    ): Response<DefaultAddResponse>
+
 }

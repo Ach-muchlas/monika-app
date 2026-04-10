@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.activity.domain.usecase.CountDataNotSyncUseCase
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.download.data.model.DownloadDataResponse
 import com.sss.monikaapps.feature.download.domain.usecase.DownloadUseCase
@@ -26,6 +27,7 @@ class DownloadViewModel(
     private val listTableConfig: ListTableConfigUseCase,
     private val pendingDownload: CheckPendingDataDownloadUseCase,
     private val getCountInvoicePendingUseCase: GetCountInvoicePendingUseCase,
+    private val countDataNotSyncUseCase: CountDataNotSyncUseCase,
 ) : ViewModel() {
     private val _downloadResult = MutableLiveData<Result<DownloadDataResponse>>()
     val downloadResult: LiveData<Result<DownloadDataResponse>> = _downloadResult
@@ -47,10 +49,12 @@ class DownloadViewModel(
 
     fun fetchDownload() {
         viewModelScope.launch {
-            _downloadResult.value = Result.loading(null, 0f)
+            // State awal saat mulai klik
+            _downloadResult.value = Result.loading(null, 0f, "Menyiapkan...")
 
-            val result = downloadUseCase.execute { progress ->
-                _downloadResult.value = Result.loading(null, progress)
+            // Tangkap progress (Float) dan message (String) dari UseCase
+            val result = downloadUseCase.execute { progress, message ->
+                _downloadResult.value = Result.loading(null, progress, message)
             }
 
             _downloadResult.value = result
@@ -64,9 +68,16 @@ class DownloadViewModel(
 
             val invoicePendingResult = getCountInvoicePendingUseCase().first()
             val totalInvoicePending = invoicePendingResult.first + invoicePendingResult.second
+            val totalActivityCheckOutNotSync = countDataNotSyncUseCase().first()
+
 
             if (totalInvoicePending != 0) {
                 _messageEvent.emit("Masih ada $totalInvoicePending data tagihan yang belum diselesaikan, selesaikan terlebih dahulu sebelum melakukan download")
+                return@launch
+            }
+
+            if (totalActivityCheckOutNotSync != 0) {
+                _messageEvent.emit("Masih ada $totalActivityCheckOutNotSync data aktivitas yang belum ke kirim ke server. Sinkron manual data aktivitas terlebih dahulu sebelum melakukan download")
                 return@launch
             }
 

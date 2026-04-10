@@ -1,7 +1,6 @@
 package com.sss.monikaapps.feature.download.data.local
 
 import android.content.Context
-import androidx.room.Database
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
 import kotlinx.coroutines.flow.Flow
@@ -25,4 +24,9 @@ interface DownloadLocalDataSource {
     suspend fun deleteAllLocalData(
         context: Context,
     )
+
+    suspend fun countDataBankReceipt(): Int
+    suspend fun deleteDataBankReceipt()
+
+    fun fetchDataConfig2(): Flow<List<ConfigDownloadDataEntity>>
 }

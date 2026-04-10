@@ -33,42 +33,22 @@ interface InvoiceDao {
 
     @Query(
         """
-        SELECT a.*, MIN(b.status) as syncStatus 
-        FROM customer_invoice_table a
-        LEFT JOIN invoice_table b ON a.customerId = b.customerId
-        GROUP BY a.customerId
-        ORDER BY syncStatus ASC, a.customerName ASC
-    """
-    )
-    fun observeCustomerInvoice(): Flow<List<CustomerInvoiceEntity>>
-
-    @Query(
-        """
-       SELECT a.*, MIN(b.status) as syncStatus 
-        FROM customer_invoice_table a
-        LEFT JOIN invoice_table b ON a.customerId = b.customerId
-        WHERE a.customerName LIKE '%' || :query || '%' OR a.customerId LIKE '%' || :query || '%'
-        GROUP BY a.customerId
-        ORDER BY syncStatus ASC, a.customerName ASC
-    """
-    )
-    fun searchCustomerInvoice(query: String): Flow<List<CustomerInvoiceEntity>>
-
-    @Query("""
         SELECT a.*, 
-            CASE WHEN MAX(b.syncStatus) = 1 THEN 3 ELSE MIN(b.status) END as syncStatus
+            CASE WHEN MAX(b.syncStatus) = 1 THEN 4 ELSE MIN(b.status) END as syncStatus
         FROM customer_invoice_table a
         LEFT JOIN invoice_table b ON a.customerId = b.customerId
         WHERE (a.customerName LIKE '%' || :query || '%' OR a.customerId LIKE '%' || :query || '%')
           AND (
               :status = 7
-              OR (:status = 3 AND b.syncStatus = 1)
-              OR (:status != 3 AND b.status = :status)
+              OR (:status = 4 AND b.syncStatus = 1)
+              OR (:status != 4 AND b.status = :status)
           )
         GROUP BY a.customerId
         ORDER BY b.syncStatus ASC, a.customerName ASC
-    """)
+    """
+    )
     fun observeFilteredInvoice(query: String, status: Int): Flow<List<CustomerInvoiceEntity>>
+
     @Query("SELECT * FROM customer_invoice_table WHERE customerId = :customerId")
     fun observeCustomerInvoiceByCustomerId(customerId: String): Flow<CustomerInvoiceEntity>
 
@@ -84,6 +64,10 @@ interface InvoiceDao {
     @Query("DELETE FROM invoice_table")
     suspend fun clearNotaInvoice()
 
+    @Query("SELECT customerId from customer_invoice_table")
+    suspend fun getCustomerIdInCustomerTable(): List<String>
+
+
     /*
         INVOICE ENTITY
      */
@@ -96,12 +80,16 @@ interface InvoiceDao {
     @Query("SELECT COUNT(*) FROM invoice_table WHERE status = 0")
     fun countDataPending(): Flow<Int>
 
+    @Query("SELECT customerId from invoice_table")
+    suspend fun getCustomerIdInInvoiceTable(): List<String>
+
+
     /*
         INVOICE (MIX)
      */
     @Query(
         """
-        SELECT a.customerId, b.customerName, a.nomorNota, a.outstandingNota 
+        SELECT a.customerId, b.customerName, a.nomorNota, a.outstandingNota , a.nominalNota
         FROM invoice_table a
         JOIN customer_invoice_table b on a.customerId = b.customerId
         WHERE nomorNota = :nota
@@ -115,7 +103,8 @@ interface InvoiceDao {
             b.phones as customerPhone, b.gpsLatCustomer as customerLat, b.gpsLngCustomer as customerLng,
             a.gpsLatUser as userLat, a.gpsLngUser as userLng, a.status as isStatus, a.entryTime, 
             a.outstandingNota, a.moneyPaid as payment,(SELECT createAd FROM config_download_data_table LIMIT 1) as dateDownload, 
-            a.reasonId as idReason, a.reason as descReason, a.distanceDifference
+            a.reasonId as idReason, a.reason as descReason, a.distanceDifference, a.dueDate, a.dateNota,a.nominalNota as amount, 
+            a.dateReceipt, a.paymentMethod, a.idCoaBankReceipt as idCoa
         FROM invoice_table a 
         JOIN customer_invoice_table b on a.customerId = b.customerId
         WHERE a.nomorNota = :nota AND a.customerId = :customerId
@@ -133,7 +122,8 @@ interface InvoiceDao {
             b.phones as customerPhone, b.gpsLatCustomer as customerLat, b.gpsLngCustomer as customerLng,
             a.gpsLatUser as userLat, a.gpsLngUser as userLng, a.status as isStatus, a.entryTime, 
             a.outstandingNota, a.moneyPaid as payment, (SELECT createAd FROM config_download_data_table LIMIT 1) as dateDownload, 
-            a.reasonId as idReason, a.reason as descReason, a.distanceDifference
+            a.reasonId as idReason, a.reason as descReason, a.distanceDifference, a.dueDate, a.dateNota ,a.nominalNota as amount, 
+            a.dateReceipt,a.paymentMethod, a.idCoaBankReceipt as idCoa
         FROM invoice_table a 
         JOIN customer_invoice_table b on a.customerId = b.customerId
         WHERE a.status <> 0 AND a.syncStatus = 1
@@ -145,7 +135,9 @@ interface InvoiceDao {
         """
         UPDATE invoice_table 
         SET moneyPaid = :moneyPaid, status = :status, reasonId = :reasonId, 
-            reason = :descReason, entryTime = :entryTime, gpsLatUser = :gpsLat, gpsLngUser = :gpsLng, distanceDifference = :distanceDifference ,syncStatus = 1
+            reason = :descReason, entryTime = :entryTime, gpsLatUser = :gpsLat, gpsLngUser = :gpsLng,
+            dateReceipt = :dateReceipt,distanceDifference = :distanceDifference ,syncStatus = 1, 
+            idCoaBankReceipt = :idCoa,paymentMethod = :paymentMethod 
         WHERE nomorNota = :nota AND customerId = :customerId
     """
     )
@@ -159,7 +151,10 @@ interface InvoiceDao {
         entryTime: String,
         gpsLat: String,
         gpsLng: String,
-        distanceDifference : String
+        distanceDifference: String,
+        dateReceipt: String,
+        paymentMethod : String,
+        idCoa : String,
     ): Int
 
     /*
@@ -181,6 +176,7 @@ interface InvoiceDao {
     /*
         PHOTO
      */
-    @Query("Select filePath, createdAt FROM photo_table WHERE parentId = :idNota")
-    suspend fun getPhotoPaymentInvoice(idNota: String): List<PhotoPaymentInvoice>
+    @Query("Select filePath, createdAt FROM photo_table WHERE parentId = :idNota AND parentFeature = :parentFeature")
+    suspend fun getPhotoPaymentInvoice(idNota: String, parentFeature: Int): List<PhotoPaymentInvoice>
+
 }

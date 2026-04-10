@@ -9,8 +9,8 @@ data class Result<out T>(
     val progress: Float = 0f
 ) {
     companion object {
-        fun <T> loading(data: T?, progress: Float = 0f): Result<T> =
-            Result(status = StatusNetwork.LOADING, data = data, message = null, progress = progress)
+        fun <T> loading(data: T?, progress: Float = 0f, message: String? = null): Result<T> =
+            Result(status = StatusNetwork.LOADING, data = data, message = message, progress = progress)
 
         fun <T> success(data: T?) =
             Result(status = StatusNetwork.SUCCESS, data = data, message = null)

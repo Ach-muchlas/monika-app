@@ -19,5 +19,10 @@ data class PaymentInvoiceRequestDataLocal(
     val idReason: Int,
     val descReason: String,
     val distanceDifference: String,
-
-    )
+    val dueDate: String,
+    val dateNota: String,
+    val amount: String,
+    val dateReceipt: String,
+    val paymentMethod: String,
+    val idCoa: String,
+)

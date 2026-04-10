@@ -40,6 +40,7 @@ import com.sss.monikaapps.feature.expense.presentation.detail.ExpanseDetailScree
 import com.sss.monikaapps.feature.expense.presentation.list.ExpansesScreen
 import com.sss.monikaapps.feature.home.presentasi.HomeScreen
 import com.sss.monikaapps.feature.invoice.presentation.detail.InvoiceDetailScreen
+import com.sss.monikaapps.feature.invoice.presentation.generate_pdf.GeneratePdfScreen
 import com.sss.monikaapps.feature.invoice.presentation.list.InvoiceListScreen
 import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceScreen
 import com.sss.monikaapps.feature.login.presentation.LoginScreen
@@ -48,6 +49,8 @@ import com.sss.monikaapps.feature.mastering.presentation.MasteringCategoryExpens
 import com.sss.monikaapps.feature.photo.PhotoDetailScreen
 import com.sss.monikaapps.feature.result_download.presentation.ResultDownloadScreen
 import com.sss.monikaapps.feature.setting.presentation.SettingScreen
+import com.sss.monikaapps.feature.update_data.presentation.UpdateDataScreen
+import com.sss.monikaapps.feature.update_data_invoice.presentation.UpdateDataInvoiceScreen
 import com.sss.monikaapps.feature.visit.presentation.detail.VisitDetailScreen
 import com.sss.monikaapps.feature.visit.presentation.list.VisitListScreen
 import com.sss.monikaapps.feature.visit.presentation.update.UpdateVisitScreen
@@ -106,14 +109,28 @@ fun AppNavGraph(
             }
         }
 
+        composable(Routes.UPDATE_DATA) {
+            UpdateDataScreen(
+                navController,
+                onNavigate = { destination -> navController.navigateToDestination(destination) })
+        }
+        composable(Routes.UPDATE_DATA_INVOICE) {
+            UpdateDataInvoiceScreen(navController)
+        }
+
         composable(Routes.INVOICE) {
-            InvoiceListScreen(navController, onItemClick = { customerId ->
-                navController.navigateToDestination(
-                    RouteDestination.ListInvoiceToDetailInvoice(
-                        customerId
+            InvoiceListScreen(
+                navController,
+                onItemClick = { customerId ->
+                    navController.navigateToDestination(
+                        RouteDestination.ListInvoiceToDetailInvoice(
+                            customerId
+                        )
                     )
-                )
-            })
+                }, onDownload = {
+                    navController.navigateToDestination(RouteDestination.InvoiceToGeneratePdf)
+                }
+            )
         }
 
         composable(Routes.MASTER_DATA_EXPENSE) {
@@ -363,6 +380,12 @@ fun AppNavGraph(
                 navArgument(CUSTOMER_ID) { type = NavType.StringType }
             )) { _ ->
             PaymentInvoiceScreen(navController)
+        }
+
+        composable(
+            Routes.GENERATE_PDF
+        ) {
+            GeneratePdfScreen(navController)
         }
     }
 }

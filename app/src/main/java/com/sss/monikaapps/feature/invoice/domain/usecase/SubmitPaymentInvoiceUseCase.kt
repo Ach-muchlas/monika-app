@@ -1,11 +1,9 @@
 package com.sss.monikaapps.feature.invoice.domain.usecase
 
 import android.content.Context
-import androidx.compose.ui.semantics.error
-import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.helper.NetworkHelper
-import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepository
 import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.invoice.domain.repository.InvoiceRepository
 
 class SubmitPaymentInvoiceUseCase(
     private val repository: InvoiceRepository,
@@ -20,11 +18,16 @@ class SubmitPaymentInvoiceUseCase(
         descReason: String,
         gpsLat: String,
         gpsLng: String,
+        dateReceipt: String,
+        paymentMethod : String,
+        idCoa : String,
     ): Result<String> {
+
+        val date = if (status != 3) repository.getDateConfig() else dateReceipt
 
         // 1. SIMPAN LOKAL DULU (Wajib Berhasil)
         val localResult = repository.submitPaymentInvoiceLocal(
-            nota, customerId, moneyPaid, status, reasonId, descReason, gpsLat, gpsLng
+            nota, customerId, moneyPaid, status, reasonId, descReason, gpsLat, gpsLng, date, paymentMethod, idCoa
         )
 
         if (localResult <= 0) {
@@ -40,10 +43,5 @@ class SubmitPaymentInvoiceUseCase(
         val remoteResult = repository.submitPaymentInvoiceRemote(nota, customerId)
 
         return remoteResult
-//        return if (remoteResult.status == StatusNetwork.SUCCESS) {
-//            Result.success("Data berhasil tersimpan dan tersinkron")
-//        } else {
-//            Result.error(null, "Data tersimpan di HP, gagal kirim ke server")
-//        }
     }
 }

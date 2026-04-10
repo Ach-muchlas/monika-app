@@ -18,6 +18,8 @@ object ApiConstant {
     private const val HEADER = "hdr"
     private const val DETAIL = "dtl"
 
+    private const val DOWNLOAD = "download"
+
     const val AUTH = "user-login"
     const val APP_VERSION = "app-version"
     const val FETCH_DATA_ACTIVITIES = "${ACTIVITIES}-get"
@@ -48,8 +50,15 @@ object ApiConstant {
     const val CHECK_INVOICE_NOTA = "${INVOICE}-nota-check-data-download"
     const val CHECK_INVOICE_CUSTOMER = "${INVOICE}-customer-check-data-download"
 
+    const val GENERATE_PDF_INVOICE = "${INVOICE}-generate-pdf"
+
     const val SUBMIT_INVOICE = "${INVOICE}-add"
     const val FETCH_REASON_INVOICE = "${INVOICE}-reason-download"
     const val CHECK_REASON_INVOICE = "${INVOICE}-reason-check-data-download"
+
+    const val FIRST_CHECK_DOWNLOAD = "${DOWNLOAD}-check-first-download"
+
+    const val DOWNLOAD_BANK_RECEIPT = "bank-receipt-download"
+    const val CHECK_BANK_RECEIPT = "bank-receipt-check-data"
 
 }

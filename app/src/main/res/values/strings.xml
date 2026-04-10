@@ -74,10 +74,21 @@
     <string name="text_payment_invoice">Pelunasan Tagihan</string>
     <string name="text_customer_data">Nama pelanggan</string>
     <string name="text_nomor_nota">Nomor Nota</string>
-    <string name="text_outstanding_nota">Total Tagihan</string>
+    <string name="text_outstanding_nota">Total Sisa Nota</string>
+    <string name="text_nominal_nota">Total Nominal Nota</string>
     <string name="text_total_paid">Uang Yang Dibayarkan</string>
     <string name="text_evidence_reason">Foto Bukti</string>
     <string name="text_form_payment_invoice">Form Pelunasan Tagihan</string>
     <string name="text_download_data">Download Data</string>
+    <string name="text_error_loading_table">Gagal memuat tabel</string>
+    <string name="text_proses">Sedang Memproses</string>
+    <string name="text_data_complete">Data Sudah Lengkap</string>
+    <string name="text_loading">Memuat data...</string>
+    <string name="text_feature_update_data">Update Data</string>
+    <string name="text_desc_feature_update_data">"Fitur untuk download data ulang. "</string>
+    <string name="text_desc_feature_update_invoice">Download data tagihan terbaru yang di setting kan finance.</string>
+    <string name="text_update_data">Update Data</string>
+    <string name="tetx_photo_tt">Bukti Foto Tanda Terima</string>
+    <string name="text_method_payment">Metode Pembayaran</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.sss.monikaapps.feature.invoice.data.local
 
 import com.sss.monikaapps.feature.activity.data.response.PhotoItem
+import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.CustomerInvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
@@ -25,15 +26,17 @@ interface InvoiceLocalDataSource {
         onProgress: (Float) -> Unit,
     )
 
+    suspend fun insertBankReceiptBatch(
+        data: List<BankReceiptEntity>,
+        onProgress: (Float) -> Unit,
+    )
+
     suspend fun countCustomerInvoice(): Int
     suspend fun countNotaInvoice(): Int
     suspend fun countReasonInvoice(): Int
 
     fun getInvoiceCount(): Flow<Int>
-
-    fun getCustomerInvoice(): Flow<List<CustomerInvoiceEntity>>
-    fun getCustomerInvoiceWithFilter(query : String, status : Int): Flow<List<CustomerInvoiceEntity>>
-    fun searchCustomerInvoice(query: String): Flow<List<CustomerInvoiceEntity>>
+    fun getCustomerInvoiceWithFilter(query: String, status: Int): Flow<List<CustomerInvoiceEntity>>
     fun getCustomerInvoiceByCustomerId(customerId: String): Flow<CustomerInvoiceEntity>
     fun getNotaInvoiceByCustomerId(customerId: String): Flow<List<InvoiceEntity>>
     fun getPhotoNotaByIdNota(idNota: String): Flow<List<PhotoItem>>
@@ -51,6 +54,9 @@ interface InvoiceLocalDataSource {
         descReason: String,
         gpsLat: String,
         gpsLng: String,
+        dateReceipt: String,
+        paymentMethod : String,
+        idCoa : String,
     ): Int
 
     suspend fun getPaymentInvoiceRequest(
@@ -58,7 +64,7 @@ interface InvoiceLocalDataSource {
         customerId: String,
     ): PaymentInvoiceRequestDataLocal
 
-    suspend fun getPhotoPaymentInvoice(idNota: String): List<PhotoPaymentInvoice>
+    suspend fun getPhotoPaymentInvoice(idNota: String, featureType: Int): List<PhotoPaymentInvoice>
 
     suspend fun clearCustomerInvoice()
     suspend fun clearNotaInvoice()
@@ -70,4 +76,10 @@ interface InvoiceLocalDataSource {
     fun countInvoicePending(): Flow<Int>
 
     suspend fun getPaymentInvoiceNotSync(): List<PaymentInvoiceRequestDataLocal>
+
+    suspend fun getCustomerIdInCustomerTable(): List<String>
+
+    suspend fun getCustomerIdInInvoiceTable(): List<String>
+
+    fun getBankReceipt(): Flow<List<BankReceiptEntity>>
 }

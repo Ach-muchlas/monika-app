@@ -30,6 +30,8 @@ object Routes {
     const val SETTING = "setting"
     const val RESULT_DOWNLOAD = "result_download"
     const val MASTER_DATA = "master_data"
+    const val UPDATE_DATA = "update_data"
+    const val UPDATE_DATA_INVOICE = "update_data_invoice"
 
     const val INVOICE = "invoice"
     const val MASTER_DATA_EXPENSE = "master_data_expense"
@@ -52,6 +54,10 @@ object Routes {
     const val CHECK_IN_VISIT = "check_in_visit/{$ID_VISIT}/{$TYPE_VISIT}"
     const val DETAIL_INVOICE = "detail_invoice/{$CUSTOMER_ID}"
     const val PAYMENT_INVOICE = "payment_invoice/{$ID_INVOICE}/{$NOMOR_NOTA}/{$CUSTOMER_ID}"
+    const val GENERATE_PDF = "generate_pdf"
+
+    fun login(): String = "login"
+    fun connection(): String = "connection"
 
     fun detailActivities(trno: String, idMobile: String): String {
         return "detail_activities/$trno/$idMobile"

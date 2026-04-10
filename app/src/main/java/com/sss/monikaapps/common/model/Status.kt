@@ -41,7 +41,8 @@ val dataStatusVisit = listOf(
 val dataStatusInvoice = listOf(
     Status("7", "Semua", R.drawable.icon_profile, SelectedBackground),
     Status("0", "Belum Selesai", R.drawable.icon_check_in, Spruce),
-    Status("3", "Belum tersinkron", R.drawable.icon_check_out, Spruce),
+    Status("4", "Belum tersinkron", R.drawable.icon_check_out, Spruce),
     Status("1", "Terbayar", R.drawable.icon_check_out, Spruce),
     Status("2", "Tidak Bayar", R.drawable.icon_check_out, Spruce),
+    Status("3", "Tanda Terima", R.drawable.icon_check_out, Spruce),
 )

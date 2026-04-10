@@ -6,7 +6,7 @@ import com.sss.monikaapps.feature.download.domain.repository.DownloadRepository
 
 class DownloadUseCase(private val repository: DownloadRepository) {
     suspend fun execute(
-        onProgress: (Float) -> Unit,
+        onProgress: (Float, String) -> Unit,
     ): Result<DownloadDataResponse> {
         return repository.fetchDownload(onProgress)
     }
