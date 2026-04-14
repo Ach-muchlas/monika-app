@@ -49,4 +49,6 @@ object InvoiceStatusPayment{
     const val NOT_PAID = 7
     const val RECEIPT = 8
     const val PAID_TRANSFER = 9
+
+    const val BG_CHECK = 10
 }

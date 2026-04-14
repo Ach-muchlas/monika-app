@@ -16,7 +16,7 @@ data class InvoiceEntity(
     val nominalNota: String,
     val moneyPaid: Long,
 
-    //  0 : Belum transaksi, 1 : Bayar, 2 : Tidak Bayar
+    //  0 : Belum transaksi, 1 : Bayar, 2 : Tidak Bayar, 3 Tanda terima, 4 BG
     val status: Int = 0,
     val reasonId: Int = 0,
     val reason: String? = null,

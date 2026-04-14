@@ -89,6 +89,7 @@
     <string name="text_desc_feature_update_invoice">Download data tagihan terbaru yang di setting kan finance.</string>
     <string name="text_update_data">Update Data</string>
     <string name="tetx_photo_tt">Bukti Foto Tanda Terima</string>
+    <string name="tetx_photo_bg">Bukti Foto BG</string>
     <string name="text_method_payment">Metode Pembayaran</string>
 
 </resources>

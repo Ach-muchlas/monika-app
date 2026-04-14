@@ -100,4 +100,5 @@ dependencies {
     implementation(libs.compose.shimmer)
 
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.coroutines.play.services)
 }
