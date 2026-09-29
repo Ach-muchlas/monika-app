@@ -3,24 +3,41 @@ package com.sss.monikaapps.feature.activity.data.local
 import com.sss.monikaapps.common.db.dao.PhotoDao
 import com.sss.monikaapps.common.db.entity.LogEntity
 import com.sss.monikaapps.common.db.entity.PhotoEntity
+import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.feature.activity.data.dao.ActivityDao
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
+import kotlinx.coroutines.flow.Flow
 
 class ActivityLocalDataSourceImpl(
     private val activityDao: ActivityDao,
     private val photoDao: PhotoDao,
 ) : ActivityLocalDataSource {
 
+    override suspend fun fetchActivities(): List<ActivityEntity> {
+        return activityDao.fetchActivity()
+    }
+
+    override suspend fun fetchActivitiesLocalDatabase(): List<ActivityEntity> {
+        return activityDao.fetchDataActivityLocalDatabase()
+    }
+
     override suspend fun insertActivity(entity: ActivityEntity) {
         activityDao.insertActivity(entity)
     }
 
-    override suspend fun getDetail(id: String): ActivityEntity {
+    override suspend fun fetchDetailActivity(id: String): ActivityEntity {
         return activityDao.fetchDataDetailActivityLocalDatabase(id)
     }
 
-    override suspend fun getPhotos(id: String): List<PhotoEntity> {
-        return photoDao.getPhotosByParentId(id)
+    override suspend fun fetchPhotos(id: String): List<PhotoEntity> {
+        return photoDao.fetchPhotosByParentId(id)
+    }
+
+    override suspend fun fetchPhotosByParentIdAndParentType(
+        id: String,
+        type: String,
+    ): List<PhotoEntity> {
+        return photoDao.fetchPhotoByParentIdAndParentType(id, type)
     }
 
     override suspend fun markCheckInDone(id: String) {
@@ -43,11 +60,14 @@ class ActivityLocalDataSourceImpl(
         return activityDao.countStillCheckIn()
     }
 
+    override fun countDataCheckoutNotSync(): Flow<Int> = activityDao.countDataCheckoutNotSync()
+
+
     override suspend fun updateCheckOut(
         id: String,
         endTime: String,
         latitude: String,
-        longitude: String
+        longitude: String,
     ) {
         activityDao.updateActivity(
             idActivity = id,
@@ -66,4 +86,6 @@ class ActivityLocalDataSourceImpl(
             )
         )
     }
+
+    override suspend fun getSyncStatus(trno: String): Int = activityDao.getSyncData(trno)
 }

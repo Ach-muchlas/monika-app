@@ -17,11 +17,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.common.theme.TitlePopSemiBold
 
 @Composable
 fun CustomTopBar(
     title: String,
+    showLeftIcon: Boolean = true,
     showRightIcon: Boolean = false,
     iconRight: Int = 0,
     iconSize: Int = 24,
@@ -35,19 +37,19 @@ fun CustomTopBar(
             .padding(horizontal = Dimens.ExtraSmallMargin)
     ) {
 
-        // Back Button
-        CustomRoundedIconContainer(
-            modifier = Modifier.align(Alignment.CenterStart),
-            onClick = onBackClick,
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.icon_back),
-                contentDescription = null,
-                tint = Color.Black,
-                modifier = Modifier.size(24.dp)
-            )
+        if (showLeftIcon) {
+            CustomRoundedIconContainer(
+                modifier = Modifier.align(Alignment.CenterStart),
+                onClick = onBackClick,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.icon_back),
+                    contentDescription = null,
+                    tint = Color.Black,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
-
 
         Text(
             text = title,
@@ -58,7 +60,6 @@ fun CustomTopBar(
             overflow = TextOverflow.Ellipsis
         )
 
-        // Right Icon
         if (showRightIcon) {
             CustomRoundedIconContainer(
                 modifier = Modifier.align(Alignment.CenterEnd),
@@ -67,7 +68,7 @@ fun CustomTopBar(
                 Icon(
                     painter = painterResource(iconRight),
                     contentDescription = null,
-                    tint = Color.Black,
+                    tint = Primary,
                     modifier = Modifier.size(iconSize.dp)
                 )
             }

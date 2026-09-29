@@ -15,4 +15,10 @@ object FormatterCurrency {
         return formatter.format(amount)
     }
 
+    fun cleanCurrency(input: String): Long {
+        if (input.isBlank()) return 0L
+        val cleaned = input.replace("[^\\d]".toRegex(), "")
+        return cleaned.toLongOrNull() ?: 0L
+    }
+
 }

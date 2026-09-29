@@ -7,14 +7,16 @@ import com.sss.monikaapps.feature.login.data.response.DataItemUserLogin
 
 class SessionManager private constructor() {
 
-    private lateinit var sharedPref: SharedPreferences
+    private lateinit var userPref: SharedPreferences
+    private lateinit var appPref: SharedPreferences
 
     fun init(context: Context) {
-        sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        userPref = context.getSharedPreferences(USER_PREF, Context.MODE_PRIVATE)
+        appPref = context.getSharedPreferences(APP_PREF, Context.MODE_PRIVATE)
     }
 
     fun saveDataUser(dataUser: DataItemUserLogin?) {
-        sharedPref.edit().apply {
+        userPref.edit().apply {
             putString(KEY_EMPLOYEE_ID, dataUser?.employeeId)
             putString(KEY_EMPLOYEE_NAME, dataUser?.employeeName)
             putString(KEY_ID_DEPO, dataUser?.idDepo)
@@ -34,30 +36,42 @@ class SessionManager private constructor() {
 
     fun getDataUser(): DataItemUserLogin {
         return DataItemUserLogin(
-            employeeId = sharedPref.getString(KEY_EMPLOYEE_ID, null),
-            employeeName = sharedPref.getString(KEY_EMPLOYEE_NAME, null),
-            idDepo = sharedPref.getString(KEY_ID_DEPO, null),
-            namaDepo = sharedPref.getString(KEY_NAMA_DEPO, null),
-            idRole = sharedPref.getString(KEY_ROLE_ID, null),
-            roleName = sharedPref.getString(KEY_ROLE_NAME, null),
-            roleLevel = sharedPref.getString(KEY_ROLE_LEVEL, null),
-            idSuperior = sharedPref.getString(KEY_SUPERIOR_ID, null),
-            superiorName = sharedPref.getString(KEY_SUPERIOR_NAME, null),
-            dateJoin = sharedPref.getString(KEY_DATE_JOIN, null),
-            imei = sharedPref.getString(KEY_IMEI, null),
-            token = sharedPref.getString(KEY_TOKEN, null)
+            employeeId = userPref.getString(KEY_EMPLOYEE_ID, null),
+            employeeName = userPref.getString(KEY_EMPLOYEE_NAME, null),
+            idDepo = userPref.getString(KEY_ID_DEPO, null),
+            namaDepo = userPref.getString(KEY_NAMA_DEPO, null),
+            idRole = userPref.getString(KEY_ROLE_ID, null),
+            roleName = userPref.getString(KEY_ROLE_NAME, null),
+            roleLevel = userPref.getString(KEY_ROLE_LEVEL, null),
+            idSuperior = userPref.getString(KEY_SUPERIOR_ID, null),
+            superiorName = userPref.getString(KEY_SUPERIOR_NAME, null),
+            dateJoin = userPref.getString(KEY_DATE_JOIN, null),
+            imei = userPref.getString(KEY_IMEI, null),
+            token = userPref.getString(KEY_TOKEN, null)
         )
     }
 
-    fun isUserLogin(): Boolean =
-        sharedPref.getBoolean(KEY_LOGIN, false)
 
-    fun clearData() {
-        sharedPref.edit() { clear() }
+    fun isUserLogin(): Boolean =
+        userPref.getBoolean(KEY_LOGIN, false)
+
+    fun clearSession() {
+        userPref.edit { clear() }
+    }
+
+
+    fun isFirstTime(): Boolean =
+        appPref.getBoolean(KEY_IS_FIRST_TIME, true)
+
+    fun setFirstTimeFalse() {
+        appPref.edit { putBoolean(KEY_IS_FIRST_TIME, false) }
     }
 
     companion object {
-        private const val PREF_NAME = "user_pref"
+        private const val USER_PREF = "user_pref"
+        private const val APP_PREF = "app_pref"
+
+        private const val KEY_IS_FIRST_TIME = "is_first_time"
 
         private const val KEY_EMPLOYEE_ID = "id_karyawan"
         private const val KEY_EMPLOYEE_NAME = "nama_karyawan"

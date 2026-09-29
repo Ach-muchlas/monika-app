@@ -1,10 +1,12 @@
 package com.sss.monikaapps.network
 
 import com.google.gson.GsonBuilder
+import com.sss.monikaapps.common.constanta.ApiConstant
+import com.sss.monikaapps.common.manager.ServerManager
 import com.sss.monikaapps.network.interceptor.AuthInterceptor
 import com.sss.monikaapps.network.interceptor.BaseUrlInterceptor
 import com.sss.monikaapps.network.interceptor.ConnectionInterceptor
-import com.sss.monikaapps.utils.constanta.ApiConstant
+import com.sss.monikaapps.network.interceptor.TimeoutInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -13,7 +15,18 @@ import java.util.concurrent.TimeUnit
 
 
 object ApiConfig {
+
     private var retrofit: Retrofit? = null
+
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(TimeoutInterceptor())
+            .addInterceptor(ConnectionInterceptor())
+            .addInterceptor(AuthInterceptor())
+            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(BaseUrlInterceptor())
+            .build()
+    }
 
     fun getApiService(): ApiService {
         if (retrofit == null) {
@@ -28,9 +41,7 @@ object ApiConfig {
 
     private fun createRetrofitInstance(): Retrofit {
         val client = OkHttpClient.Builder()
-            .connectTimeout(500, TimeUnit.SECONDS)
-            .readTimeout(500, TimeUnit.SECONDS)
-            .writeTimeout(500, TimeUnit.SECONDS)
+            .addInterceptor(TimeoutInterceptor())
             .addInterceptor(ConnectionInterceptor())
             .addInterceptor(AuthInterceptor())
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))

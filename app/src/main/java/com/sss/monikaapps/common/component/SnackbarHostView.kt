@@ -30,7 +30,7 @@ fun SnackbarHostView() {
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
+        contentAlignment = Alignment.TopCenter
     ) {
         snackbarData?.let {
             CustomSnackbar(

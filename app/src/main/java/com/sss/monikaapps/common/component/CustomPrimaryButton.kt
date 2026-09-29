@@ -35,6 +35,10 @@ fun CustomPrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isLoading: Boolean = false,
+    colors: List<Color> = listOf(
+        PeachLight.copy(alpha = 0.95f),
+        PeachDark
+    ),
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -63,12 +67,7 @@ fun CustomPrimaryButton(
                 spotColor = Color.Black.copy(alpha = 0.1f)
             )
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        PeachLight.copy(alpha = 0.95f),
-                        PeachDark
-                    )
-                ),
+                brush = Brush.verticalGradient(colors = colors),
                 shape = RoundedCornerShape(Dimens.MediumCornerRadius)
             )
             .clickable(

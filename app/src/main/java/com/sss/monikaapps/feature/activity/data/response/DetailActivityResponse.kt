@@ -28,6 +28,9 @@ data class PhotoItem(
     @field:SerializedName("path")
     val path: String? = null,
 
+    @field:SerializedName("folder_name")
+    val folderName: String? = null,
+
     @field:SerializedName("id_photo")
     val id: String? = null,
 
@@ -76,4 +79,5 @@ data class DataHeaderDetailActivity(
     @field:SerializedName("id")
     val id: String? = null,
 
+    var isSyncDataLocal: Int = 0,
 )

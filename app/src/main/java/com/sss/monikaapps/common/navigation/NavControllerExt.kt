@@ -9,7 +9,7 @@ fun NavController.navigateToDestination(
 
         RouteDestination.LoginToHome -> {
             navigate(Routes.HOME) {
-                popUpTo(Routes.LOGIN) { inclusive = true }
+                popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         }
@@ -22,6 +22,39 @@ fun NavController.navigateToDestination(
             navigate(Routes.EXPANSES) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToDownload -> {
+            navigate(Routes.DOWNLOAD) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToSetting -> {
+            navigate(Routes.SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToUpdateData -> {
+            navigate(Routes.UPDATE_DATA) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToMaster -> {
+            navigate(Routes.MASTER_DATA) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToInvoice -> {
+            navigate(Routes.INVOICE) { launchSingleTop = true }
+        }
+
+        RouteDestination.ConnectionToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(Routes.CONNECTION) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.HomeToVisit -> {
+            navigate(Routes.VISIT) { launchSingleTop = true }
+        }
+
 
         is RouteDestination.ActivityToCreateActivity -> {
             navigate(Routes.createActivityOrUpdate(destination.typeActivity)) {
@@ -31,11 +64,7 @@ fun NavController.navigateToDestination(
 
         is RouteDestination.ActivityToDetail -> {
             navigate(
-                Routes.detailActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.locationData
-                )
+                Routes.detailActivities(destination.trno, destination.idMobile)
             ) {
                 launchSingleTop = true
             }
@@ -44,20 +73,100 @@ fun NavController.navigateToDestination(
         is RouteDestination.DetailActivityToCheckOutActivity -> {
             navigate(
                 Routes.checkOutActivities(
-                    destination.trno,
-                    destination.idMobile,
-                    destination.typeActivity
+                    destination.trno, destination.idMobile, destination.typeActivity
                 )
             ) {
                 launchSingleTop = true
             }
         }
 
-        is RouteDestination.ExpansesToDetailExpanse -> {
-            navigate(Routes.expanseToDetailExpanse(destination.trno)) {
+        is RouteDestination.ExpensesToExpenseDetail -> {
+            navigate(Routes.expenseToDetailExpense(destination.trno)) {
                 launchSingleTop = true
             }
         }
+
+        RouteDestination.ExpenseToCreateHeaderExpense -> {
+            navigate(Routes.CREATE_EXPENSE_HEADER) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ExpenseDetailToCreateExpenseDetail -> {
+            navigate(Routes.createExpenseDetail(destination.trno)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ExpenseDetailToUpdateExpenseDetail -> {
+            navigate(
+                Routes.updateExpenseDetail(
+                    destination.trno,
+                    destination.idExpense,
+                    destination.netAmount,
+                    destination.note,
+                    destination.initKm,
+                    destination.finalKm
+                )
+            ) { launchSingleTop = true }
+        }
+
+        is RouteDestination.VisitToDetailVisit -> {
+            navigate(Routes.detailVisit(destination.idVisit)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.VisitDetailToCheckInVisit -> {
+            navigate(Routes.checkInVisit(destination.idVisit, destination.type)) {
+                launchSingleTop = true
+            }
+        }
+
+        RouteDestination.SettingToConnection -> {
+            navigate(Routes.CONNECTION_SETTING) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToResultDownload -> {
+            navigate(Routes.RESULT_DOWNLOAD) { launchSingleTop = true }
+        }
+
+        RouteDestination.SettingToLogin -> {
+            navigate(Routes.LOGIN) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+
+
+        RouteDestination.LoginToConnection -> {
+            navigate(Routes.CONNECTION) { launchSingleTop = true }
+        }
+
+        RouteDestination.MasterDataToMasterDataExpense -> {
+            navigate(Routes.MASTER_DATA_EXPENSE) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ToDetailPhoto -> {
+            navigate(Routes.detailPhoto(destination.urlPhoto)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ListInvoiceToDetailInvoice -> {
+            navigate(Routes.detailInvoice(destination.customerId)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.DetailInvoiceToPaymentInvoice -> {
+            navigate(
+                Routes.paymentInvoice(
+                    destination.idInvoice,
+                    destination.nomorNota,
+                    destination.customerId
+                )
+            ) { launchSingleTop = true }
+        }
+
+        RouteDestination.InvoiceToGeneratePdf -> {
+            navigate(Routes.GENERATE_PDF) { launchSingleTop = true }
+        }
+
+        RouteDestination.UpdateDataToUpdateInvoice -> {
+            navigate(Routes.UPDATE_DATA_INVOICE) { launchSingleTop = true }
+        }
     }
+
 }
 

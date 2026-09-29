@@ -7,11 +7,10 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.content.FileProvider
 import androidx.core.graphics.scale
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -30,15 +29,19 @@ class PhotoHelper(
 
     @Composable
     fun rememberCameraLauncher(): () -> Unit {
+        val scope = rememberCoroutineScope()
+
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
 
-            val file = photoFile  // ✅ COPY KE LOCAL VAL
+            val file = photoFile
 
             if (success && file != null) {
-                compressImage(context, file)
-                onPhotoTaken(file.absolutePath) // 🔥 SIMPAN PATH FILE
+                scope.launch {
+                    processPhoto(file)
+                    onPhotoTaken(file.absolutePath)
+                }
             }
         }
 
@@ -64,26 +67,26 @@ class PhotoHelper(
         val storageDir = File(context.filesDir, "photo/$feature")
         if (!storageDir.exists()) storageDir.mkdirs()
 
-        return File(
-            storageDir,
-            "${typeFeature}_${timeStamp}.jpg"
-        )
+        return File(storageDir, "${typeFeature}_${timeStamp}.jpg")
     }
 
-    private fun compressImage(context: Context, file: File) {
+    private fun processPhoto(file: File) {
         val bitmap = BitmapFactory.decodeFile(file.path) ?: return
 
-        val maxWidth = 1024
-        val scale = maxWidth.toFloat() / bitmap.width
-        val newHeight = (bitmap.height * scale).toInt()
-
-        val resizedBitmap = bitmap.scale(maxWidth, newHeight)
+        val resized = resizeBitmap(bitmap, 1024)
 
         FileOutputStream(file).use {
-            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, it)
+            resized.compress(Bitmap.CompressFormat.JPEG, 60, it)
         }
 
         bitmap.recycle()
-        resizedBitmap.recycle()
+        resized.recycle()
+    }
+
+    // 🔹 Resize biar ringan
+    private fun resizeBitmap(bitmap: Bitmap, maxWidth: Int): Bitmap {
+        val scale = maxWidth.toFloat() / bitmap.width
+        val newHeight = (bitmap.height * scale).toInt()
+        return bitmap.scale(maxWidth, newHeight)
     }
 }

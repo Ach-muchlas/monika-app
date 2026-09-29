@@ -1,9 +1,9 @@
 package com.sss.monikaapps.common.mapper
 
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
-import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.common.db.entity.PhotoEntity
 import com.sss.monikaapps.common.model.Status
+import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.feature.activity.data.response.DataHeaderDetailActivity
 import com.sss.monikaapps.feature.activity.data.response.DataItemActivities
 import com.sss.monikaapps.feature.activity.data.response.PhotoItem
@@ -18,7 +18,6 @@ object MapperActivity {
                 description = activity.description,
                 isSync = activity.activityStatus.toString(),
                 startAt = activity.startAt,
-                locationData = 0,
                 endAt = "",
                 employeeId = "",
             )
@@ -36,10 +35,11 @@ object MapperActivity {
             trno = data?.id ?: "",
             title = data?.title ?: "",
             startAt = data?.startAt ?: "",
+            isSyncDataLocal = data?.syncStatus ?: 0,
             isSync = data?.activityStatus.toString(),
             startLng = data?.startLongitude ?: "",
             employeeId = employeeId,
-            trnoMobile = data?.id ?: "",
+            trnoMobile = data?.trno ?: "",
             startLat = data?.startLatitude ?: "",
             endLng = data?.endLongitude ?: "",
             id = data?.id ?: "",
@@ -56,25 +56,24 @@ object MapperActivity {
         }
     }
 
-    fun Status.resolveTime(header: DataHeaderDetailActivity?): String {
+    fun Status.resolveTimeActivity(header: DataHeaderDetailActivity?): String {
         return if (id == CHECK_IN)
             header?.startAt.orEmpty()
         else
             header?.endAt.orEmpty()
     }
 
-    fun Status.resolveLat(header: DataHeaderDetailActivity?): String {
+    fun Status.resolveLatActivity(header: DataHeaderDetailActivity?): String {
         return if (id == CHECK_IN)
             header?.startLat.orEmpty()
         else
-            header?.endLat?.toString().orEmpty()
+            header?.endLat.orEmpty()
     }
 
-    fun Status.resolveLng(header: DataHeaderDetailActivity?): String {
+    fun Status.resolveLngActivity(header: DataHeaderDetailActivity?): String {
         return if (id == CHECK_IN)
-            header?.startLng?.toString().orEmpty()
+            header?.startLng.orEmpty()
         else
-            header?.endLng?.toString().orEmpty()
+            header?.endLng.orEmpty()
     }
-
 }

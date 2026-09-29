@@ -11,16 +11,14 @@ class ConnectionInterceptor : Interceptor {
         return try {
             chain.proceed(chain.request())
         } catch (e: UnknownHostException) {
-            throw ConnectionLostException("Server tidak ditemukan. Periksa URL atau koneksi internet Anda.")
+            throw ConnectionLostException("Server tidak ditemukan.")
         } catch (e: SocketTimeoutException) {
-            throw ConnectionLostException("Koneksi timeout! Server tidak merespons.")
+            throw ConnectionLostException("Koneksi timeout!")
         } catch (e: SSLException) {
-            throw ConnectionLostException("Kesalahan sertifikat keamanan! Periksa koneksi Anda.")
+            throw ConnectionLostException("Kesalahan sertifikat keamanan.")
         }
-//        catch (e: IOException) {
-//            throw ConnectionLostException("Koneksi terputus. Silakan periksa jaringan Anda.")
-//        }
     }
 }
+
 
 class ConnectionLostException(message: String) : IOException(message)
