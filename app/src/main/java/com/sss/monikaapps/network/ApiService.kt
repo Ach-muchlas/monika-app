@@ -2,33 +2,52 @@ package com.sss.monikaapps.network
 
 import com.sss.monikaapps.common.constanta.ApiConstant.APP_VERSION
 import com.sss.monikaapps.common.constanta.ApiConstant.AUTH
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_BANK_RECEIPT
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_CONNECTION
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_DATA_DOWNLOAD_VISIT
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_CUSTOMER
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_NOTA
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_IN_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_OUT_VISIT
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_REASON_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.CREATE_HEADER_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.DELETE_HEADER_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.DOWNLOAD_BANK_RECEIPT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_ACTIVITIES
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DATA_EXPENSES
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_ACTIVITY
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DETAIL_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_INVOICE_CUSTOMER
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_INVOICE_NOTA
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_MASTERING_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.FETCH_REASON_INVOICE
+import com.sss.monikaapps.common.constanta.ApiConstant.FIRST_CHECK_DOWNLOAD
+import com.sss.monikaapps.common.constanta.ApiConstant.GENERATE_PDF_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.SEND_EMAIL
 import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_EXPENSE
+import com.sss.monikaapps.common.constanta.ApiConstant.SUBMIT_INVOICE
 import com.sss.monikaapps.common.constanta.ApiConstant.UN_SUBMIT_EXPENSE
 import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
 import com.sss.monikaapps.feature.activity.data.response.DetailActivityResponse
-import com.sss.monikaapps.feature.connection.data.response.VersionResponse
+import com.sss.monikaapps.feature.connection.data.response.CheckConnectionResponse
+import com.sss.monikaapps.feature.download.data.response.CheckFirstDownloadResponse
 import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
+import com.sss.monikaapps.feature.invoice.data.response.BankReceiptResponse
+import com.sss.monikaapps.feature.invoice.data.response.CustomerInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.GeneratePdfResponse
+import com.sss.monikaapps.feature.invoice.data.response.NotaInvoiceResponse
+import com.sss.monikaapps.feature.invoice.data.response.ReasonInvoiceResponse
 import com.sss.monikaapps.feature.login.data.response.LoginResponse
 import com.sss.monikaapps.feature.mastering.data.response.MasteringExpenseResponse
+import com.sss.monikaapps.feature.version_check.data.response.VersionResponse
 import com.sss.monikaapps.feature.visit.data.response.VisitDownloadResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -57,6 +76,9 @@ interface ApiService {
 
     @GET(APP_VERSION)
     suspend fun fetchAppVersion(): Response<VersionResponse>
+
+    @GET(CHECK_CONNECTION)
+    suspend fun fetchCheckConnection(): Response<CheckConnectionResponse>
 
     // fetch data activities
     @GET("${FETCH_DATA_ACTIVITIES}/{tanggal}")
@@ -97,7 +119,7 @@ interface ApiService {
     @POST(CHECK_IN_ACTIVITY)
     suspend fun checkInActivity(
         @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
-        @Part photos: List<MultipartBody.Part>?,
+        @Part photos: List<MultipartBody.Part>,
     ): Response<DefaultAddResponse>
 
     // check out
@@ -106,7 +128,7 @@ interface ApiService {
     suspend fun checkOutActivity(
         @Path("trno") trno: String,
         @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
-        @Part photos: List<MultipartBody.Part>?,
+        @Part photos: List<MultipartBody.Part>,
     ): Response<DefaultAddResponse>
 
     // tambah pengeluaran header
@@ -145,8 +167,10 @@ interface ApiService {
         @Path("id") idDetail: String,
     ): Response<DefaultAddResponse>
 
-    @GET(FETCH_DOWNLOAD_VISIT)
-    suspend fun fetchDownloadVisit(): Response<VisitDownloadResponse>
+    @GET("${FETCH_DOWNLOAD_VISIT}/{tanggal}")
+    suspend fun fetchDownloadVisit(
+        @Path("tanggal") date: String,
+    ): Response<VisitDownloadResponse>
 
     @GET("${CHECK_DATA_DOWNLOAD_VISIT}/{totalData}")
     suspend fun checkDataDownloadVisit(
@@ -177,4 +201,61 @@ interface ApiService {
         @Part("reason") reason: RequestBody,
         @Part file: MultipartBody.Part,
     ): Response<DefaultAddResponse>
+
+
+    @GET(FETCH_DOWNLOAD_INVOICE_CUSTOMER)
+    suspend fun fetchCustomerInvoice(): Response<CustomerInvoiceResponse>
+
+    @FormUrlEncoded
+    @POST(CHECK_INVOICE_CUSTOMER)
+    suspend fun checkCustomerInvoice(
+        @Field("total_data_mobile") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @GET(FETCH_DOWNLOAD_INVOICE_NOTA)
+    suspend fun fetchNotaInvoice(): Response<NotaInvoiceResponse>
+
+    @FormUrlEncoded
+    @POST(CHECK_INVOICE_NOTA)
+    suspend fun checkNotaInvoice(
+        @Field("total_data_mobile") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @GET(FETCH_REASON_INVOICE)
+    suspend fun fetchReasonInvoice(): Response<ReasonInvoiceResponse>
+
+    @FormUrlEncoded
+    @POST(CHECK_REASON_INVOICE)
+    suspend fun checkReasonInvoice(
+        @Field("total_data_mobile") totalData: Int,
+    ): Response<DefaultAddResponse>
+
+    @Multipart
+    @POST(SUBMIT_INVOICE)
+    suspend fun submitInvoice(
+        @PartMap params: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part buktiFoto: List<MultipartBody.Part>?,
+        @Part("created_at[]") createdAt: List<@JvmSuppressWildcards RequestBody>?,
+    ): Response<DefaultAddResponse>
+
+
+    @GET("${FIRST_CHECK_DOWNLOAD}/{date_mobile}")
+    suspend fun fetchCheckFirstDownload(
+        @Path("date_mobile") dateMobile: String,
+    ): Response<CheckFirstDownloadResponse>
+
+
+    @GET("${GENERATE_PDF_INVOICE}/{date}")
+    suspend fun fetchDataInvoiceMakePdf(
+        @Path("date") date: String,
+    ): Response<GeneratePdfResponse>
+
+    @GET(DOWNLOAD_BANK_RECEIPT)
+    suspend fun fetchBankReceipt(): Response<BankReceiptResponse>
+
+    @GET("${CHECK_BANK_RECEIPT}/{total_mobile}")
+    suspend fun checkDataBankReceipt(
+        @Path("total_mobile") totalMobile: Int,
+    ): Response<DefaultAddResponse>
+
 }

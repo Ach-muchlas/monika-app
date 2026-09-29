@@ -5,14 +5,18 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sss.monikaapps.common.data.StatusNetwork
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.expense.data.event.ExpenseUiEvent
 import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseDetailUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.DeleteExpenseHeaderUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.FetchDetailExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.SubmitExpenseUseCase
 import com.sss.monikaapps.feature.expense.domain.usecase.UnSubmitExpenseUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class ExpenseDetailViewModel(
@@ -26,65 +30,65 @@ class ExpenseDetailViewModel(
     private val _detailExpanseResult = MutableLiveData<Result<DetailExpanseResponse>>()
     val detailExpanseResult: LiveData<Result<DetailExpanseResponse>> = _detailExpanseResult
 
-    private val _submitExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val submitExpenseResult: LiveData<Result<DefaultAddResponse>> = _submitExpenseResult
-
-    private val _unSubmitExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val unSubmitExpenseResult: LiveData<Result<DefaultAddResponse>> = _unSubmitExpenseResult
-
-    private val _deleteHeaderExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val deleteHeaderExpenseResult: LiveData<Result<DefaultAddResponse>> = _deleteHeaderExpenseResult
-
-    private val _deleteDetailExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val deleteDetailExpenseResult: LiveData<Result<DefaultAddResponse>> = _deleteDetailExpenseResult
+    private val _uiEvent = MutableSharedFlow<ExpenseUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     fun fetchDetailExpanse(trno: String) = viewModelScope.launch {
         _detailExpanseResult.value = Result.loading(null)
-
         try {
-            val result = fetchDetailExpanseUseCase.invoke(trno)
-
-            if (result == null) {
-                _detailExpanseResult.value = Result.error(null, "Data kosong")
-            } else {
-                _detailExpanseResult.value = Result.success(result)
-            }
-
+            val result = fetchDetailExpanseUseCase(trno)
+            _detailExpanseResult.value =
+                result?.let { Result.success(it) }
+                    ?: Result.error(null, "Data kosong")
         } catch (e: Exception) {
             _detailExpanseResult.value =
-                Result.error(null, e.message ?: "Gagal mengambil detail expanse")
+                Result.error(null, e.message ?: "Gagal mengambil detail")
         }
     }
 
-    fun submitExpense(trno: String) {
-        viewModelScope.launch {
-            _submitExpenseResult.value = Result.loading(null)
-            val result = submitExpenseUseCase(trno)
-            _submitExpenseResult.value = result
-        }
+    fun submitExpense(trno: String) = viewModelScope.launch {
+        val result = submitExpenseUseCase(trno)
+        handleResult(result)
     }
 
-    fun unSubmitExpense(trno: String) {
-        viewModelScope.launch {
-            _submitExpenseResult.value = Result.loading(null)
-            val result = unSubmitExpenseUseCase(trno)
-            _submitExpenseResult.value = result
-        }
+    fun unSubmitExpense(trno: String) = viewModelScope.launch {
+        val result = unSubmitExpenseUseCase(trno)
+        handleResult(result)
     }
 
-    fun deleteExpenseHeader(trno: String) {
-        viewModelScope.launch {
-            _deleteHeaderExpenseResult.value = Result.loading(null)
-            val result = deleteExpenseHeaderUseCase(trno)
-            _deleteHeaderExpenseResult.value = result
-        }
+    fun deleteExpenseHeader(trno: String) = viewModelScope.launch {
+        val result = deleteExpenseHeaderUseCase(trno)
+        handleResult(result, navigateBack = true)
     }
 
-    fun deleteExpenseDetail(trno: String, idDetail: String) {
-        viewModelScope.launch {
-            _deleteDetailExpenseResult.value = Result.loading(null)
-            val result = deleteExpenseDetailUseCase(trno, idDetail)
-            _deleteDetailExpenseResult.value = result
+    fun deleteExpenseDetail(trno: String, idDetail: String) = viewModelScope.launch {
+        val result = deleteExpenseDetailUseCase(trno, idDetail)
+        handleResult(result)
+    }
+
+    private suspend fun handleResult(
+        result: Result<DefaultAddResponse>,
+        navigateBack: Boolean = false,
+    ) {
+        when (result.status) {
+            StatusNetwork.SUCCESS -> {
+                _uiEvent.emit(
+                    ExpenseUiEvent.Success(result.data?.message.orEmpty())
+                )
+                if (navigateBack) {
+                    _uiEvent.emit(ExpenseUiEvent.NavigateBack)
+                } else {
+                    _uiEvent.emit(ExpenseUiEvent.RefreshDetail)
+                }
+            }
+
+            StatusNetwork.ERROR -> {
+                _uiEvent.emit(
+                    ExpenseUiEvent.Error(result.message ?: "Terjadi kesalahan")
+                )
+            }
+
+            else -> Unit
         }
     }
 }

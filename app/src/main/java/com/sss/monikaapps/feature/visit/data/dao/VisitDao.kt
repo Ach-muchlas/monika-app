@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sss.monikaapps.common.db.entity.LogEntity
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VisitDao {
@@ -76,7 +77,7 @@ interface VisitDao {
     )
 
     @Query("SELECT COUNT(*) FROM visit_table")
-    suspend fun countDataVisit(): Int
+     fun countDataVisit(): Flow<Int>
 
     @Query("DELETE FROM visit_table")
     suspend fun deleteVisit()

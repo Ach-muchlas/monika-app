@@ -1,7 +1,7 @@
 package com.sss.monikaapps.feature.connection.data.remote
 
-import com.sss.monikaapps.feature.connection.data.response.VersionResponse
+import com.sss.monikaapps.feature.connection.data.response.CheckConnectionResponse
 
 interface ConnectionRemoteDataSource {
-    suspend fun fetchVersionAppsInServer(): VersionResponse?
+    suspend fun fetchCheckConnectionDatabase(): CheckConnectionResponse?
 }

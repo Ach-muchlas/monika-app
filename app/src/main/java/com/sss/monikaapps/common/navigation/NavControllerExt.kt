@@ -9,7 +9,7 @@ fun NavController.navigateToDestination(
 
         RouteDestination.LoginToHome -> {
             navigate(Routes.HOME) {
-                popUpTo(Routes.LOGIN) { inclusive = true }
+                popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         }
@@ -30,8 +30,16 @@ fun NavController.navigateToDestination(
             navigate(Routes.SETTING) { launchSingleTop = true }
         }
 
+        RouteDestination.HomeToUpdateData -> {
+            navigate(Routes.UPDATE_DATA) { launchSingleTop = true }
+        }
+
         RouteDestination.HomeToMaster -> {
             navigate(Routes.MASTER_DATA) { launchSingleTop = true }
+        }
+
+        RouteDestination.HomeToInvoice -> {
+            navigate(Routes.INVOICE) { launchSingleTop = true }
         }
 
         RouteDestination.ConnectionToLogin -> {
@@ -56,9 +64,7 @@ fun NavController.navigateToDestination(
 
         is RouteDestination.ActivityToDetail -> {
             navigate(
-                Routes.detailActivities(
-                    destination.trno, destination.idMobile, destination.locationData
-                )
+                Routes.detailActivities(destination.trno, destination.idMobile)
             ) {
                 launchSingleTop = true
             }
@@ -121,12 +127,11 @@ fun NavController.navigateToDestination(
 
         RouteDestination.SettingToLogin -> {
             navigate(Routes.LOGIN) {
-                popUpTo(graph.startDestinationId) {
-                    inclusive = true
-                }
+                popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         }
+
 
         RouteDestination.LoginToConnection -> {
             navigate(Routes.CONNECTION) { launchSingleTop = true }
@@ -134,6 +139,32 @@ fun NavController.navigateToDestination(
 
         RouteDestination.MasterDataToMasterDataExpense -> {
             navigate(Routes.MASTER_DATA_EXPENSE) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ToDetailPhoto -> {
+            navigate(Routes.detailPhoto(destination.urlPhoto)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.ListInvoiceToDetailInvoice -> {
+            navigate(Routes.detailInvoice(destination.customerId)) { launchSingleTop = true }
+        }
+
+        is RouteDestination.DetailInvoiceToPaymentInvoice -> {
+            navigate(
+                Routes.paymentInvoice(
+                    destination.idInvoice,
+                    destination.nomorNota,
+                    destination.customerId
+                )
+            ) { launchSingleTop = true }
+        }
+
+        RouteDestination.InvoiceToGeneratePdf -> {
+            navigate(Routes.GENERATE_PDF) { launchSingleTop = true }
+        }
+
+        RouteDestination.UpdateDataToUpdateInvoice -> {
+            navigate(Routes.UPDATE_DATA_INVOICE) { launchSingleTop = true }
         }
     }
 

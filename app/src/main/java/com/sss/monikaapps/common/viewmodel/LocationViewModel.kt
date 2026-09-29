@@ -22,4 +22,7 @@ class LocationViewModel(private val repository: LocationRepository) : ViewModel(
         }
     }
 
+    fun clearState() {
+        _locationState.value = null
+    }
 }

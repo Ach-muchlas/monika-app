@@ -6,12 +6,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ConfigDownloadDataDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertConfigDownload(data: ConfigDownloadDataEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertListConfigDownload(data: List<ConfigDownloadDataEntity>)
 
     @Upsert
     suspend fun upsertConfigDownload(data: ConfigDownloadDataEntity)
@@ -22,11 +26,14 @@ interface ConfigDownloadDataDao {
     @Query("SELECT * FROM config_download_data_table")
     suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity>
 
+    @Query("SELECT * FROM config_download_data_table")
+    fun fetchDataConfig2(): Flow<List<ConfigDownloadDataEntity>>
+
     @Query("SELECT COUNT(*) from config_download_data_table where statusTotalDownload = 0")
     suspend fun countPendingDownload(): Int
 
-    @Query("UPDATE config_download_data_table SET  statusTotalDownload = 0,totalDataServer = 0,totalDataMobile = 0")
-    suspend fun returnDataConfigDownload()
+    @Query("UPDATE config_download_data_table SET  statusTotalDownload = 0,totalDataServer = 0,totalDataMobile = 0 WHERE tableName = :tableName")
+    suspend fun returnDataConfigDownload(tableName: String)
 
     @Query("SELECT DISTINCT(createAd) FROM config_download_data_table LIMIT 1")
     suspend fun getDownloadDate(): String

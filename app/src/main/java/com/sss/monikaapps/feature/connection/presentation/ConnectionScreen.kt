@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -37,7 +40,7 @@ import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.feature.connection.presentation.component.ConnectionCard
-import com.sss.monikaapps.feature.utils.device.presentation.DeviceViewModel
+import com.sss.monikaapps.feature.device.presentation.DeviceViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -56,6 +59,7 @@ fun ConnectionScreen(
     val versionApps by deviceViewModel.versionApps.observeAsState("")
     val systemOperation by deviceViewModel.systemOperation.observeAsState("")
     val state by viewModel.state.observeAsState()
+
     val serverUrlResult by viewModel.serverUrl.observeAsState()
 
     LaunchedEffect(Unit) {
@@ -87,6 +91,8 @@ fun ConnectionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(Dimens.MediumMargin)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
         ) {
 
             CustomTopBar(

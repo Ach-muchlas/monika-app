@@ -27,11 +27,11 @@ class ActivitiesViewModel(
     private val _detailActivityResult = MutableLiveData<Result<DataItemDetailActivity>>()
     val detailActivityResult: LiveData<Result<DataItemDetailActivity>> = _detailActivityResult
 
-    private val _createResult = MediatorLiveData<Result<String>>()
-    val createResult: LiveData<Result<String>> = _createResult
+    private val _createResult = MediatorLiveData<Result<String>?>()
+    val createResult: LiveData<Result<String>?> = _createResult
 
-    private val _updateResult = MediatorLiveData<Result<String>>()
-    val updateResult: LiveData<Result<String>> = _updateResult
+    private val _updateResult = MediatorLiveData<Result<String>?>()
+    val updateResult: LiveData<Result<String>?> = _updateResult
 
     private val _syncManualResult = MediatorLiveData<Result<String>?>()
     val syncManualResult: LiveData<Result<String>?> = _syncManualResult
@@ -83,4 +83,12 @@ class ActivitiesViewModel(
         _syncManualResult.value = null
     }
 
+
+    fun clearCreateState() {
+        _createResult.value = null
+    }
+
+    fun clearUpdateState() {
+        _updateResult.value = null
+    }
 }

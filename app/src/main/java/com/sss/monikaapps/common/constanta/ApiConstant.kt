@@ -10,30 +10,19 @@ object ApiConstant {
         return "$serverAddress/monika-app-backend/"
     }
 
-    fun urlDomainForPhoto(): String {
-        val serverAddress = ServerManager.getInstance().getServerAddress().trimEnd('/')
-        return "$serverAddress/monika-app-backend/"
-    }
-
-    fun urlDomainForPhotoExternalProject(): String {
-        val domain = when (ServerManager.getInstance().getServerAddress()) {
-            ServerConstant.BASE_URL_OFFICE -> ServerConstant.BASE_URL_OFFICE
-            else -> ServerConstant.BASE_URL_PUBLIC_PHOTO
-        }
-        val serverAddress = domain.trimEnd('/')
-        return "$serverAddress/"
-    }
-
-
     private const val ACTIVITIES = "aktivitas"
     private const val EXPANSE = "pengeluaran"
     private const val VISIT = "kunjungan"
     private const val MASTER = "master"
+    private const val INVOICE = "tagihan"
     private const val HEADER = "hdr"
     private const val DETAIL = "dtl"
 
+    private const val DOWNLOAD = "download"
+
     const val AUTH = "user-login"
     const val APP_VERSION = "app-version"
+    const val CHECK_CONNECTION = "check-connection"
     const val FETCH_DATA_ACTIVITIES = "${ACTIVITIES}-get"
     const val FETCH_DETAIL_ACTIVITY = "${ACTIVITIES}-detail"
     const val CHECK_IN_ACTIVITY = "${ACTIVITIES}-checkin"
@@ -48,7 +37,6 @@ object ApiConstant {
     const val CREATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-add"
     const val UPDATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-edit"
     const val DELETE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-delete"
-
     const val FETCH_DOWNLOAD_VISIT = "${VISIT}-download"
     const val CHECK_DATA_DOWNLOAD_VISIT = "${VISIT}-check-data"
     const val CHECK_IN_VISIT = "${VISIT}-checkin"
@@ -56,4 +44,21 @@ object ApiConstant {
 
     const val FETCH_MASTERING_EXPENSE = "${MASTER}-${EXPANSE}-get"
     const val SEND_EMAIL = "send-export-to-email"
+
+    const val FETCH_DOWNLOAD_INVOICE_CUSTOMER = "${INVOICE}-customer-download"
+    const val FETCH_DOWNLOAD_INVOICE_NOTA = "${INVOICE}-nota-download"
+    const val CHECK_INVOICE_NOTA = "${INVOICE}-nota-check-data-download"
+    const val CHECK_INVOICE_CUSTOMER = "${INVOICE}-customer-check-data-download"
+
+    const val GENERATE_PDF_INVOICE = "${INVOICE}-generate-pdf"
+
+    const val SUBMIT_INVOICE = "${INVOICE}-add"
+    const val FETCH_REASON_INVOICE = "${INVOICE}-reason-download"
+    const val CHECK_REASON_INVOICE = "${INVOICE}-reason-check-data-download"
+
+    const val FIRST_CHECK_DOWNLOAD = "${DOWNLOAD}-check-first-download"
+
+    const val DOWNLOAD_BANK_RECEIPT = "bank-receipt-download"
+    const val CHECK_BANK_RECEIPT = "bank-receipt-check-data"
+
 }

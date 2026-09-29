@@ -45,7 +45,4 @@ data class DataItemActivities(
 
     @field:SerializedName("is_sync")
     val isSync: String? = null,
-
-    // 0 : di local || 1 : di server
-    var locationData: Int = 1,
 )

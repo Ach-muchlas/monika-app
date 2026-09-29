@@ -2,6 +2,7 @@ package com.sss.monikaapps.network
 
 import com.google.gson.GsonBuilder
 import com.sss.monikaapps.common.constanta.ApiConstant
+import com.sss.monikaapps.common.manager.ServerManager
 import com.sss.monikaapps.network.interceptor.AuthInterceptor
 import com.sss.monikaapps.network.interceptor.BaseUrlInterceptor
 import com.sss.monikaapps.network.interceptor.ConnectionInterceptor
@@ -14,7 +15,18 @@ import java.util.concurrent.TimeUnit
 
 
 object ApiConfig {
+
     private var retrofit: Retrofit? = null
+
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(TimeoutInterceptor())
+            .addInterceptor(ConnectionInterceptor())
+            .addInterceptor(AuthInterceptor())
+            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(BaseUrlInterceptor())
+            .build()
+    }
 
     fun getApiService(): ApiService {
         if (retrofit == null) {

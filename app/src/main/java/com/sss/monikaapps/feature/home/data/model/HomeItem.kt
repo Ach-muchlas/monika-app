@@ -6,3 +6,4 @@ data class HomeMenuItem(
     val description: String,
     val iconRes: Int,
 )
+

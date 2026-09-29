@@ -18,7 +18,7 @@ import com.sss.monikaapps.common.constanta.HomeFeatureConstant.FEATURE_VISIT
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
-import com.sss.monikaapps.feature.home.ui.component.HomeMenuGrid
+import com.sss.monikaapps.feature.home.presentasi.component.HomeMenuGrid
 
 @Composable
 fun MasterScreen(

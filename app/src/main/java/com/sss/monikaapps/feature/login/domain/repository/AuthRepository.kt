@@ -6,5 +6,5 @@ import com.sss.monikaapps.feature.login.data.response.LoginResponse
 import com.sss.monikaapps.common.result.Result
 
 interface AuthRepository {
-     suspend fun userLogin(payload: LoginRequest): LoginResponse
+    suspend fun userLogin(payload: LoginRequest): LoginResponse
 }

@@ -1,21 +1,33 @@
 package com.sss.monikaapps.feature.download.data.local
 
+import android.content.Context
+import android.util.Log
+import androidx.room.RoomDatabase
+import com.sss.monikaapps.common.helper.StorageHelper.deleteDir
+import com.sss.monikaapps.database.AppDatabase
 import com.sss.monikaapps.feature.download.data.dao.ConfigDownloadDataDao
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
+import com.sss.monikaapps.feature.invoice.data.dao.BankReceiptDao
 import com.sss.monikaapps.feature.visit.data.dao.VisitDao
 import com.sss.monikaapps.feature.visit.data.entity.VisitEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class DownloadLocalDataSourceImpl(
+    private val database: AppDatabase,
     private val dao: VisitDao,
     private val configDao: ConfigDownloadDataDao,
+    private val bankDao: BankReceiptDao,
 ) : DownloadLocalDataSource {
 
     override suspend fun saveConfigDownload(data: ConfigDownloadDataEntity) {
         configDao.upsertConfigDownload(data)
     }
 
-    override suspend fun insertConfigDownload(data: ConfigDownloadDataEntity) {
-        configDao.insertConfigDownload(data)
+    override suspend fun insertConfigDownload(data: List<ConfigDownloadDataEntity>) {
+        configDao.insertListConfigDownload(data)
     }
 
     override suspend fun checkIsExist(tableName: String): Boolean {
@@ -25,9 +37,12 @@ class DownloadLocalDataSourceImpl(
     override suspend fun fetchDataConfig(): List<ConfigDownloadDataEntity> {
         return configDao.fetchDataConfig()
     }
+    override fun fetchDataConfig2(): Flow<List<ConfigDownloadDataEntity>> {
+        return configDao.fetchDataConfig2()
+    }
 
-    override suspend fun returnDataConfigDownload() {
-        configDao.returnDataConfigDownload()
+    override suspend fun returnDataVisitCustomerConfigDownload(tableName: String) {
+        configDao.returnDataConfigDownload(tableName)
     }
 
     override suspend fun countPendingDownload(): Int {
@@ -42,7 +57,7 @@ class DownloadLocalDataSourceImpl(
         dao.deleteVisit()
     }
 
-    override suspend fun countVisit(): Int = dao.countDataVisit()
+    override fun countVisit(): Flow<Int> = dao.countDataVisit()
 
     override suspend fun insertCustomerVisitBatch(
         data: List<VisitEntity>,
@@ -58,5 +73,40 @@ class DownloadLocalDataSourceImpl(
             val progress = inserted.toFloat() / total.toFloat()
             onProgress(progress)
         }
+    }
+
+    override suspend fun deleteAllLocalData(
+        context: Context,
+    ) {
+        withContext(Dispatchers.IO) {
+            try {
+                // 1. Clear Room Database
+                database.clearAllTables()
+
+                // 2. Hapus file foto
+                val photoDir = File(context.filesDir, "photo")
+                if (photoDir.exists()) {
+                    deleteDir(photoDir)
+                }
+
+                try {
+                    val db = (database as RoomDatabase)
+                        .openHelper
+                        .writableDatabase
+                    db.execSQL("VACUUM")
+                } catch (e: Exception) {
+                    Log.e("CLEAR_DATA", "VACUUM error: ${e.message}")
+                }
+
+            } catch (e: Exception) {
+                Log.e("CLEAR_DATA", "Delete local data error: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun countDataBankReceipt(): Int = bankDao.countDataBankReceipt()
+
+    override suspend fun deleteDataBankReceipt() {
+        bankDao.deleteDataBankReceipt()
     }
 }

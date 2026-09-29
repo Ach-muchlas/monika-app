@@ -8,7 +8,7 @@ import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
 import com.sss.monikaapps.feature.activity.data.mapper.ActivityRequestMapper
 import com.sss.monikaapps.feature.activity.data.validator.ActivityValidator
 import com.sss.monikaapps.feature.activity.domain.repository.ActivitiesRepository
-import com.sss.monikaapps.feature.activity.utils.NetworkChecker
+import com.sss.monikaapps.network.domain.NetworkChecker
 
 class CreateActivityUseCase(
     private val repository: ActivitiesRepository,
@@ -90,7 +90,6 @@ class CreateActivityUseCase(
             return Result.success("Checkout disimpan lokal. Silakan sync manual.")
         }
 
-        // 4. Ambil data aktivitas terbaru
         var entity = repository.fetchDetailActivity(idMobile)
 
         // 5. JIKA CHECK-IN BELUM TERSINKRON → COBA SYNC CHECK-IN DULU

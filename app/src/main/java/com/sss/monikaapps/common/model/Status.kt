@@ -7,6 +7,10 @@ import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.theme.PieGray
 import com.sss.monikaapps.common.theme.SelectedBackground
 import com.sss.monikaapps.common.theme.Spruce
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
 
 data class Status(
     val id: String,
@@ -26,6 +30,7 @@ val dataStatusExpanses = listOf(
     Status("4", "Diajukan", R.drawable.icon_submit, PieGray),
     Status("1", "Disetujui", R.drawable.icon_approve, PieGray),
     Status("2", "Terkonfirmasi", R.drawable.icon_confirm, PieGray),
+    Status("3", "Dicairkan", R.drawable.icon_done_expense, PieGray),
     Status("5", "Ditolak", R.drawable.icon_reject, PieGray),
 )
 
@@ -35,4 +40,15 @@ val dataStatusVisit = listOf(
     Status(CHECK_IN, "Check In", R.drawable.icon_notification, PieGray),
     Status(CHECK_OUT, "Check Out", R.drawable.icon_profile, SelectedBackground),
     Status("3", "Belum tersinkron", R.drawable.icon_profile, SelectedBackground),
+)
+
+
+val dataStatusInvoice = listOf(
+    Status("7", "Semua", R.drawable.icon_profile, SelectedBackground),
+    Status("0", "Belum Selesai", R.drawable.icon_check_in, Spruce),
+    Status("5", "Belum tersinkron", R.drawable.icon_check_out, Spruce),
+    Status(STATUS_PAID.toString(), "Terbayar", R.drawable.icon_check_out, Spruce),
+    Status(STATUS_UNPAID.toString(), "Tidak Bayar", R.drawable.icon_check_out, Spruce),
+    Status(STATUS_RECEIPT.toString(), "Tanda Terima", R.drawable.icon_check_out, Spruce),
+    Status(STATUS_BG_CHECK.toString(), "BG", R.drawable.icon_check_out, Spruce),
 )

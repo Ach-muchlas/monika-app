@@ -1,5 +1,6 @@
 package com.sss.monikaapps.common.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.sss.monikaapps.R
 import com.sss.monikaapps.common.theme.BodyPopBold
 import com.sss.monikaapps.common.theme.BodyPopMedium
 
@@ -49,11 +53,11 @@ fun PhotoPickerBottomSheet(
         ) {
             Text("Pilih Foto", style = BodyPopBold)
 
-            SheetItem(Icons.Default.Call, "Ambil dari Kamera") {
+            SheetItem(R.drawable.icon_camera, "Ambil dari Kamera") {
                 onCamera()
             }
 
-            SheetItem(Icons.Default.Add, "Pilih dari Galeri") {
+            SheetItem(R.drawable.icon_gallery, "Pilih dari Galeri") {
                 onGallery()
             }
         }
@@ -63,7 +67,7 @@ fun PhotoPickerBottomSheet(
 
 @Composable
 private fun SheetItem(
-    icon: ImageVector,
+    icon: Int,
     text: String,
     onClick: () -> Unit
 ) {
@@ -74,7 +78,7 @@ private fun SheetItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null)
+        Image(painter = painterResource(icon), contentDescription = "icon", modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(12.dp))
         Text(text, style = BodyPopMedium)
     }

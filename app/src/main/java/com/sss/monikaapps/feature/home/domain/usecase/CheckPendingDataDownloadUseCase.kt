@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.download.domain.repository.DownloadRepository
 
-class CheckPendingDataDownloadUseCase(private val repository: DownloadRepository) : ViewModel() {
+class CheckPendingDataDownloadUseCase(private val repository: DownloadRepository){
     suspend operator fun invoke(): Result<Int> {
         return try {
             val result = repository.countDataPending()

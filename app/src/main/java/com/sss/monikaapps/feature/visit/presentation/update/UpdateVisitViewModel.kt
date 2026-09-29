@@ -18,11 +18,11 @@ class UpdateVisitViewModel(
     private val syncManualVisitUseCase: SyncManualVisitUseCase,
 ) : ViewModel() {
 
-    private val _checkInResult = MutableLiveData<Result<String>>()
-    val checkInResult: LiveData<Result<String>> = _checkInResult
+    private val _checkInResult = MutableLiveData<Result<String>?>()
+    val checkInResult: LiveData<Result<String>?> = _checkInResult
 
-    private val _checkOutResult = MutableLiveData<Result<String>>()
-    val checkOutResult: LiveData<Result<String>> = _checkOutResult
+    private val _checkOutResult = MutableLiveData<Result<String>?>()
+    val checkOutResult: LiveData<Result<String>?> = _checkOutResult
 
     private val _syncManualResult = MediatorLiveData<Result<String>?>()
     val syncManualResult: LiveData<Result<String>?> = _syncManualResult
@@ -64,5 +64,14 @@ class UpdateVisitViewModel(
     fun clearSyncState() {
         _syncManualResult.value = null
     }
+
+    fun clearCheckInState() {
+        _checkInResult.value = null
+    }
+
+    fun clearCheckOutState() {
+        _checkOutResult.value = null
+    }
+
 
 }

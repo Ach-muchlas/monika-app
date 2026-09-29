@@ -27,11 +27,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomFilterChip
 import com.sss.monikaapps.common.component.CustomFloatingActionButton
+import com.sss.monikaapps.common.component.CustomLoadingView
 import com.sss.monikaapps.common.component.CustomSearch
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.model.dataStatusExpanses
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
+import com.sss.monikaapps.feature.expense.data.handler.HandlePagingExpanseError
 import com.sss.monikaapps.feature.expense.presentation.list.component.ExpanseList
 import org.koin.androidx.compose.koinViewModel
 
@@ -88,13 +90,8 @@ fun ExpansesScreen(
 
             Spacer(modifier = Modifier.height(Dimens.MediumMargin))
 
-            // Handle loading initial
             if (lazyPagingItems.loadState.refresh is LoadState.Loading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                CustomLoadingView()
             } else {
                 ExpanseList(
                     lazyPagingItems = lazyPagingItems, onClick = onClick

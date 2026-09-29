@@ -2,11 +2,18 @@ package com.sss.monikaapps.common.repository.photo
 
 import com.sss.monikaapps.common.db.dao.PhotoDao
 import com.sss.monikaapps.common.db.entity.PhotoEntity
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 
 class PhotoRepositoryImpl(private val dao: PhotoDao) : PhotoRepository {
     override fun observePhotos(parentId: String, parentType: String) =
         dao.observePhotos(parentId, parentType)
+
+    override fun observePhotosInvoice(
+        parentId: String,
+        parentType: String,
+        parentFeature: Int,
+    ): Flow<List<PhotoEntity>> = dao.observePhotosInvoice(parentId, parentType, parentFeature)
 
     override suspend fun addPhoto(
         parentId: String,

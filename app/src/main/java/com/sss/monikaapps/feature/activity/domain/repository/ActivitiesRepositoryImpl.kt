@@ -1,7 +1,6 @@
 package com.sss.monikaapps.feature.activity.domain.repository
 
 import com.sss.monikaapps.common.db.entity.PhotoEntity
-import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.common.manager.SessionManager
 import com.sss.monikaapps.common.mapper.MapperActivity
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
@@ -11,7 +10,8 @@ import com.sss.monikaapps.feature.activity.data.response.DataItemActivities
 import com.sss.monikaapps.feature.activity.data.response.DataItemDetailActivity
 import com.sss.monikaapps.feature.activity.domain.model.ActivityCheckInRequest
 import com.sss.monikaapps.feature.activity.domain.model.ActivityCheckOutRequest
-import com.sss.monikaapps.feature.activity.utils.NetworkChecker
+import com.sss.monikaapps.network.domain.NetworkChecker
+import kotlinx.coroutines.flow.Flow
 
 class ActivitiesRepositoryImpl(
     private val local: ActivityLocalDataSource,
@@ -116,6 +116,9 @@ class ActivitiesRepositoryImpl(
     override suspend fun insertLogActivities(title: String, desc: String) =
         local.insertLog(title, desc)
 
-    override suspend fun fetchActivitiesLocal(): List<ActivityEntity> = local.fetchActivitiesLocalDatabase()
+    override suspend fun fetchActivitiesLocal(): List<ActivityEntity> =
+        local.fetchActivitiesLocalDatabase()
+
+    override fun countDataCheckoutNotSync(): Flow<Int> = local.countDataCheckoutNotSync()
 
 }

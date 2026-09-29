@@ -6,6 +6,7 @@ import com.sss.monikaapps.common.db.entity.PhotoEntity
 import com.sss.monikaapps.common.formatter.FormatterDate.getCurrentDate
 import com.sss.monikaapps.feature.activity.data.dao.ActivityDao
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
+import kotlinx.coroutines.flow.Flow
 
 class ActivityLocalDataSourceImpl(
     private val activityDao: ActivityDao,
@@ -13,7 +14,7 @@ class ActivityLocalDataSourceImpl(
 ) : ActivityLocalDataSource {
 
     override suspend fun fetchActivities(): List<ActivityEntity> {
-        return activityDao.fetchActivity(getCurrentDate())
+        return activityDao.fetchActivity()
     }
 
     override suspend fun fetchActivitiesLocalDatabase(): List<ActivityEntity> {
@@ -58,6 +59,9 @@ class ActivityLocalDataSourceImpl(
     override suspend fun countStillCheckIn(): Int {
         return activityDao.countStillCheckIn()
     }
+
+    override fun countDataCheckoutNotSync(): Flow<Int> = activityDao.countDataCheckoutNotSync()
+
 
     override suspend fun updateCheckOut(
         id: String,

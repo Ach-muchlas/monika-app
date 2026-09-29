@@ -1,6 +1,5 @@
 package com.sss.monikaapps.feature.visit.presentation.detail
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.sss.monikaapps.R
@@ -27,6 +28,7 @@ import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_OUT
 import com.sss.monikaapps.common.data.SnackbarType
 import com.sss.monikaapps.common.data.StatusNetwork
+import com.sss.monikaapps.common.helper.MapsHelper.openGoogleMaps
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.model.dataStatusActivities
 import com.sss.monikaapps.common.snackbar.SnackbarManager
@@ -34,7 +36,7 @@ import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.DarkRed
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Primary
-import com.sss.monikaapps.feature.activity.ui.component.CardDetailItemActivity
+import com.sss.monikaapps.feature.activity.presentation.component.CardDetailItemActivity
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveLatVisit
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.resolveLngVisit
@@ -48,14 +50,19 @@ fun VisitDetailScreen(
     navController: NavController,
     viewModel: VisitDetailViewModel = koinViewModel(),
     onClickButton: (idVisit: String, typeForm: String) -> Unit,
+    clickDetailPhoto: (url: String) -> Unit,
 ) {
+    val context = LocalContext.current
+
     val result by viewModel.visitDetailResult.observeAsState()
     var isStatus = 0
+
+    var customerLat = "0"
+    var customerLng = "0"
 
     LaunchedEffect(Unit) {
         viewModel.fetchVisitDetail(idVisit)
     }
-
 
     Column(
         modifier = Modifier
@@ -89,6 +96,8 @@ fun VisitDetailScreen(
                     val visit = result?.data?.header
                     val photos = result?.data?.photos
                     isStatus = visit?.syncStatus ?: 0
+                    customerLat = visit?.customerLatitude ?: "0"
+                    customerLng = visit?.customerLongitude ?: "0"
 
                     val dataStatusSync = when (isStatus) {
                         1, 2 -> true
@@ -114,9 +123,9 @@ fun VisitDetailScreen(
 
                             val photosByStatus = photos?.filter { it.parentType == status.id }
                             val cardColor = when {
+                                visit?.trno?.isBlank() == true -> DarkRed
                                 status.id == CHECK_IN && isStatus == 1 -> DarkRed
                                 status.id == CHECK_OUT && isStatus == 3 -> DarkRed
-                                visit?.trno?.isBlank() == true -> DarkRed
                                 else -> Primary
                             }
 
@@ -126,10 +135,12 @@ fun VisitDetailScreen(
                                 dateTime = status.resolveTimeVisit(visit),
                                 latitude = status.resolveLatVisit(visit),
                                 longitude = status.resolveLngVisit(visit),
-                                lisPhoto = VisitMapper.photoEntityToPhotoItem(photosByStatus)
+                                lisPhoto = VisitMapper.photoEntityToPhotoItem(photosByStatus),
+                                clickDetailPhoto = clickDetailPhoto
                             )
 
                             Spacer(modifier = Modifier.height(Dimens.LargeMargin))
+
                         }
                     }
                 }
@@ -148,6 +159,7 @@ fun VisitDetailScreen(
             }
         }
 
+
         if (isStatus <= 2) {
             CustomPrimaryButton(
                 modifier = Modifier
@@ -165,5 +177,21 @@ fun VisitDetailScreen(
                 onClickButton(idVisit, type)
             }
         }
+
+        CustomPrimaryButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimens.MediumMargin),
+            text = stringResource(R.string.text_gmaps),
+            colors = listOf(
+                Color(0xFF5ED293),
+                Color(0xFF27AE60),
+                Color(0xFF1E8449)
+            ),
+            onClick = {
+                openGoogleMaps(context, lat = customerLat, lng = customerLng)
+            }
+        )
     }
 }
+

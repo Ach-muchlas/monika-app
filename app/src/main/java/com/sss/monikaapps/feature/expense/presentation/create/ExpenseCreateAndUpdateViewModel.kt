@@ -17,6 +17,8 @@ import com.sss.monikaapps.feature.expense.domain.usecase.CreateExpenseHeaderUseC
 import com.sss.monikaapps.feature.expense.domain.usecase.UpdateExpenseDetailUseCase
 import com.sss.monikaapps.feature.mastering.data.response.DataItemMasteringExpense
 import com.sss.monikaapps.feature.mastering.domain.usecase.FetchMasteringExpenseUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ExpenseCreateAndUpdateViewModel(
@@ -26,20 +28,29 @@ class ExpenseCreateAndUpdateViewModel(
     private val fetchMasteringExpenseUseCase: FetchMasteringExpenseUseCase,
 ) : ViewModel() {
 
-    private val _createHeaderExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val createHeaderExpenseResult: LiveData<Result<DefaultAddResponse>> = _createHeaderExpenseResult
+    private val _createHeaderExpenseResult = MediatorLiveData<Result<DefaultAddResponse>?>()
+    val createHeaderExpenseResult: LiveData<Result<DefaultAddResponse>?> =
+        _createHeaderExpenseResult
 
-    private val _createDetailExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val createDetailExpenseResult: LiveData<Result<DefaultAddResponse>> = _createDetailExpenseResult
+    private val _createDetailExpenseResult = MediatorLiveData<Result<DefaultAddResponse>?>()
+    val createDetailExpenseResult: LiveData<Result<DefaultAddResponse>?> =
+        _createDetailExpenseResult
 
-    private val _updateDetailExpenseResult = MediatorLiveData<Result<DefaultAddResponse>>()
-    val updateDetailExpenseResult: LiveData<Result<DefaultAddResponse>> = _updateDetailExpenseResult
+    private val _updateDetailExpenseResult = MediatorLiveData<Result<DefaultAddResponse>?>()
+    val updateDetailExpenseResult: LiveData<Result<DefaultAddResponse>?> =
+        _updateDetailExpenseResult
 
     private val _expenseCategories = MutableLiveData<List<DataItemMasteringExpense>>()
     val expenseCategories: LiveData<List<DataItemMasteringExpense>> = _expenseCategories
 
     private val _selectedExpenseCategory = MutableLiveData<DataItemMasteringExpense?>()
     val selectedExpenseCategory: LiveData<DataItemMasteringExpense?> = _selectedExpenseCategory
+
+    private val _initialKm = MutableStateFlow("0")
+    val initialKm = _initialKm.asStateFlow()
+
+    private val _finalKm = MutableStateFlow("0")
+    val finalKm = _finalKm.asStateFlow()
 
     fun createHeaderExpense(payload: ExpenseHeaderRequest) {
         viewModelScope.launch {
@@ -52,7 +63,6 @@ class ExpenseCreateAndUpdateViewModel(
     fun setSelectedCategoryById(categoryId: String) {
         val category = _expenseCategories.value
             ?.firstOrNull { it.id == categoryId }
-
         _selectedExpenseCategory.value = category
     }
 
@@ -66,7 +76,6 @@ class ExpenseCreateAndUpdateViewModel(
     }
 
     fun updateExpenseDetail(trno: String, idDetail: String, payload: ExpenseUpdateDetailRequest) {
-        Log.e("CHECK_", "Masuk sini")
         viewModelScope.launch {
             _updateDetailExpenseResult.value = Result.loading(null)
             val result = updateExpenseDetailUseCase(trno, idDetail, payload)
@@ -81,7 +90,6 @@ class ExpenseCreateAndUpdateViewModel(
 
             if (result.status == StatusNetwork.SUCCESS) {
                 val list = result.data?.data
-                    ?.filterNotNull()
                     ?.sortedBy { it.id }
                     ?: emptyList()
 
@@ -90,12 +98,37 @@ class ExpenseCreateAndUpdateViewModel(
         }
     }
 
-    fun selectExpenseCategory(item: DataItemMasteringExpense) {
-        _selectedExpenseCategory.value = item
+    fun selectExpenseCategory(category: DataItemMasteringExpense) {
+        _selectedExpenseCategory.value = category
+
+        if (category.name != "BBM") {
+            _initialKm.value = "0"
+            _finalKm.value = "0"
+        }
+    }
+
+    fun setInitialKm(value: String) {
+        _initialKm.value = value
+    }
+
+    fun setFinalKm(value: String) {
+        _finalKm.value = value
     }
 
     fun getSelectedExpenseCategoryId(): String? {
         return _selectedExpenseCategory.value?.id
+    }
+
+    fun clearDetailCreateState() {
+        _createDetailExpenseResult.value = null
+    }
+
+    fun clearDetailUpdateState() {
+        _updateDetailExpenseResult.value = null
+    }
+
+    fun clearHeaderCreateState() {
+        _createHeaderExpenseResult.value = null
     }
 
 }

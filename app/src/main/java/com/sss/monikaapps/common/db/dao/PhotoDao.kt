@@ -14,6 +14,9 @@ interface PhotoDao {
     @Query("SELECT * FROM photo_table WHERE parentId = :parentId AND parentType = :parentType ORDER BY createdAt ASC")
     fun observePhotos(parentId: String, parentType: String): Flow<List<PhotoEntity>>
 
+    @Query("SELECT * FROM photo_table WHERE parentId = :parentId AND parentType = :parentType AND parentFeature = :parentFeature ORDER BY createdAt ASC")
+    fun observePhotosInvoice(parentId: String, parentType: String, parentFeature: Int): Flow<List<PhotoEntity>>
+
     @Query("SELECT * FROM photo_table WHERE parentId = :parentId AND parentType = :parentType ORDER BY createdAt ASC")
     suspend fun fetchPhotoByParentIdAndParentType(
         parentId: String,

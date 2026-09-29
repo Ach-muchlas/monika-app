@@ -5,6 +5,13 @@ import kotlinx.coroutines.flow.Flow
 
 interface PhotoRepository {
     fun observePhotos(parentId: String, parentType: String): Flow<List<PhotoEntity>>
-    suspend fun addPhoto(parentId: String,parentFeature: Int, parentType: String, path: String)
+
+    fun observePhotosInvoice(
+        parentId: String,
+        parentType: String,
+        parentFeature: Int,
+    ): Flow<List<PhotoEntity>>
+
+    suspend fun addPhoto(parentId: String, parentFeature: Int, parentType: String, path: String)
     suspend fun deletePhoto(photo: PhotoEntity)
 }

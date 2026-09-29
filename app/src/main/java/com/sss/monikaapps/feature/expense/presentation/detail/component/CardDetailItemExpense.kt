@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.expense.presentation.detail.component
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,11 +21,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.common.component.CustomFloatingActionButton
-import com.sss.monikaapps.common.component.CustomPhoto
+import com.sss.monikaapps.common.constanta.ApiConstant
 import com.sss.monikaapps.common.formatter.FormatterCurrency.formatCurrency
 import com.sss.monikaapps.common.formatter.FormatterCurrency.formatCurrencyWithoutRp
 import com.sss.monikaapps.common.theme.BodyBitterRegular
@@ -34,6 +36,7 @@ import com.sss.monikaapps.common.theme.Gray
 import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.feature.activity.data.response.PhotoItem
 import com.sss.monikaapps.feature.expense.data.response.DetailItemExpense
+import com.sss.monikaapps.feature.photo.CustomPhoto
 
 @Composable
 fun CardDetailItemExpense(
@@ -42,6 +45,7 @@ fun CardDetailItemExpense(
     lisPhoto: List<PhotoItem>?,
     onClickEdited: (trno: String, idDetail: String, netAmount: String, note: String, initKm: String, finalKm: String) -> Unit,
     onClickDeleted: (trno: String, idDetail: String) -> Unit,
+    clickDetailPhoto: (url: String) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -90,11 +94,17 @@ fun CardDetailItemExpense(
                     modifier = Modifier.height(90.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(lisPhoto.orEmpty()) { photo ->
+                    items(
+                        lisPhoto.orEmpty(), key = { it.id.toString() }) { photo ->
+
+                        val imageUrl = remember(photo.path) {
+                            "${ApiConstant.urlDomain()}monika-view-image/${photo.folderName}/${photo.path}"
+                        }
+
                         CustomPhoto(
-                            imageUrl = photo.path.toString(),
+                            imageUrl = imageUrl,
                             modifier = Modifier.size(90.dp),
-                            onClick = {})
+                            onClick = { clickDetailPhoto(imageUrl) })
                     }
                 }
 

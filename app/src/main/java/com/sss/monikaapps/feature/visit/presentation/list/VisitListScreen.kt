@@ -2,7 +2,6 @@ package com.sss.monikaapps.feature.visit.presentation.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,15 +18,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomFilterChip
 import com.sss.monikaapps.common.component.CustomLoadingDialog
+import com.sss.monikaapps.common.component.CustomLoadingView
+import com.sss.monikaapps.common.component.CustomNotFoundAnimation
 import com.sss.monikaapps.common.component.CustomSearch
 import com.sss.monikaapps.common.component.CustomTopBar
 import com.sss.monikaapps.common.data.SnackbarType
@@ -145,18 +142,13 @@ fun VisitListScreen(
         // List Visit
         when (result?.status) {
             StatusNetwork.LOADING -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
+                CustomLoadingView()
             }
 
             StatusNetwork.SUCCESS -> {
                 val visit = result?.data.orEmpty()
                 if (visit.isEmpty()) {
-                    Text("Tidak ada data kunjungan", color = Color.Gray)
+                    CustomNotFoundAnimation()
                 } else {
                     LazyColumn {
                         items(visit) { data ->
@@ -173,11 +165,12 @@ fun VisitListScreen(
                 LaunchedEffect(result?.message) {
                     SnackbarManager.showSnackbar(
                         SnackbarData(
-                            result?.message ?: "Gagal mengambil aktivitas",
+                            result?.message ?: "Gagal mengambil kunjungan",
                             SnackbarType.ERROR
                         )
                     )
                 }
+                CustomNotFoundAnimation()
             }
 
             else -> Unit
@@ -185,6 +178,6 @@ fun VisitListScreen(
     }
 
     if (isSyncing) {
-        CustomLoadingDialog(message = "Menyinkronkan data...")
+        CustomLoadingDialog(message = "Menyinkronkan data")
     }
 }

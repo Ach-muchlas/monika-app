@@ -19,8 +19,8 @@ class ResultDownloadViewModel(
 ) : ViewModel() {
 
     private val _sendEmailResult =
-        MutableLiveData<Result<DefaultAddResponse>>()
-    val sendEmailResult: LiveData<Result<DefaultAddResponse>> =
+        MutableLiveData<Result<DefaultAddResponse>?>()
+    val sendEmailResult: LiveData<Result<DefaultAddResponse>?> =
         _sendEmailResult
 
     fun exportAndSendDatabase(
@@ -63,4 +63,9 @@ class ResultDownloadViewModel(
             }
         }
     }
+
+    fun clearResult() {
+        _sendEmailResult.postValue(null)
+    }
+
 }

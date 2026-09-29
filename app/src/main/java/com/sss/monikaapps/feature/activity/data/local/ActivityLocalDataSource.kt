@@ -2,6 +2,7 @@ package com.sss.monikaapps.feature.activity.data.local
 
 import com.sss.monikaapps.common.db.entity.PhotoEntity
 import com.sss.monikaapps.feature.activity.data.entity.ActivityEntity
+import kotlinx.coroutines.flow.Flow
 
 interface ActivityLocalDataSource {
     suspend fun fetchActivities(): List<ActivityEntity>
@@ -20,6 +21,7 @@ interface ActivityLocalDataSource {
     suspend fun markCheckOutSynced(id: String)
 
     suspend fun countStillCheckIn(): Int
+    fun countDataCheckoutNotSync(): Flow<Int>
 
     suspend fun insertLog(title: String, desc: String)
     suspend fun getSyncStatus(trno: String): Int

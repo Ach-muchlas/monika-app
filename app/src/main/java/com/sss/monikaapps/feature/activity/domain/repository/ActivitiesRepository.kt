@@ -8,6 +8,7 @@ import com.sss.monikaapps.feature.activity.data.response.DataItemActivities
 import com.sss.monikaapps.feature.activity.data.response.DataItemDetailActivity
 import com.sss.monikaapps.feature.activity.domain.model.ActivityCheckInRequest
 import com.sss.monikaapps.feature.activity.domain.model.ActivityCheckOutRequest
+import kotlinx.coroutines.flow.Flow
 
 interface ActivitiesRepository {
     suspend fun insertActivity(payload: ActivityEntity)
@@ -30,4 +31,6 @@ interface ActivitiesRepository {
 
     suspend fun insertLogActivities(title: String, desc: String)
     suspend fun fetchActivitiesLocal(): List<ActivityEntity>
+
+    fun countDataCheckoutNotSync () : Flow<Int>
 }

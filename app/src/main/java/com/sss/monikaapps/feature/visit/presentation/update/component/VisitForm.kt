@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,11 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.R
-import com.sss.monikaapps.common.component.CustomMultiPhotoCard
 import com.sss.monikaapps.common.component.CustomPrimaryButton
 import com.sss.monikaapps.common.component.CustomTextField
 import com.sss.monikaapps.common.constanta.FeatureActivityConstant.CHECK_IN
@@ -32,6 +35,7 @@ import com.sss.monikaapps.common.theme.BodyPopRegular
 import com.sss.monikaapps.common.theme.BodyPopSemiBold
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Primary
+import com.sss.monikaapps.feature.photo.CustomMultiPhotoCard
 
 @Composable
 fun VisitForm(
@@ -49,6 +53,8 @@ fun VisitForm(
     onSubmit: () -> Unit,
 ) {
     val isCheckIn = typeVisit == CHECK_IN
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     var photoError by remember { mutableStateOf<String?>(null) }
     var descError by remember { mutableStateOf<String?>(null) }
 
@@ -56,7 +62,7 @@ fun VisitForm(
         modifier = Modifier
             .fillMaxWidth()
             .padding(Dimens.SmallMargin),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(Dimens.ExtraSmallMargin))
 
@@ -151,7 +157,10 @@ fun VisitForm(
 
         // Grid foto
         CustomMultiPhotoCard(
-            title = "Masukan bukti foto kunjungan", photos = photos, onAddPhoto = {
+            title = "Masukan bukti foto kunjungan", photos = photos,
+            onAddPhoto = {
+                focusManager.clearFocus(force = true)
+                keyboardController?.hide()
                 photoError = null
                 onAddPhoto()
             }, onDeletePhoto = onDeletePhoto
@@ -171,7 +180,8 @@ fun VisitForm(
         Spacer(Modifier.height(Dimens.ExtraExtraLargeMargin))
 
         CustomPrimaryButton(
-            text = stringResource(R.string.text_save), onClick = {
+            text = stringResource(R.string.text_save),
+            onClick = {
                 var hasError = false
                 if (isCheckIn) {
 
