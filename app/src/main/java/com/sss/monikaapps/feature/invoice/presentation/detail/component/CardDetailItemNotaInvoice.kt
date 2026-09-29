@@ -32,6 +32,13 @@ import com.sss.monikaapps.common.theme.Gray
 import com.sss.monikaapps.common.theme.LightRed
 import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.feature.activity.data.response.PhotoItem
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst.PAYMENT_TRANSFER
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
 import com.sss.monikaapps.feature.photo.CustomPhoto
 
 @Composable
@@ -40,11 +47,14 @@ fun CardDetailItemNotaInvoice(
     nomorNota: String,
     outstanding: String,
     statusId: Int,
+    paymentMethod: Int,
     status: String,
     dateNote: String,
     dueDate: String,
     textReasonOrTotal: String,
-    syncStatus : Int,
+    dateTransfer : String,
+    syncStatus: Int,
+    bankName : String,
     lisPhoto: List<PhotoItem>?,
     clickPayment: (idInvoice: String, nomorNota: String) -> Unit,
     clickDetailPhoto: (url: String) -> Unit,
@@ -55,6 +65,14 @@ fun CardDetailItemNotaInvoice(
         else -> Gray
     }
 
+    val icons = when (statusId) {
+        STATUS_PAID -> R.drawable.icon_paid_invoice
+        STATUS_UNPAID -> R.drawable.icon_reason
+        STATUS_RECEIPT -> R.drawable.icon_receipt
+        STATUS_BG_CHECK -> R.drawable.icon_bg
+        else -> R.drawable.icon_reason
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(Dimens.MediumCornerRadius),
@@ -62,7 +80,6 @@ fun CardDetailItemNotaInvoice(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         onClick = { clickPayment.invoke(idInvoice, nomorNota) }
     ) {
-        val icon = if (statusId == 2) R.drawable.icon_reason else R.drawable.icon_paid
 
         Row(
             modifier = Modifier
@@ -122,11 +139,64 @@ fun CardDetailItemNotaInvoice(
                 if (statusId != 0) {
                     Spacer(modifier = Modifier.height(Dimens.ExtraSmallMargin))
 
+                    if (paymentMethod != 0){
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.icon_method_payment),
+                                modifier = Modifier.size(30.dp),
+                                contentDescription = ""
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.SmallMargin))
+
+                            Text(
+                                text = if (paymentMethod == PAYMENT_TRANSFER) "Transfer" else "Cash",
+                                style = BodyPopSemiBold.copy(fontSize = Dimens.MediumFont)
+                            )
+                        }
+                    }
+
+                    if (paymentMethod == PAYMENT_TRANSFER || statusId == STATUS_BG_CHECK){
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.icon_date_transfer),
+                                modifier = Modifier.size(30.dp),
+                                contentDescription = ""
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.SmallMargin))
+
+                            Text(
+                                text = dateTransfer,
+                                style = BodyPopSemiBold.copy(fontSize = Dimens.MediumFont)
+                            )
+                        }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.icon_transfer),
+                                modifier = Modifier.size(30.dp),
+                                contentDescription = ""
+                            )
+                            Spacer(modifier = Modifier.width(Dimens.SmallMargin))
+
+                            Text(
+                                text = bankName,
+                                style = BodyPopSemiBold.copy(fontSize = Dimens.MediumFont)
+                            )
+                        }
+                    }
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
-                            painter = painterResource(icon),
+                            painter = painterResource(icons),
                             modifier = Modifier.size(30.dp),
                             contentDescription = ""
                         )
@@ -137,6 +207,7 @@ fun CardDetailItemNotaInvoice(
                             style = BodyPopSemiBold.copy(fontSize = Dimens.MediumFont)
                         )
                     }
+
 
                     if (!lisPhoto.isNullOrEmpty()) {
                         Spacer(modifier = Modifier.height(Dimens.SmallMargin))

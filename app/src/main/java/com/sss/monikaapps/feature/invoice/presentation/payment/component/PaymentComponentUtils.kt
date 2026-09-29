@@ -22,7 +22,6 @@ import com.sss.monikaapps.common.theme.BodyPopRegular
     )
 }
 
-
 @Composable
 fun ErrorText(message: String?) {
     if (message == null) return

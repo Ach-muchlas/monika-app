@@ -32,7 +32,10 @@ import com.sss.monikaapps.common.model.dataStatusInvoice
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
-import com.sss.monikaapps.common.theme.Spruce
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
 import com.sss.monikaapps.feature.invoice.presentation.detail.component.CardDetailItemNotaInvoice
 import com.sss.monikaapps.feature.invoice.presentation.detail.component.CardHeaderInvoiceDetail
 import org.koin.androidx.compose.koinViewModel
@@ -86,7 +89,12 @@ fun InvoiceDetailScreen(
                         val statusDisplay =
                             dataStatusInvoice.find { it.id == item.nota.status.toString() }?.title
                                 ?: "Belum Selesai"
-
+                        val textValue = when (item.nota.status) {
+                            STATUS_PAID, STATUS_BG_CHECK -> formatCurrency(item.nota.moneyPaid)
+                            STATUS_UNPAID -> item.nota.reason.toString()
+                            STATUS_RECEIPT -> formatDateToIndoDisplay(item.nota.dateReceipt.toString())
+                            else -> "-"
+                        }
                         CardDetailItemNotaInvoice(
                             idInvoice = item.nota.id,
                             nomorNota = item.nota.nomorNota,
@@ -94,9 +102,12 @@ fun InvoiceDetailScreen(
                             statusId = item.nota.status,
                             syncStatus = item.nota.syncStatus,
                             status = statusDisplay,
+                            paymentMethod = item.nota.paymentMethod ?: 0,
                             dueDate = formatDateToIndoDisplay(item.nota.dueDate),
                             dateNote = formatDateToIndoDisplay(item.nota.dateNota),
-                            textReasonOrTotal = if (item.nota.status == 1) formatCurrency(item.nota.moneyPaid) else item.nota.reason.toString(),
+                            dateTransfer = formatDateToIndoDisplay(item.nota.dateReceipt.toString()),
+                            bankName = item.bankName ?: "-",
+                            textReasonOrTotal = textValue,
                             lisPhoto = item.lisPhoto,
                             clickPayment = { idInvoice, nota ->
                                 if (item.nota.status == 0) {

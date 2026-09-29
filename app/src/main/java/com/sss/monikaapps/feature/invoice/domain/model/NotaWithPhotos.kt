@@ -5,5 +5,6 @@ import com.sss.monikaapps.feature.invoice.data.entity.InvoiceEntity
 
 data class NotaWithPhotos(
     val nota: InvoiceEntity,
+    val bankName: String?,
     val lisPhoto: List<PhotoItem>,
 )

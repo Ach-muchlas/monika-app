@@ -59,6 +59,7 @@ fun ConnectionScreen(
     val versionApps by deviceViewModel.versionApps.observeAsState("")
     val systemOperation by deviceViewModel.systemOperation.observeAsState("")
     val state by viewModel.state.observeAsState()
+
     val serverUrlResult by viewModel.serverUrl.observeAsState()
 
     LaunchedEffect(Unit) {

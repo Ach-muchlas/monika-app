@@ -22,4 +22,7 @@ interface BankReceiptDao {
     @Query("SELECT * FROM bank_receipt_table")
     fun observerBankReceipt(): Flow<List<BankReceiptEntity>>
 
+    @Query("SELECT bankName from bank_receipt_table WHERE idCoa = :idBank")
+    suspend fun observerBankNameById(idBank: String): String
+
 }

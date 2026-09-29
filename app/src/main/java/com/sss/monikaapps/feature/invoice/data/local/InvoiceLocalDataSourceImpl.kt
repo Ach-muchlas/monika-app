@@ -101,8 +101,8 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao, private val bankDa
     override fun getNotaInvoiceByCustomerId(customerId: String): Flow<List<InvoiceEntity>> =
         dao.observerNotaInvoiceByCustomerId(customerId)
 
-    override fun getPhotoNotaByIdNota(idNota: String): Flow<List<PhotoItem>> =
-        dao.observerPhotoNota(idNota)
+    override fun getPhotoNotaByIdNota(idNota: String, parentType: Int): Flow<List<PhotoItem>> =
+        dao.observerPhotoNota(idNota, parentType)
 
     override fun getPaymentDataInvoice(nota: String): Flow<PaymentInvoiceData> =
         dao.observerPaymentDataInvoice(nota)
@@ -119,8 +119,8 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao, private val bankDa
         gpsLat: String,
         gpsLng: String,
         dateReceipt: String,
-        paymentMethod : String,
-        idCoa : String,
+        paymentMethod: String,
+        idCoa: String,
     ): Int {
         // get data customer
         val customer = dao.observeCustomerInvoiceByCustomerId(customerId).first()
@@ -170,6 +170,9 @@ class InvoiceLocalDataSourceImpl(private val dao: InvoiceDao, private val bankDa
     override suspend fun getCustomerIdInInvoiceTable(): List<String> =
         dao.getCustomerIdInInvoiceTable()
 
+    override suspend fun getNomorNotaInInvoiceTable(): List<String> =dao.getNomorNotaInInvoiceTable()
+
     override fun getBankReceipt(): Flow<List<BankReceiptEntity>> = bankDao.observerBankReceipt()
+    override suspend fun getBankNameById(idBank: String):String = bankDao.observerBankNameById(idBank)
 
 }

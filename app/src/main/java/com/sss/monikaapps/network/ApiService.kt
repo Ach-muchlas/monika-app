@@ -3,6 +3,7 @@ package com.sss.monikaapps.network
 import com.sss.monikaapps.common.constanta.ApiConstant.APP_VERSION
 import com.sss.monikaapps.common.constanta.ApiConstant.AUTH
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_BANK_RECEIPT
+import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_CONNECTION
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_DATA_DOWNLOAD_VISIT
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_CUSTOMER
 import com.sss.monikaapps.common.constanta.ApiConstant.CHECK_INVOICE_NOTA
@@ -35,6 +36,7 @@ import com.sss.monikaapps.common.constanta.ApiConstant.UPDATE_DETAIL_EXPENSE
 import com.sss.monikaapps.common.response.DefaultAddResponse
 import com.sss.monikaapps.feature.activity.data.response.ActivitiesResponse
 import com.sss.monikaapps.feature.activity.data.response.DetailActivityResponse
+import com.sss.monikaapps.feature.connection.data.response.CheckConnectionResponse
 import com.sss.monikaapps.feature.download.data.response.CheckFirstDownloadResponse
 import com.sss.monikaapps.feature.expense.data.response.DetailExpanseResponse
 import com.sss.monikaapps.feature.expense.data.response.ExpansesResponse
@@ -74,6 +76,9 @@ interface ApiService {
 
     @GET(APP_VERSION)
     suspend fun fetchAppVersion(): Response<VersionResponse>
+
+    @GET(CHECK_CONNECTION)
+    suspend fun fetchCheckConnection(): Response<CheckConnectionResponse>
 
     // fetch data activities
     @GET("${FETCH_DATA_ACTIVITIES}/{tanggal}")

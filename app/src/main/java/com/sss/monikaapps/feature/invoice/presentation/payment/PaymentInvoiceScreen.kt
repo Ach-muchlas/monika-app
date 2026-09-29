@@ -1,7 +1,6 @@
 package com.sss.monikaapps.feature.invoice.presentation.payment
 
-import android.annotation.SuppressLint
-import android.os.Looper
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,9 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,15 +27,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomLoadingDialog
 import com.sss.monikaapps.common.component.CustomTopBar
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.BG_CHECK
 import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.NOT_PAID
 import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.PAID_TRANSFER
 import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.RECEIPT
@@ -53,11 +45,9 @@ import com.sss.monikaapps.common.theme.BackgroundLayout
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.viewmodel.LocationViewModel
 import com.sss.monikaapps.common.viewmodel.PhotoViewModel
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst
 import com.sss.monikaapps.feature.invoice.presentation.payment.component.PaymentInvoiceForm
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.tasks.await
 import org.koin.androidx.compose.koinViewModel
-import kotlin.coroutines.resume
 
 
 @Composable
@@ -70,87 +60,58 @@ fun PaymentInvoiceScreen(
     val context = LocalContext.current
 
     val locationState by locationViewModel.locationState.collectAsState()
-//    val payment by viewModel.paymentData.collectAsStateWithLifecycle()
-//    val reasonState by viewModel.reason.collectAsStateWithLifecycle()
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
-    var date by remember { mutableStateOf("-") }
-//    val statusPaid by viewModel.statusPaid.collectAsStateWithLifecycle()
-
-//    val totalPaid by viewModel.totalPaid.collectAsStateWithLifecycle()
-//    val selectedReason by viewModel.selectedReason.collectAsStateWithLifecycle()
-//    val selectedBankReceipt by viewModel.selectedBankReceipt.collectAsStateWithLifecycle()
-//    val paymentMethod by viewModel.paymentMethod.collectAsStateWithLifecycle()
-//    val bankReceipts by viewModel.bankReceipts.collectAsState()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val parentType = when (state.statusPaid) {
         1 -> PAID_TRANSFER
         2 -> NOT_PAID
         3 -> RECEIPT
+        4 -> BG_CHECK
         else -> 0
     }
 
-
-    val fusedLocationClient = remember {
-        LocationServices.getFusedLocationProviderClient(context)
-    }
-
-    val photoHelper = remember(fusedLocationClient) {
-        PhotoHelper(
-            context = context,
-            featureName = INVOICE,
-            typeFeature = viewModel.nomorNota,
-            enableWatermark = true,
-
-            getLocation = {
-                getCurrentLocation(fusedLocationClient)
-            },
-
-            onPhotoTaken = { newPhoto ->
-                photoViewModel.addPhoto(
-                    parentId = viewModel.idInvoice,
-                    parentType = viewModel.nomorNota,
-                    parentFeature = NOT_PAID,
-                    path = newPhoto
-                )
-            }
-        )
-    }
-
-    val photoHelperForReceipt = remember {
-        PhotoHelper(context, INVOICE, viewModel.nomorNota) { newPhoto ->
-            photoViewModel.addPhoto(
-                parentId = viewModel.idInvoice,
-                parentType = viewModel.nomorNota,
-                parentFeature = RECEIPT,
-                path = newPhoto
-            )
+    LaunchedEffect(Unit) {
+        viewModel.requestLocation.collect {
+            locationViewModel.fetchLocation()
         }
     }
 
-    val photoHelperEvidence = remember {
-        PhotoHelper(context, INVOICE, viewModel.nomorNota) { newPhoto ->
-            photoViewModel.addPhoto(
-                parentId = viewModel.idInvoice,
-                parentType = viewModel.nomorNota,
-                parentFeature = PAID_TRANSFER,
-                path = newPhoto
-            )
-        }
-    }
+    val photoHelper = rememberPhotoHelper(
+        context, viewModel, photoViewModel, NOT_PAID
+    )
+
+    val photoHelperForReceipt = rememberPhotoHelper(
+        context, viewModel, photoViewModel, RECEIPT
+    )
+
+    val photoHelperEvidence = rememberPhotoHelper(
+        context, viewModel, photoViewModel, PAID_TRANSFER
+    )
+
+    val photoHelperForBG = rememberPhotoHelper(
+        context, viewModel, photoViewModel, BG_CHECK
+    )
 
     val launchCamera = photoHelper.rememberCameraLauncher()
     val launchCameraForReceipt = photoHelperForReceipt.rememberCameraLauncher()
     val launchCameraEvidencePaidTransfer = photoHelperEvidence.rememberCameraLauncher()
+    val launchCameraBG = photoHelperForBG.rememberCameraLauncher()
 
-    val photos by photoViewModel
-        .observerPhotosInvoice(viewModel.idInvoice, viewModel.nomorNota, parentType)
-        .collectAsState()
+    val photosFlow = remember(viewModel.idInvoice, viewModel.nomorNota, parentType) {
+        photoViewModel.observerPhotosInvoice(viewModel.idInvoice, viewModel.nomorNota, parentType)
+    }
 
-    val uiState = state.copy(
-        photos = photos.map { it.filePath }
-    )
+    val photos by photosFlow.collectAsStateWithLifecycle()
+
+    val uiState = state.copy(photos = photos.map { it.filePath })
+
+    LaunchedEffect(photos.size) {
+        if (photos.isNotEmpty()) {
+            viewModel.onEvent(PaymentInvoiceEvent.ClearPhotoError)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -170,7 +131,6 @@ fun PaymentInvoiceScreen(
 
             Spacer(modifier = Modifier.height(Dimens.MediumMargin))
 
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(28.dp),
@@ -183,15 +143,12 @@ fun PaymentInvoiceScreen(
                         when (event) {
 
                             is PaymentInvoiceEvent.OnAddPhoto -> {
-                                launchCamera()
-                            }
-
-                            is PaymentInvoiceEvent.OnAddPhotoReceipt -> {
-                                launchCameraForReceipt()
-                            }
-
-                            is PaymentInvoiceEvent.OnAddPhotoTransfer -> {
-                                launchCameraEvidencePaidTransfer()
+                                when (uiState.statusPaid) {
+                                    PaymentStatusConst.STATUS_UNPAID -> launchCamera()
+                                    PaymentStatusConst.STATUS_RECEIPT -> launchCameraForReceipt()
+                                    PaymentStatusConst.STATUS_PAID -> launchCameraEvidencePaidTransfer()
+                                    PaymentStatusConst.STATUS_BG_CHECK -> launchCameraBG()
+                                }
                             }
 
                             is PaymentInvoiceEvent.OnDeletePhoto -> {
@@ -200,87 +157,10 @@ fun PaymentInvoiceScreen(
                                 }
                             }
 
-                            is PaymentInvoiceEvent.OnSubmit -> {
-                                locationViewModel.fetchLocation()
-                            }
-
-                            is PaymentInvoiceEvent.OnDateChange -> {
-                                date = event.date
-                            }
-
                             else -> viewModel.onEvent(event)
                         }
                     }
                 )
-
-//                when (payment.status) {
-//                    StatusNetwork.LOADING -> {
-//                        CustomLoadingView()
-//                    }
-//
-//                    StatusNetwork.SUCCESS -> {
-//                        val dataPayment = payment.data
-//
-//                        val listReason = if (reasonState.status == StatusNetwork.SUCCESS) {
-//                            reasonState.data ?: emptyList()
-//                        } else {
-//                            emptyList()
-//                        }
-//                        val uiState = state.copy(
-//                            customerData = "${dataPayment?.customerId} - ${dataPayment?.customerName}",
-//                            nomorNota = viewModel.nomorNota,
-//                            totalOutstanding = formatCurrency((dataPayment?.outstandingNota ?: 0).toLong()),
-//                            totalNominalNota = formatCurrency(dataPayment?.nominalNota?.toLong() ?: 0),
-//                            photos = photos.map { it.filePath },
-//                            reasons = listReason ?: emptyList(),
-//                            listBankReceipt = bankReceipts ?: emptyList()
-//                        )
-//
-//                        PaymentInvoiceForm(
-//                            customerData = "${dataPayment?.customerId} - ${dataPayment?.customerName}",
-//                            nomorNota = viewModel.nomorNota,
-//                            totalOutstanding = formatCurrency(
-//                                (dataPayment?.outstandingNota ?: 0).toLong()
-//                            ),
-//                            totalNominalNota = formatCurrency(
-//                                dataPayment?.nominalNota?.toLong() ?: 0
-//                            ),
-//
-//                            onDateChange = { date = it },
-//
-//                            statusPaid = statusPaid,
-//                            totalPaid = totalPaid,
-//                            reasons = listReason,
-//                            selectedReason = selectedReason,
-//                            selectedBankReceipt = selectedBankReceipt,
-//                            paymentMethod = paymentMethod,
-//
-//                            listBankReceipt = bankReceipts,
-//
-//                            onPaidChange = viewModel::onPaidChange,
-//                            onStatusPaidChange = viewModel::onStatusPaidChange,
-//                            onReasonChange = viewModel::onReasonChange,
-//                            onBankReceiptSelected = viewModel::onBankChange,
-//                            onPaymentMethodChange = viewModel::onPaymentMethodChange,
-//
-//                            photos = photos.map { it.filePath },
-//                            onAddPhoto = { launchCamera() },
-//                            onAddPhotoForReceipt = { launchCameraForReceipt() },
-//                            onAddPhotoEvidenceTransfer = { launchCameraEvidencePaidTransfer() },
-//                            onDeletePhoto = { path ->
-//                                photos.firstOrNull { it.filePath == path }?.let {
-//                                    photoViewModel.deletePhoto(it)
-//                                }
-//                            },
-//
-//                            onSubmit = { locationViewModel.fetchLocation() }
-//                        )
-//                    }
-//
-//                    StatusNetwork.ERROR -> {
-//
-//                    }
-//                }
             }
         }
 
@@ -289,8 +169,12 @@ fun PaymentInvoiceScreen(
                 StatusNetwork.SUCCESS -> {
                     val (lat, lng) = locationState!!.data!!
 
-                    viewModel.submit(lat.toString(), lng.toString(), date)
-
+                    viewModel.onEvent(
+                        PaymentInvoiceEvent.OnLocationResult(
+                            lat.toString(),
+                            lng.toString()
+                        )
+                    )
                     locationViewModel.clearState()
                 }
 
@@ -298,10 +182,10 @@ fun PaymentInvoiceScreen(
                     SnackbarManager.showSnackbar(
                         SnackbarData(
                             when (locationState?.message) {
-                                LocationError.Timeout.code -> "Gagal mengambil lokasi (Timeout)"
-                                LocationError.NoLocation.code -> "Lokasi tidak ditemukan"
-                                LocationError.NoPermission.code -> "Izin lokasi belum diberikan"
-                                else -> "Gagal mengambil lokasi"
+                                LocationError.Timeout.code -> context.getString(R.string.text_timeout_get_location)
+                                LocationError.NoLocation.code -> context.getString(R.string.text_location_not_found)
+                                LocationError.NoPermission.code -> context.getString(R.string.text_permission_not_found)
+                                else -> context.getString(R.string.text_error_get_location)
                             },
                             SnackbarType.ERROR
                         )
@@ -351,35 +235,29 @@ fun PaymentInvoiceScreen(
             else -> {}
         }
     }
-
 }
 
-@SuppressLint("MissingPermission")
-suspend fun getCurrentLocation(
-    client: FusedLocationProviderClient,
-): Pair<Double, Double>? {
 
-    val lastLocation = client.lastLocation.await()
-
-    if (lastLocation != null) {
-        return Pair(lastLocation.latitude, lastLocation.longitude)
-    }
-
-    return suspendCancellableCoroutine { cont ->
-
-        val request = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            1000
-        ).setMaxUpdates(1).build()
-
-        val callback = object : LocationCallback() {
-            override fun onLocationResult(result: LocationResult) {
-                client.removeLocationUpdates(this)
-                val loc = result.lastLocation
-                cont.resume(loc?.let { Pair(it.latitude, it.longitude) })
+@Composable
+fun rememberPhotoHelper(
+    context: Context,
+    viewModel: PaymentInvoiceViewModel,
+    photoViewModel: PhotoViewModel,
+    parentFeature: Int,
+): PhotoHelper {
+    return remember(parentFeature) {
+        PhotoHelper(
+            context = context,
+            featureName = INVOICE,
+            typeFeature = viewModel.nomorNota,
+            onPhotoTaken = { newPhoto ->
+                photoViewModel.addPhoto(
+                    parentId = viewModel.idInvoice,
+                    parentType = viewModel.nomorNota,
+                    parentFeature = parentFeature,
+                    path = newPhoto
+                )
             }
-        }
-
-        client.requestLocationUpdates(request, callback, Looper.getMainLooper())
+        )
     }
 }

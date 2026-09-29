@@ -15,6 +15,7 @@ import com.sss.monikaapps.common.formatter.FormatterDate
 import com.sss.monikaapps.common.helper.StorageHelper
 import com.sss.monikaapps.common.mapper.MapperInvoice.toEntity
 import com.sss.monikaapps.common.result.Result
+import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSource
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSource
 import com.sss.monikaapps.feature.download.data.mapper.VisitMapper.serverToEntity
@@ -36,7 +37,9 @@ class DownloadRepositoryImpl(
     private val localInvoice: InvoiceLocalDataSource,
     private val remote: DownloadRemoteDataSource,
     private val local: DownloadLocalDataSource,
+    private val remoteCheckConnection: ConnectionRemoteDataSource,
 ) : DownloadRepository {
+
     override suspend fun fetchDataConfigDownload(): Result<List<ConfigDownloadDataEntity>> {
         return try {
             val data = local.fetchDataConfig()
@@ -52,12 +55,11 @@ class DownloadRepositoryImpl(
         onProgress: (Float, String) -> Unit,
     ): Result<DownloadDataResponse> {
         return try {
+            remoteCheckConnection.fetchCheckConnectionDatabase()
             initializeDownload(onProgress)
 
             onProgress(0.05f, "Memvalidasi sesi download...")
-
-            val checkResult =
-                remote.checkDownloadFirst(FormatterDate.getCurrentDate())
+            val checkResult = remote.checkDownloadFirst(FormatterDate.getCurrentDate())
 
             if (checkResult == null || checkResult.data?.isFirstDownload == false) {
                 onProgress(0f, "Gagal")
@@ -66,21 +68,21 @@ class DownloadRepositoryImpl(
 
             onProgress(0.10f, "Sesi tervalidasi")
 
-            // 3. Visit (0.10 - 0.30)
+            // 1. Visit (0.10 - 0.25)
             val visitData = fetchAndSaveVisitData(onProgress)
                 ?: return Result.error(null, "Data kunjungan kosong")
 
-            // 4. Customer Invoice (0.30 - 0.50)
-            val invoiceCustomerData = fetchAndSaveCustomerInvoice(onProgress)
-
-            // 5. Nota Invoice (0.50 - 0.70)
-            val notaInvoiceData = fetchAndSaveNotaInvoice(onProgress)
-
-            // 6. Reason Invoice (0.70 - 0.90)
+            // 2. Reason Invoice (0.25 - 0.40) -> DIPINDAH KE ATAS
             val reason = fetchAndSaveReasonInvoice(onProgress)
 
-            // 6. Bank Receipt (0.90 - 1.0)
+            // 3. Bank Receipt (0.40 - 0.55) -> DIPINDAH KE ATAS
             val bankReceipt = fetchAndSaveBankReceipt(onProgress)
+
+            // 4. Customer Invoice (0.55 - 0.75)
+            val invoiceCustomerData = fetchAndSaveCustomerInvoice(onProgress)
+
+            // 5. Nota Invoice (0.75 - 1.0)
+            val notaInvoiceData = fetchAndSaveNotaInvoice(onProgress)
 
             onProgress(1.0f, "Download Selesai")
 
@@ -174,7 +176,7 @@ class DownloadRepositoryImpl(
         val entities = serverToEntity(visitData.data ?: emptyList())
 
         local.insertCustomerVisitBatch(entities) { insertProgress ->
-            onProgress(0.05f + insertProgress * 0.25f, "Menyimpan data kunjungan")
+            onProgress(0.10f + insertProgress * 0.15f, "Menyimpan data kunjungan")
         }
 
         val totalLocal = local.countVisit().firstOrNull() ?: 0
@@ -195,13 +197,13 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveCustomerInvoice(
         onProgress: (Float, String) -> Unit,
     ): CustomerInvoiceResponse? {
-        onProgress(0.30f, "Mengunduh data tagihan pelanggan")
+        onProgress(0.55f, "Mengunduh data tagihan pelanggan")
 
         val invoiceData = remoteInvoice.getCustomerInvoice()
 
         val entities = invoiceData?.data?.map { it.toEntity() } ?: emptyList()
         localInvoice.insertCustomerInvoiceBatch(entities) { insertProgress ->
-            onProgress(0.30f + insertProgress * 0.20f, "Menyimpan data tagihan pelanggan")
+            onProgress(0.55f + insertProgress * 0.20f, "Menyimpan data tagihan pelanggan")
         }
 
         val totalLocal = localInvoice.countCustomerInvoice()
@@ -227,14 +229,14 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveNotaInvoice(
         onProgress: (Float, String) -> Unit,
     ): NotaInvoiceResponse? {
-        onProgress(0.50f, "Mengunduh data nota tagihan")
+        onProgress(0.75f, "Mengunduh data nota tagihan")
 
         val notaData = remoteInvoice.getNotaInvoice()
 
         val entities = notaData?.data?.map { it.toEntity() } ?: emptyList()
 
         localInvoice.insertNotaInvoiceBatch(entities) { insertProgress ->
-            onProgress(0.70f + insertProgress * 0.20f, "Menyimpan data nota tagihan")
+            onProgress(0.75f + insertProgress * 0.20f, "Menyimpan data nota tagihan")
         }
 
         val totalLocal = localInvoice.countNotaInvoice()
@@ -262,13 +264,13 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveReasonInvoice(
         onProgress: (Float, String) -> Unit,
     ): ReasonInvoiceResponse? {
-        onProgress(0.70f, "Mengunduh data alasan tagihan")
+        onProgress(0.25f, "Mengunduh data alasan tagihan")
 
         val reasonData = remoteInvoice.getReasonInvoice()
 
         val entities = reasonData?.data?.map { it.toEntity() } ?: emptyList()
         localInvoice.insertReasonInvoiceBatch(entities) { insertProgress ->
-            onProgress(0.70f + insertProgress * 0.20f, "Menyimpan data alasan tagihan")
+            onProgress(0.25f + insertProgress * 0.15f, "Menyimpan data alasan tagihan")
         }
 
         val totalLocal = localInvoice.countReasonInvoice()
@@ -296,13 +298,13 @@ class DownloadRepositoryImpl(
     private suspend fun fetchAndSaveBankReceipt(
         onProgress: (Float, String) -> Unit,
     ): BankReceiptResponse? {
-        onProgress(0.90f, "Mengunduh data bank")
+        onProgress(0.40f, "Mengunduh data bank")
 
         val bankReceipt = remote.fetchBankReceipt()
 
         val entities = bankReceipt?.data?.map { it.toEntity() } ?: emptyList()
         localInvoice.insertBankReceiptBatch(entities) { insertProgress ->
-            onProgress(0.90f + insertProgress * 0.10f, "Menyimpan data bank")
+            onProgress(0.40f + insertProgress * 0.15f, "Menyimpan data bank")
         }
 
         val totalLocal = local.countDataBankReceipt()

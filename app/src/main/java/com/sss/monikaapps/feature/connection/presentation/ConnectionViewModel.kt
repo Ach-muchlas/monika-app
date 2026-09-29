@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.common.result.Result
-import com.sss.monikaapps.feature.version_check.data.response.VersionResponse
+import com.sss.monikaapps.feature.connection.data.response.CheckConnectionResponse
 import com.sss.monikaapps.feature.connection.domain.usecase.ChangeServerUseCase
 import com.sss.monikaapps.feature.connection.domain.usecase.FetchServerUrlUseCase
 import kotlinx.coroutines.launch
@@ -15,8 +15,8 @@ class ConnectionViewModel(
     private val fetchServerUrlUseCase: FetchServerUrlUseCase,
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<Result<VersionResponse>>()
-    val state: LiveData<Result<VersionResponse>> = _state
+    private val _state = MutableLiveData<Result<CheckConnectionResponse>>()
+    val state: LiveData<Result<CheckConnectionResponse>> = _state
 
     private val _serverUrl = MutableLiveData<Result<String>>()
     val serverUrl: LiveData<Result<String>> = _serverUrl
@@ -39,4 +39,5 @@ class ConnectionViewModel(
             _serverUrl.value = result
         }
     }
+
 }

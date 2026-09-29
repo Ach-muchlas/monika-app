@@ -39,7 +39,6 @@ class DownloadViewModel(
     private val _messageEvent = MutableSharedFlow<String>()
     val messageEvent = _messageEvent.asSharedFlow()
 
-
     fun fetchConfigDownload() {
         viewModelScope.launch {
             _configDownloadResult.value = Result.loading(null)
@@ -67,9 +66,15 @@ class DownloadViewModel(
             val configData = fetchConfigDownloadUseCase()
 
             val invoicePendingResult = getCountInvoicePendingUseCase().first()
-            val totalInvoicePending = invoicePendingResult.first + invoicePendingResult.second
+            val totalInvoicePending = invoicePendingResult.first + invoicePendingResult                                                                                                                                               .second
             val totalActivityCheckOutNotSync = countDataNotSyncUseCase().first()
 
+            val hasPending = pendingDownload().data ?: 0
+
+            if (hasPending > 0) {
+                fetchDownload()
+                return@launch
+            }
 
             if (totalInvoicePending != 0) {
                 _messageEvent.emit("Masih ada $totalInvoicePending data tagihan yang belum diselesaikan, selesaikan terlebih dahulu sebelum melakukan download")
@@ -86,13 +91,7 @@ class DownloadViewModel(
             if (lastDownloadDate != currentDate) {
                 fetchDownload()
             } else {
-                // Hari yang sama -> Cek pending
-                val pending = pendingDownload().data ?: 0
-                if (pending > 0) {
-                    fetchDownload()
-                } else {
-                    _messageEvent.emit("Semua data sudah terdownload untuk hari ini")
-                }
+                _messageEvent.emit("Semua data sudah terdownload untuk hari ini")
             }
         }
     }

@@ -8,7 +8,6 @@ object HomeFeatureConstant {
     const val FEATURE_MASTER_DATA = 5
     const val FEATURE_SETTING = 6
     const val FEATURE_INVOICE = 7
-
     const val FEATURE_UPDATE_DATA = 8
 }
 

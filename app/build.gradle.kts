@@ -1,6 +1,3 @@
-import org.gradle.kotlin.dsl.libs
-import org.jetbrains.kotlin.ir.backend.js.lower.collectNativeImplementations
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,7 +15,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.1.0"
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -90,8 +87,7 @@ dependencies {
     implementation(libs.navigation.compose)
 
     implementation(libs.coil.compose)
-
-
+    
     implementation(libs.paging.runtime)
     implementation(libs.paging.compose)
 

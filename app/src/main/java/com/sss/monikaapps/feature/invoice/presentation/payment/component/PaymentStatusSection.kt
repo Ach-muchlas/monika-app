@@ -36,64 +36,18 @@ import com.sss.monikaapps.feature.invoice.data.entity.BankReceiptEntity
 import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
 import com.sss.monikaapps.feature.photo.CustomMultiPhotoCard
 
-//@Composable
-//fun PaymentStatusSelector(
-//    statusPaid: Int,
-//    onStatusPaidChange: (Int) -> Unit,
-//) {
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        modifier = Modifier.fillMaxWidth(),
-//    ) {
-//        StatusCheckboxItem(
-//            label = "Bayar",
-//            checked = statusPaid == STATUS_PAID,
-//            onClick = { onStatusPaidChange(STATUS_PAID) },
-//        )
-//
-//        Spacer(Modifier.width(Dimens.LargeMargin))
-//
-//        StatusCheckboxItem(
-//            label = "Tidak Bayar",
-//            checked = statusPaid == STATUS_UNPAID,
-//            onClick = { onStatusPaidChange(STATUS_UNPAID) },
-//        )
-//    }
-//
-//    Spacer(Modifier.height(Dimens.MediumMargin))
-//
-//    Row(
-//        verticalAlignment = Alignment.CenterVertically,
-//        modifier = Modifier.fillMaxWidth(),
-//    ) {
-//
-//        StatusCheckboxItem(
-//            label = "Tanda Terima",
-//            checked = statusPaid == STATUS_RECEIPT,
-//            onClick = { onStatusPaidChange(STATUS_RECEIPT) },
-//        )
-//
-//        Spacer(Modifier.width(Dimens.LargeMargin))
-//
-//        StatusCheckboxItem(
-//            label = "BG",
-//            checked = statusPaid == STATUS_BG_CHECK,
-//            onClick = { onStatusPaidChange(STATUS_BG_CHECK) },
-//        )
-//    }
-//}
-
 
 @Composable
 fun PaymentStatusSelector(
     statusPaid: Int,
+    statusPaymentError: String?,
     onStatusPaidChange: (Int) -> Unit,
 ) {
     val statuses = listOf(
         STATUS_PAID to "Bayar",
         STATUS_UNPAID to "Tidak Bayar",
         STATUS_RECEIPT to "Tanda Terima",
-        STATUS_BG_CHECK to "BG/Cek"
+        STATUS_BG_CHECK to "BG"
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(Dimens.SmallMargin)) {
@@ -107,6 +61,8 @@ fun PaymentStatusSelector(
             StatusItem(statuses[2], statusPaid, onStatusPaidChange, Modifier.weight(1f))
             StatusItem(statuses[3], statusPaid, onStatusPaidChange, Modifier.weight(1f))
         }
+
+        ErrorText(message = statusPaymentError)
     }
 }
 
@@ -121,7 +77,9 @@ private fun StatusItem(
         modifier = modifier.clickable { onStatusChange(item.first) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CustomCheckbox(checked = currentStatus == item.first, onCheckedChange = { onStatusChange(item.first) })
+        CustomCheckbox(
+            checked = currentStatus == item.first,
+            onCheckedChange = { onStatusChange(item.first) })
         Spacer(Modifier.width(Dimens.SmallMargin))
         Text(text = item.second, style = BodyPopBold)
     }
@@ -135,13 +93,19 @@ fun PaySection(
     methodPayment: Int,
     banks: List<BankReceiptEntity>?,
     photosEvidence: List<String>,
+    formattedDateDisplay: String,
     selectedBank: BankReceiptEntity?,
+    methodPaymentError: String?,
+    dateError: String?,
+    photoError: String?,
+    bankReceiptError: String?,
     onMethodPayment: (Int) -> Unit,
     onPaidChange: (String) -> Unit,
     onBankChange: (BankReceiptEntity) -> Unit,
     onAddPhoto: () -> Unit,
     onDeletePhoto: (String) -> Unit,
     onNext: () -> Unit,
+    onDateFieldClick: () -> Unit,
 ) {
     Text(
         text = stringResource(R.string.text_method_payment),
@@ -153,6 +117,8 @@ fun PaySection(
 
     PaymentMethodSelector(methodPayment, onMethodPayment)
 
+    ErrorText(message = methodPaymentError)
+
     Spacer(Modifier.height(Dimens.MediumMargin))
 
     if (methodPayment == PAYMENT_TRANSFER) {
@@ -162,9 +128,12 @@ fun PaySection(
             banks = banks,
             photos = photosEvidence,
             selectedBank = selectedBank,
-//            photoError = "",
-//            bankReceiptError = "",
+            formattedDateDisplay = formattedDateDisplay,
+            dateError = dateError,
+            photoError = photoError,
+            bankReceiptError = bankReceiptError,
             onPaidChange = onPaidChange,
+            onDateFieldClick = onDateFieldClick,
             onBankChange = onBankChange,
             onAddPhoto = onAddPhoto,
             onDeletePhoto = onDeletePhoto,
@@ -177,6 +146,7 @@ fun PaySection(
             style = BodyPopBold,
             modifier = Modifier.fillMaxWidth(),
         )
+
         Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
         CustomTextField(
             modifier = Modifier.fillMaxWidth(),
@@ -201,27 +171,53 @@ fun TransferSection(
     banks: List<BankReceiptEntity>?,
     selectedBank: BankReceiptEntity?,
     photos: List<String>,
-//    photoError: String?,
-//    bankReceiptError: String?,
+    formattedDateDisplay: String,
+    dateError: String?,
+    photoError: String?,
+    bankReceiptError: String?,
     onPaidChange: (String) -> Unit,
     onBankChange: (BankReceiptEntity) -> Unit,
+    onDateFieldClick: () -> Unit,
     onAddPhoto: () -> Unit,
     onDeletePhoto: (String) -> Unit,
     onNext: () -> Unit,
 ) {
 
-    Text(text = "Pilih Bank", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+    Text(text = "Pilih Bank *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
 
     Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
 
     CustomDropdownTextField(
-        label = "Masukan nama bank yang digunakan",
+        label = "Masukan nama bank",
         items = banks ?: emptyList(),
         selectedItem = selectedBank,
         onItemSelected = onBankChange,
         itemText = { it.bankName },
     )
-//    ErrorText(message = bankReceiptError)
+    ErrorText(message = bankReceiptError)
+
+    Spacer(Modifier.height(Dimens.MediumMargin))
+
+    Text(text = "Tanggal Transfer *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+
+    Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
+    CustomTextField(
+        value = formattedDateDisplay,
+        onValueChange = {},
+        hint = "Pilih tanggal transfer",
+        readOnly = true,
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = "Pick date",
+                tint = Gray,
+            )
+        },
+        onClick = onDateFieldClick,
+    )
+
+    ErrorText(message = dateError)
 
     Spacer(Modifier.height(Dimens.MediumMargin))
 
@@ -246,7 +242,7 @@ fun TransferSection(
     Spacer(Modifier.height(Dimens.MediumMargin))
 
     Text(
-        text = stringResource(R.string.text_evidence_reason),
+        text = stringResource(R.string.text_evidence_transfer),
         style = BodyPopBold,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -257,7 +253,7 @@ fun TransferSection(
         onAddPhoto = onAddPhoto,
         onDeletePhoto = onDeletePhoto,
     )
-//    ErrorText(message = photoError)
+    ErrorText(message = photoError)
 
 }
 
@@ -272,7 +268,7 @@ fun NotPaySection(
     onAddPhoto: () -> Unit,
     onDeletePhoto: (String) -> Unit,
 ) {
-    Text(text = "Alasan Tidak Bayar", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+    Text(text = "Alasan Tidak Bayar *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
     Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
     CustomDropdownTextField(
         label = "Masukan alasan tidak bayar",
@@ -301,20 +297,66 @@ fun NotPaySection(
 
 @Composable
 fun ReceiptSection(
+    methodPayment: Int,
+    banks: List<BankReceiptEntity>?,
     formattedDateDisplay: String,
-    showDateError: Boolean,
+    selectedBank: BankReceiptEntity?,
+    methodPaymentError: String?,
+    bankReceiptError: String?,
+    dateError: String?,
     photoErrorForReceipt: String?,
     photos: List<String>,
+    onMethodPayment: (Int) -> Unit,
+    onBankChange: (BankReceiptEntity) -> Unit,
     onDateFieldClick: () -> Unit,
     onAddPhoto: () -> Unit,
     onDeletePhoto: (String) -> Unit,
 ) {
-    Text(text = "Tanggal Kembali", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+    Text(
+        text = stringResource(R.string.text_method_payment),
+        style = BodyPopBold,
+        modifier = Modifier.fillMaxWidth(),
+    )
+
     Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
+    PaymentMethodSelector(methodPayment, onMethodPayment)
+
+    ErrorText(message = methodPaymentError)
+
+    Spacer(Modifier.height(Dimens.MediumMargin))
+
+    if (methodPayment == PAYMENT_TRANSFER) {
+
+        Text(text = "Pilih Bank *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+
+        Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
+        CustomDropdownTextField(
+            label = "Masukan nama bank yang digunakan",
+            items = banks ?: emptyList(),
+            selectedItem = selectedBank,
+            onItemSelected = onBankChange,
+            itemText = { it.bankName },
+        )
+
+        ErrorText(message = bankReceiptError)
+
+        Spacer(Modifier.height(Dimens.MediumMargin))
+    }
+
+    Text(
+        text = if (methodPayment == 1) "Tanggal Kembali *" else "Tanggal Transfer *",
+        style = BodyPopBold,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
+
     CustomTextField(
         value = formattedDateDisplay,
         onValueChange = {},
-        hint = "Pilih tanggal kembali",
+        hint = "Pilih tanggal",
         readOnly = true,
         leadingIcon = {
             Icon(
@@ -325,11 +367,11 @@ fun ReceiptSection(
         },
         onClick = onDateFieldClick,
     )
-    if (showDateError) ErrorText(message = "Tanggal wajib dipilih")
+    ErrorText(message = dateError)
     Spacer(Modifier.height(Dimens.MediumMargin))
 
     Text(
-        text = stringResource(R.string.tetx_photo_tt),
+        text = stringResource(R.string.text_photo_tt),
         style = BodyPopBold,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -351,9 +393,10 @@ fun BGCheckSection(
     totalPaid: String,
     photos: List<String>,
     selectedBank: BankReceiptEntity?,
-    //        totalPaidError: String?,
-//        showDateError: Boolean,
-//        photoErrorForReceipt: String?,
+    selectedBankBgError: String?,
+    dateBgError: String?,
+    totalPaidBgError: String?,
+    photoBgError: String?,
     onBankChange: (BankReceiptEntity) -> Unit,
     onDateFieldClick: () -> Unit,
     onPaidChange: (String) -> Unit,
@@ -363,7 +406,7 @@ fun BGCheckSection(
 
     ) {
 
-    Text(text = "Pilih Bank", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+    Text(text = "Pilih Bank *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
 
     Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
 
@@ -375,11 +418,12 @@ fun BGCheckSection(
         itemText = { it.bankName },
     )
 
-//    ErrorText(message = bankReceiptError)
+    ErrorText(message = selectedBankBgError)
 
     Spacer(Modifier.height(Dimens.MediumMargin))
 
-    Text(text = "Tanggal Cair", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+    Text(text = "Tanggal Cair *", style = BodyPopBold, modifier = Modifier.fillMaxWidth())
+
     Spacer(Modifier.height(Dimens.ExtraExtraSmallMargin))
     CustomTextField(
         value = formattedDateDisplay,
@@ -395,7 +439,9 @@ fun BGCheckSection(
         },
         onClick = onDateFieldClick,
     )
-//        if (showDateError) ErrorText(message = "Tanggal wajib dipilih")
+
+    ErrorText(message = dateBgError)
+
     Spacer(Modifier.height(Dimens.MediumMargin))
     Text(
         text = stringResource(R.string.text_total_paid),
@@ -413,11 +459,11 @@ fun BGCheckSection(
         onNext = onNext,
     )
 
-//        ErrorText(message = totalPaidError)
+    ErrorText(message = totalPaidBgError)
 
     Spacer(Modifier.height(Dimens.MediumMargin))
     Text(
-        text = stringResource(R.string.tetx_photo_tt),
+        text = stringResource(R.string.text_photo_bg),
         style = BodyPopBold,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -428,7 +474,7 @@ fun BGCheckSection(
         onAddPhoto = onAddPhoto,
         onDeletePhoto = onDeletePhoto,
     )
-//        ErrorText(message = photoErrorForReceipt)
+    ErrorText(message = photoBgError)
 }
 
 

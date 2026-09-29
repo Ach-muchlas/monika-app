@@ -98,7 +98,7 @@ fun GeneratePdfScreen(
                     onDateChange = { date = it },
                 ) {
                     if (pdfResult?.status != StatusNetwork.LOADING) {
-                        viewModel.generatePdf(context, date)
+                        viewModel.generatePdf(date)
                     }
                 }
             }

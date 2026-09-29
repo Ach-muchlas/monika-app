@@ -27,6 +27,8 @@ import com.sss.monikaapps.feature.activity.domain.usecase.FetchDetailActivityUse
 import com.sss.monikaapps.feature.activity.presentation.ActivitiesViewModel
 import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSource
 import com.sss.monikaapps.feature.connection.data.local.ConnectionLocalDataSourceImpl
+import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSource
+import com.sss.monikaapps.feature.connection.data.remote.ConnectionRemoteDataSourceImpl
 import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepository
 import com.sss.monikaapps.feature.connection.domain.repository.ConnectionRepositoryImpl
 import com.sss.monikaapps.feature.connection.domain.usecase.ChangeServerUseCase
@@ -170,7 +172,7 @@ object AppModule {
         single<ExpensesRepository> { ExpensesRepositoryImpl(get()) }
         single<MasteringRepository> { MasteringRepositoryImpl(get()) }
         single<DownloadRepository> {
-            DownloadRepositoryImpl(androidContext(), get(), get(), get(), get())
+            DownloadRepositoryImpl(androidContext(), get(), get(), get(), get(),get())
         }
         single<VisitRepository> { VisitRepositoryImpl(get(), get()) }
         single<ConnectionRepository> { ConnectionRepositoryImpl(get(), get()) }
@@ -204,6 +206,7 @@ object AppModule {
         single<InvoiceRemoteDataSource> { InvoiceRemoteDataSourceImpl(get()) }
 
         single<ConnectionLocalDataSource> { ConnectionLocalDataSourceImpl(get()) }
+        single<ConnectionRemoteDataSource> { ConnectionRemoteDataSourceImpl(get()) }
         single<VersionRemoteDataSource> { VersionRemoteDataSourceImpl(get()) }
         single<BackupRemoteDataSource> { BackupRemoteDataSourceImpl(get()) }
     }

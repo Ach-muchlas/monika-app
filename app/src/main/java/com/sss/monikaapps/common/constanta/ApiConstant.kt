@@ -22,6 +22,7 @@ object ApiConstant {
 
     const val AUTH = "user-login"
     const val APP_VERSION = "app-version"
+    const val CHECK_CONNECTION = "check-connection"
     const val FETCH_DATA_ACTIVITIES = "${ACTIVITIES}-get"
     const val FETCH_DETAIL_ACTIVITY = "${ACTIVITIES}-detail"
     const val CHECK_IN_ACTIVITY = "${ACTIVITIES}-checkin"
@@ -36,7 +37,6 @@ object ApiConstant {
     const val CREATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-add"
     const val UPDATE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-edit"
     const val DELETE_DETAIL_EXPENSE = "${EXPANSE}-${DETAIL}-delete"
-
     const val FETCH_DOWNLOAD_VISIT = "${VISIT}-download"
     const val CHECK_DATA_DOWNLOAD_VISIT = "${VISIT}-check-data"
     const val CHECK_IN_VISIT = "${VISIT}-checkin"

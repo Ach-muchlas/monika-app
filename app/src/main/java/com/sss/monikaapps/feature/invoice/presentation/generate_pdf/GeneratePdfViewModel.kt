@@ -24,8 +24,7 @@ class GeneratePdfViewModel(
     private val _pdfResult = MutableStateFlow<Result<String>?>(null)
     val pdfResult = _pdfResult.asStateFlow()
 
-
-    fun generatePdf(context: Context, currentDate: String) {
+    fun generatePdf(currentDate: String) {
         viewModelScope.launch {
             val configData = fetchConfigDownloadUseCase()
             val downloadDate = configData.data?.firstOrNull()?.createAd ?: ""
@@ -54,7 +53,6 @@ class GeneratePdfViewModel(
                 }
 
                 val file = PdfInvoiceHelper.generateMonitoringPdf(
-                    context = context,
                     data = invoiceData,
                     date = currentDate,
                     collName = sessionManager.getDataUser().employeeName ?: "-"

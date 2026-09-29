@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.dp
 import com.sss.monikaapps.R
 import com.sss.monikaapps.common.component.CustomDatePickerDialog
 import com.sss.monikaapps.common.component.CustomPrimaryButton
-import com.sss.monikaapps.common.formatter.FormatterDate
+import com.sss.monikaapps.common.formatter.FormatterDate.formatDateToIndoDisplay
+import com.sss.monikaapps.common.formatter.FormatterDate.formatTimestampToDateString
 import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
-import com.sss.monikaapps.feature.invoice.data.validate.ValidationForm.validateFormPayment
 import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceEvent
 import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceUiState
 
@@ -41,37 +41,33 @@ fun PaymentInvoiceForm(
 
     var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var showDateError by remember { mutableStateOf(false) }
 
-    var totalPaidError by remember { mutableStateOf<String?>(null) }
-    var reasonError by remember { mutableStateOf<String?>(null) }
-    var photoError by remember { mutableStateOf<String?>(null) }
-    var photoErrorForReceipt by remember { mutableStateOf<String?>(null) }
+    var (
+        customerData, nomorNota, totalOutstanding, totalNominalNota, totalPaid, statusPaid,
+        paymentMethodPaid, paymentMethodReceipt, reasons, selectedReason, listBankReceipt,
+        selectedBankReceipt, selectedBankTransferPaid, selectedBankTransferBG, photos,
+        dateTransfer, dateReceipt, dateCheck, statusPaymentError, paymentMethodError,
+        paymentMethodReceiptError, dateTransferError, totalPaidError, reasonError,
+        photoError, bankError, bankReceiptError, dateReceiptError, selectedBankBgError,
+        dateBgError, totalPaidBgError,
+    ) = state
 
-    val formattedDateDisplay = remember(selectedDateMillis) {
-        FormatterDate.formatTimestampToIndoDisplay(selectedDateMillis)
+    val displayDateTransfer = remember(dateTransfer) {
+        if (dateTransfer?.isNotEmpty() == true) formatDateToIndoDisplay(dateTransfer) else ""
+    }
+    val displayDateReceipt = remember(dateReceipt) {
+        if (dateReceipt?.isNotEmpty() == true) formatDateToIndoDisplay(dateReceipt) else ""
+    }
+    val displayDateCheck = remember(dateCheck) {
+        if (dateCheck?.isNotEmpty() == true) formatDateToIndoDisplay(dateCheck) else ""
     }
 
     LaunchedEffect(selectedDateMillis) {
         selectedDateMillis?.let {
-            onEvent(PaymentInvoiceEvent.OnDateChange(FormatterDate.formatTimestampToDateString(it)))
+            onEvent(PaymentInvoiceEvent.OnDateChange(formatTimestampToDateString(it)))
+            selectedDateMillis = null
         }
     }
-
-    val (
-        customerData,
-        nomorNota,
-        totalOutstanding,
-        totalNominalNota,
-        totalPaid,
-        statusPaid,
-        paymentMethod,
-        reasons,
-        selectedReason,
-        listBankReceipt,
-        selectedBankReceipt,
-        photos,
-    ) = state
 
     Column(
         modifier = Modifier
@@ -95,7 +91,7 @@ fun PaymentInvoiceForm(
         Spacer(Modifier.height(Dimens.MediumMargin))
 
         PaymentStatusSelector(
-            statusPaid = statusPaid, onStatusPaidChange = { value ->
+            statusPaid = statusPaid, statusPaymentError, onStatusPaidChange = { value ->
                 onEvent(PaymentInvoiceEvent.OnStatusPaidChange(value))
             })
 
@@ -105,22 +101,29 @@ fun PaymentInvoiceForm(
             STATUS_PAID -> PaySection(
                 totalPaid = totalPaid,
                 totalPaidError = totalPaidError,
-                methodPayment = paymentMethod,
+                methodPayment = paymentMethodPaid,
                 banks = listBankReceipt,
                 photosEvidence = photos,
-                selectedBank = selectedBankReceipt,
+                formattedDateDisplay = displayDateTransfer,
+                selectedBank = selectedBankTransferPaid,
+                methodPaymentError = paymentMethodError,
+                dateError = dateTransferError,
+                photoError = photoError,
+                bankReceiptError = bankError,
                 onBankChange = { bank -> onEvent(PaymentInvoiceEvent.OnBankSelected(bank)) },
-                onAddPhoto = { onEvent(PaymentInvoiceEvent.OnAddPhotoTransfer) },
+                onAddPhoto = { onEvent(PaymentInvoiceEvent.OnAddPhoto) },
                 onDeletePhoto = { photo -> onEvent(PaymentInvoiceEvent.OnDeletePhoto(photo)) },
                 onMethodPayment = { method ->
                     onEvent(PaymentInvoiceEvent.OnPaymentMethodChange(method))
                 },
                 onPaidChange = {
-                    totalPaidError = null
                     onEvent(PaymentInvoiceEvent.OnPaidChange(it))
                 },
                 onNext = { focusManager.moveFocus(FocusDirection.Down) },
-            )
+
+                onDateFieldClick = {
+                    showDatePicker = true
+                })
 
             STATUS_UNPAID -> NotPaySection(
                 reasons = reasons,
@@ -129,7 +132,6 @@ fun PaymentInvoiceForm(
                 photoError = photoError,
                 photos = photos,
                 onReasonChange = {
-                    reasonError = null
                     onEvent(PaymentInvoiceEvent.OnReasonChange(it))
                 },
                 onAddPhoto = {
@@ -142,35 +144,54 @@ fun PaymentInvoiceForm(
             )
 
             STATUS_RECEIPT -> ReceiptSection(
-                formattedDateDisplay = formattedDateDisplay,
-                showDateError = showDateError,
-                photoErrorForReceipt = photoErrorForReceipt,
+                methodPayment = paymentMethodReceipt,
+                banks = listBankReceipt,
+                formattedDateDisplay = displayDateReceipt,
+                selectedBank = selectedBankReceipt,
+                methodPaymentError = paymentMethodReceiptError,
+                dateError = dateReceiptError,
+                photoErrorForReceipt = photoError,
+                bankReceiptError = bankReceiptError,
                 photos = photos,
+                onMethodPayment = { method ->
+                    onEvent(PaymentInvoiceEvent.OnPaymentMethodChange(method))
+                },
+                onBankChange = { bank -> onEvent(PaymentInvoiceEvent.OnBankSelected(bank)) },
                 onDateFieldClick = {
-                    showDateError = false
                     showDatePicker = true
                 },
                 onAddPhoto = {
                     focusManager.clearFocus(force = true)
                     keyboardController?.hide()
-                    photoErrorForReceipt = null
-                    onEvent(PaymentInvoiceEvent.OnAddPhotoReceipt)
+                    photoError = null
+                    onEvent(PaymentInvoiceEvent.OnAddPhoto)
                 },
                 onDeletePhoto = { photo -> onEvent(PaymentInvoiceEvent.OnDeletePhoto(photo)) },
             )
 
             STATUS_BG_CHECK -> BGCheckSection(
                 banks = listBankReceipt,
-                formattedDateDisplay = formattedDateDisplay,
+                formattedDateDisplay = displayDateCheck,
                 totalPaid = totalPaid,
                 photos = photos,
-                selectedBank = selectedBankReceipt,
-                onBankChange = {bank -> onEvent(PaymentInvoiceEvent.OnBankSelected(bank)) },
-                onDateFieldClick = {},
-                onPaidChange = {},
-                onNext = {},
-                onAddPhoto = {},
-                onDeletePhoto = {})
+                selectedBank = selectedBankTransferBG,
+                selectedBankBgError = selectedBankBgError,
+                dateBgError = dateBgError,
+                totalPaidBgError = totalPaidBgError,
+                photoBgError = photoError,
+                onBankChange = { bank -> onEvent(PaymentInvoiceEvent.OnBankSelected(bank)) },
+                onDateFieldClick = {
+                    showDatePicker = true
+                },
+                onPaidChange = { onEvent(PaymentInvoiceEvent.OnPaidChange(it)) },
+                onNext = { focusManager.moveFocus(FocusDirection.Down) },
+                onAddPhoto = {
+                    focusManager.clearFocus(force = true)
+                    keyboardController?.hide()
+                    photoError = null
+                    onEvent(PaymentInvoiceEvent.OnAddPhoto)
+                },
+                onDeletePhoto = { photo -> onEvent(PaymentInvoiceEvent.OnDeletePhoto(photo)) })
         }
 
         Spacer(Modifier.height(18.dp))
@@ -178,17 +199,7 @@ fun PaymentInvoiceForm(
         CustomPrimaryButton(
             text = stringResource(R.string.text_save),
             onClick = {
-                val hasError = validateFormPayment(
-                    statusPaid = statusPaid,
-                    totalPaid = totalPaid,
-                    totalOutstanding = totalOutstanding,
-                    selectedReason = selectedReason,
-                    photos = photos,
-                    onTotalPaidError = { totalPaidError = it },
-                    onReasonError = { reasonError = it },
-                    onPhotoError = { photoError = it },
-                )
-                if (!hasError) onEvent(PaymentInvoiceEvent.OnSubmit)
+                onEvent(PaymentInvoiceEvent.OnSubmit(photos))
             },
         )
 
@@ -200,7 +211,6 @@ fun PaymentInvoiceForm(
             initialDateMillis = selectedDateMillis,
             onConfirm = { millis ->
                 selectedDateMillis = millis
-                showDateError = millis == null
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false },

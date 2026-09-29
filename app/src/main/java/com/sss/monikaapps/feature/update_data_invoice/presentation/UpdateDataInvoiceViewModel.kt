@@ -1,5 +1,6 @@
 package com.sss.monikaapps.feature.update_data_invoice.presentation
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -50,6 +51,7 @@ class UpdateDataInvoiceViewModel(
                 Result.loading(null, 0f, "Menyiapkan...")
 
             val result = updateData.execute { progress, message ->
+                Log.e("CHECK_PROGRESS", "Progress: $progress, Message: $message")
                 _updateDataResult.value = Result.loading(null, progress, message)
             }
 

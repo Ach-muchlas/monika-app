@@ -67,13 +67,13 @@ object MapperActivity {
         return if (id == CHECK_IN)
             header?.startLat.orEmpty()
         else
-            header?.endLat?.toString().orEmpty()
+            header?.endLat.orEmpty()
     }
 
     fun Status.resolveLngActivity(header: DataHeaderDetailActivity?): String {
         return if (id == CHECK_IN)
-            header?.startLng?.toString().orEmpty()
+            header?.startLng.orEmpty()
         else
-            header?.endLng?.toString().orEmpty()
+            header?.endLng.orEmpty()
     }
 }

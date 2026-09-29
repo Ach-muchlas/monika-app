@@ -1,6 +1,9 @@
 package com.sss.monikaapps.feature.invoice.domain.repository
 
+import android.util.Log
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.BG_CHECK
 import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.NOT_PAID
+import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.PAID_TRANSFER
 import com.sss.monikaapps.common.constanta.InvoiceStatusPayment.RECEIPT
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.download.data.local.DownloadLocalDataSource
@@ -18,6 +21,7 @@ import com.sss.monikaapps.feature.invoice.domain.model.PaymentInvoiceRequestData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -41,8 +45,20 @@ class InvoiceRepositoryImpl(
                 if (listNota.isEmpty()) flowOf(emptyList())
                 else {
                     val notaWithPhotosFlows = listNota.map { nota ->
-                        local.getPhotoNotaByIdNota(nota.id).map { photos ->
-                            NotaWithPhotos(nota, photos)
+
+                        val parentType = when (nota.status) {
+                            1 -> PAID_TRANSFER
+                            2 -> NOT_PAID
+                            3 -> RECEIPT
+                            4 -> BG_CHECK
+                            else -> 0
+                        }
+                        val bankName =
+                            local.getBankNameById(nota.idCoaBankReceipt ?: "0")
+
+                        Log.e("CHECK_DATA_Name", "bank name : $bankName | idcoa : ${nota.idCoaBankReceipt} nota : ${nota.nomorNota} || cust : ${nota.customerId}")
+                        local.getPhotoNotaByIdNota(nota.id, parentType).map { photos ->
+                            NotaWithPhotos(nota, bankName, photos)
                         }
                     }
                     combine(notaWithPhotosFlows) { it.toList() }
@@ -67,10 +83,20 @@ class InvoiceRepositoryImpl(
         gpsLat: String,
         gpsLng: String,
         dateReceipt: String,
-        paymentMethod : String,
-        idCoa : String,
+        paymentMethod: String,
+        idCoa: String,
     ): Int = local.submitPaymentInvoice(
-        nota, customerId, moneyPaid, status, reasonId, descReason, gpsLat, gpsLng, dateReceipt, paymentMethod, idCoa
+        nota,
+        customerId,
+        moneyPaid,
+        status,
+        reasonId,
+        descReason,
+        gpsLat,
+        gpsLng,
+        dateReceipt,
+        paymentMethod,
+        idCoa
     )
 
     override suspend fun getDateConfig(): String = localConfig.getDateConfig()
@@ -123,8 +149,15 @@ class InvoiceRepositoryImpl(
         customerId: String,
     ): PaymentInvoiceRequest {
         val dataLocal = local.getPaymentInvoiceRequest(nota, customerId)
-        val parentFeature = if (dataLocal.isStatus == 2) NOT_PAID else RECEIPT
-        val photosLocal = local.getPhotoPaymentInvoice(dataLocal.idNota, parentFeature)
+
+        val parentType = when (dataLocal.isStatus) {
+            1 -> PAID_TRANSFER
+            2 -> NOT_PAID
+            3 -> RECEIPT
+            4 -> BG_CHECK
+            else -> 0
+        }
+        val photosLocal = local.getPhotoPaymentInvoice(dataLocal.idNota, parentType)
 
         return PaymentInvoiceRequest(
             idMobile = dataLocal.idNota,

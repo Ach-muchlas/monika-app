@@ -1,16 +1,23 @@
 package com.sss.monikaapps.common.helper
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.os.Environment
+import androidx.core.graphics.scale
 import com.sss.monikaapps.common.constanta.ApiConstant
 import com.sss.monikaapps.common.formatter.FormatterCurrency.formatCurrency
 import com.sss.monikaapps.common.formatter.FormatterDate.formatDate
 import com.sss.monikaapps.common.manager.SessionManager
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst.PAYMENT_CASH
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst.PAYMENT_TRANSFER
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
 import com.sss.monikaapps.feature.invoice.data.response.DataItemInvoice
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,11 +25,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import androidx.core.graphics.scale
 
 object PdfInvoiceHelper {
     suspend fun generateMonitoringPdf(
-        context: Context,
         data: List<DataItemInvoice>,
         date: String,
         collName: String,
@@ -32,7 +37,7 @@ object PdfInvoiceHelper {
         val baseUrl = ApiConstant.urlDomain()
 
         val pdf = PdfDocument()
-        val pageWidth = 842 // Landscape
+        val pageWidth = 842
         val pageHeight = 595
         val margin = 30f
 
@@ -46,16 +51,14 @@ object PdfInvoiceHelper {
             textSize = 9f
         }
 
-        val normal = Paint().apply {
-            textSize = 8f
-        }
+        val normal = Paint().apply { textSize = 8f }
 
         val italic = Paint().apply {
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
             textSize = 8f
         }
 
-        // Definisi Posisi X Kolom agar Rapi
+        // posisi kolom
         val xDate = margin
         val xNota = 95f
         val xJth = 180f
@@ -80,6 +83,7 @@ object PdfInvoiceHelper {
         val grouped = data.groupBy { it.customerId }
 
         grouped.forEach { (customerId, invoices) ->
+
             if (y > pageHeight - 100) newPage()
 
             val first = invoices.firstOrNull() ?: return@forEach
@@ -93,14 +97,18 @@ object PdfInvoiceHelper {
             y += 15f
 
             invoices.forEach { inv ->
-                if (y > pageHeight - 120) newPage()
+
+                if (y > pageHeight - 140) newPage()
 
                 val pay =
-                    (inv.amount?.toDoubleOrNull() ?: 0.0) - (inv.outstandingNota?.toDoubleOrNull()
-                        ?: 0.0)
+                    (inv.amount?.toDoubleOrNull() ?: 0.0) -
+                            (inv.outstandingNota?.toDoubleOrNull() ?: 0.0)
 
-                val sisaTagihan = (inv.outstandingNota?.toDoubleOrNull() ?: 0.0) - (inv.payment?.toDoubleOrNull() ?: 0.0)
-                // Baris Data
+                val sisaTagihan =
+                    (inv.outstandingNota?.toDoubleOrNull() ?: 0.0) -
+                            (inv.payment?.toDoubleOrNull() ?: 0.0)
+
+                // === ROW DATA ===
                 canvas.drawText(inv.dateNota ?: "-", xDate, y, normal)
                 canvas.drawText(inv.nomorNota ?: "-", xNota, y, normal)
                 canvas.drawText(inv.dueDate ?: "-", xJth, y, normal)
@@ -111,38 +119,45 @@ object PdfInvoiceHelper {
                     y,
                     normal
                 )
-                canvas.drawText(
-                    formatCurrency(pay.toLong()), xPaid, y, normal
-                )
+                canvas.drawText(formatCurrency(pay.toLong()), xPaid, y, normal)
                 canvas.drawText(
                     formatCurrency(
                         inv.outstandingNota?.toDoubleOrNull()?.toLong() ?: 0L
                     ), xSisa, y, normal
                 )
-
                 canvas.drawText(
                     formatCurrency(inv.payment?.toDoubleOrNull()?.toLong() ?: 0L),
                     xPayment,
                     y,
                     normal
                 )
-                canvas.drawText(
-                    formatCurrency(sisaTagihan.toLong()),
-                    xSisaTagihan,
-                    y,
-                    normal
-                )
+                canvas.drawText(formatCurrency(sisaTagihan.toLong()), xSisaTagihan, y, normal)
                 canvas.drawText(inv.distanceDiff ?: "0", xDist, y, normal)
 
                 y += 12f
 
-                // ALASAN (Jika ada)
-                inv.descReason?.takeIf { it.isNotBlank() }?.let { reason ->
-                    canvas.drawText("Alasan: $reason", margin + 10f, y, italic)
-                    y += 12f
-                }
+                // === STATUS + METODE + TRANSFER ===
+                val statusText = mapStatus(inv.statusInvoice)
+                val methodText = mapPaymentMethod(inv.methodPayment)
+                val transferDate = inv.dateTransfer ?: "-"
+                val reasonText = inv.descReason?.takeIf { it.isNotBlank() } ?: "-"
+                val nameBank = inv.bankName ?: "-"
+                val renameTgl = if (inv.statusInvoice == STATUS_RECEIPT) "Tgl Kembali" else "Tgl Transfer"
 
-                // FOTO
+                val combinedInfo = StringBuilder().apply {
+                    append("Status: $statusText")
+                    append(" | Metode: $methodText")
+                    if (inv.methodPayment == PAYMENT_TRANSFER || inv.statusInvoice == STATUS_BG_CHECK || inv.statusInvoice == STATUS_RECEIPT) {
+                        append(" | $renameTgl : $transferDate")
+                        append(" | Nama Bank: $nameBank")
+                    }
+                    append(" | Alasan tidak bayar : $reasonText")
+                }.toString()
+
+                canvas.drawText(combinedInfo, margin + 10f, y, italic)
+                y += 12f
+
+                // === FOTO ===
                 inv.foto?.takeIf { it.isNotEmpty() }?.let { photos ->
                     val photoWidth = 100f
                     val photoHeight = 75f
@@ -150,6 +165,7 @@ object PdfInvoiceHelper {
                     var xPhoto = margin + 10f
 
                     photos.forEach { foto ->
+
                         if (xPhoto + photoWidth > pageWidth - margin) {
                             xPhoto = margin + 10f
                             y += photoHeight + spacing
@@ -157,42 +173,41 @@ object PdfInvoiceHelper {
 
                         val url = "${baseUrl}monika-view-image/${foto.folderName}/${foto.path}"
                         val bitmap = loadBitmap(url, token)
+
                         bitmap?.let {
                             val scaled = it.scale(photoWidth.toInt(), photoHeight.toInt())
                             canvas.drawBitmap(scaled, xPhoto, y, null)
                             xPhoto += photoWidth + spacing
                         }
                     }
+
                     y += photoHeight + 15f
                 }
 
-                y += 5f // Spasi antar nota
+                y += 5f
             }
-            y += 10f // Spasi antar customer
+
+            y += 10f
         }
 
         pdf.finishPage(page)
 
-        val name =
+        val fileName =
             "Monitoring_Tagihan_${collName}_${formatDate(date)}_${System.currentTimeMillis()}.pdf"
 
-        // REKOMENDASI: Gunakan folder Download publik
         val downloadDir =
-            android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
-        if (!downloadDir.exists()) {
-            downloadDir.mkdirs()
-        }
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        if (!downloadDir.exists()) downloadDir.mkdirs()
 
-        val file = File(downloadDir, name)
+        val file = File(downloadDir, fileName)
 
         return@withContext try {
             val outputStream = FileOutputStream(file)
             pdf.writeTo(outputStream)
-            outputStream.flush()
             outputStream.close()
             pdf.close()
             file
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             pdf.close()
             null
         }
@@ -256,8 +271,27 @@ object PdfInvoiceHelper {
 
             BitmapFactory.decodeStream(connection.inputStream, null, options)
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
+
+    private fun mapStatus(status: Int?): String {
+        return when (status) {
+            STATUS_PAID -> "Terbayar"
+            STATUS_UNPAID -> "Tidak Bayar"
+            STATUS_RECEIPT -> "Tanda Terima"
+            STATUS_BG_CHECK -> "BG"
+            else -> "-"
+        }
+    }
+
+    private fun mapPaymentMethod(method: Int?): String {
+        return when (method) {
+            PAYMENT_CASH -> "Cash"
+            PAYMENT_TRANSFER -> "Transfer"
+            else -> "-"
+        }
+    }
 }
+

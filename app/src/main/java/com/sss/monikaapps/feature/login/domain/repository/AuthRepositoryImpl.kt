@@ -7,7 +7,7 @@ import com.sss.monikaapps.feature.login.data.response.LoginResponse
 
 class AuthRepositoryImpl(
     private val remote: AuthRemoteDataSource,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
 ) : AuthRepository {
 
     override suspend fun userLogin(payload: LoginRequest): LoginResponse {

@@ -13,10 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,8 +34,6 @@ import com.sss.monikaapps.common.helper.RequestAppPermissions
 import com.sss.monikaapps.common.model.SnackbarData
 import com.sss.monikaapps.common.snackbar.SnackbarManager
 import com.sss.monikaapps.common.theme.BackgroundLayout
-import com.sss.monikaapps.common.theme.CardWhite
-import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.feature.developer_option.data.DeveloperModeUtils
 import com.sss.monikaapps.feature.developer_option.presentation.CheckDeveloperModeBottomSheet
 import com.sss.monikaapps.feature.device.presentation.DeviceViewModel

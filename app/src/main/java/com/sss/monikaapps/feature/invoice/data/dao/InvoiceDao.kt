@@ -34,14 +34,14 @@ interface InvoiceDao {
     @Query(
         """
         SELECT a.*, 
-            CASE WHEN MAX(b.syncStatus) = 1 THEN 4 ELSE MIN(b.status) END as syncStatus
+            CASE WHEN MAX(b.syncStatus) = 1 THEN 5 ELSE MIN(b.status) END as syncStatus
         FROM customer_invoice_table a
         LEFT JOIN invoice_table b ON a.customerId = b.customerId
         WHERE (a.customerName LIKE '%' || :query || '%' OR a.customerId LIKE '%' || :query || '%')
           AND (
               :status = 7
-              OR (:status = 4 AND b.syncStatus = 1)
-              OR (:status != 4 AND b.status = :status)
+              OR (:status = 5 AND b.syncStatus = 1)
+              OR (:status != 5 AND b.status = :status)
           )
         GROUP BY a.customerId
         ORDER BY b.syncStatus ASC, a.customerName ASC
@@ -55,8 +55,8 @@ interface InvoiceDao {
     @Query("SELECT * FROM invoice_table WHERE customerId = :customerId")
     fun observerNotaInvoiceByCustomerId(customerId: String): Flow<List<InvoiceEntity>>
 
-    @Query("SELECT filePath as path, parentId as id, parentType as tipe FROM photo_table WHERE parentId = :idNotaInvoice")
-    fun observerPhotoNota(idNotaInvoice: String): Flow<List<PhotoItem>>
+    @Query("SELECT filePath as path, parentId as id, parentType as tipe FROM photo_table WHERE parentId = :idNotaInvoice AND parentFeature = :parentFeature")
+    fun observerPhotoNota(idNotaInvoice: String, parentFeature: Int): Flow<List<PhotoItem>>
 
     @Query("DELETE FROM customer_invoice_table")
     suspend fun clearCustomerInvoice()
@@ -83,6 +83,8 @@ interface InvoiceDao {
     @Query("SELECT customerId from invoice_table")
     suspend fun getCustomerIdInInvoiceTable(): List<String>
 
+    @Query("SELECT nomorNota from invoice_table")
+    suspend fun getNomorNotaInInvoiceTable(): List<String>
 
     /*
         INVOICE (MIX)

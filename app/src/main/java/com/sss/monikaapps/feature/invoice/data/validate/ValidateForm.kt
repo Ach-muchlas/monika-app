@@ -1,57 +1,154 @@
 package com.sss.monikaapps.feature.invoice.data.validate
 
 import com.sss.monikaapps.common.formatter.FormatterCurrency.cleanCurrency
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst.PAYMENT_CASH
+import com.sss.monikaapps.feature.invoice.data.const.PaymentMethodConst.PAYMENT_TRANSFER
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_BG_CHECK
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_PAID
+import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_RECEIPT
 import com.sss.monikaapps.feature.invoice.data.const.PaymentStatusConst.STATUS_UNPAID
-import com.sss.monikaapps.feature.invoice.data.entity.ReasonEntity
+import com.sss.monikaapps.feature.invoice.presentation.payment.PaymentInvoiceUiState
 
 object ValidationForm {
 
-    fun validateFormPayment(
-        statusPaid: Int,
-        totalPaid: String,
-        totalOutstanding: String,
-        selectedReason: ReasonEntity?,
-        photos: List<String>,
-        onTotalPaidError: (String) -> Unit,
-        onReasonError: (String) -> Unit,
-        onPhotoError: (String) -> Unit,
-    ): Boolean {
-        var hasError = false
+    fun validate(state: PaymentInvoiceUiState): ValidationResult {
 
-        if (statusPaid == STATUS_PAID) {
-            val paidAmount = cleanCurrency(totalPaid)
-            val outstandingAmount = cleanCurrency(totalOutstanding)
-            when {
-                totalPaid.isBlank() -> {
-                    onTotalPaidError("Uang yang dibayarkan tidak boleh kosong")
-                    hasError = true
+        val paidAmount = cleanCurrency(state.totalPaid)
+        val outstandingAmount = cleanCurrency(state.totalOutstanding)
+
+        var statusPaymentError: String? = null
+        var methodPaymentError: String? = null
+        var methodPaymentReceiptError: String? = null
+        var dateTransferError: String? = null
+        var totalPaidError: String? = null
+        var reasonError: String? = null
+        var photoError: String? = null
+        var bankError: String? = null
+        var bankReceiptError: String? = null
+        var dateError: String? = null
+        var bankBgError: String? = null
+        var dateBgError: String? = null
+        var moneyPaidBgError: String? = null
+
+        when (state.statusPaid) {
+            0 -> statusPaymentError = "Status pembayaran harus di pilih"
+
+            STATUS_PAID -> {
+                when (state.paymentMethodPaid) {
+                    0 -> methodPaymentError = "Metode pembayaran harus di pilih"
+
+                    PAYMENT_CASH -> {
+                        if (state.totalPaid.isBlank()) totalPaidError = "Uang tidak boleh kosong"
+                        if (paidAmount <= 0) totalPaidError = "Uang tidak boleh 0"
+                        if (paidAmount > outstandingAmount) totalPaidError = "Melebihi tagihan"
+                    }
+
+                    PAYMENT_TRANSFER -> {
+                        if (state.selectedBankTransferPaid == null) bankError = "Bank wajib dipilih"
+                        if (state.dateTransfer.isNullOrBlank()) dateTransferError =
+                            "Tanggal wajib diisi"
+                        if (state.totalPaid.isBlank()) totalPaidError = "Uang tidak boleh kosong"
+                        if (paidAmount <= 0) totalPaidError = "Uang tidak boleh 0"
+                        if (paidAmount > outstandingAmount) totalPaidError =
+                            "Uang yang dibayar melebihi tagihan"
+                        if (state.photos.isEmpty()) photoError = "Foto transfer harus diisi"
+
+                    }
+                }
+            }
+
+            STATUS_UNPAID -> {
+                if (state.selectedReason == null) {
+                    reasonError = "Alasan wajib diisi"
+                }
+                if (state.photos.isEmpty()) {
+                    photoError = "Foto wajib"
+                }
+            }
+
+            STATUS_RECEIPT -> {
+                if (state.paymentMethodReceipt == 0) {
+                    methodPaymentReceiptError = "Metode pembayaran harus di pilih"
                 }
 
-                paidAmount <= 0 -> {
-                    onTotalPaidError("Uang yang dibayarkan tidak boleh 0")
-                    hasError = true
+                if (state.paymentMethodReceipt == PAYMENT_TRANSFER && state.selectedBankReceipt?.idCoa.isNullOrEmpty()) {
+                    bankReceiptError = "Bank wajib dipilih"
                 }
 
-                paidAmount > outstandingAmount -> {
-                    onTotalPaidError("Uang yang dibayarkan tidak boleh lebih dari total tagihan")
-                    hasError = true
+                if (state.dateReceipt.isNullOrEmpty()) {
+                    dateError = "Tanggal wajib dipilih"
+                }
+
+                if (state.photos.isEmpty()) {
+                    photoError = "Foto tanda terima wajib"
+                }
+            }
+
+            STATUS_BG_CHECK -> {
+                if (state.selectedBankTransferBG == null) {
+                    bankBgError = "Bank wajib dipilih"
+                }
+
+                if (state.dateCheck.isNullOrEmpty()) {
+                    dateBgError = "Tanggal wajib dipilih"
+                }
+
+                if (state.totalPaid.isBlank()) moneyPaidBgError = "Uang tidak boleh kosong"
+                if (paidAmount <= 0) moneyPaidBgError = "Uang tidak boleh 0"
+                if (paidAmount > outstandingAmount) moneyPaidBgError = "Melebihi tagihan"
+
+                if (state.photos.isEmpty()) {
+                    photoError = "Foto BG atau cek wajib diisi"
                 }
             }
         }
 
-        if (statusPaid == STATUS_UNPAID) {
-            if (selectedReason == null || selectedReason.descReason.isEmpty()) {
-                onReasonError("Alasan tidak bayar tidak boleh kosong")
-                hasError = true
-            }
-            if (photos.isEmpty()) {
-                onPhotoError("Minimal 1 foto harus ditambahkan sebagai bukti")
-                hasError = true
-            }
-        }
-
-        return hasError
+        return ValidationResult(
+            statusPaymentError,
+            methodPaymentError,
+            methodPaymentReceiptError,
+            dateTransferError,
+            totalPaidError,
+            reasonError,
+            photoError,
+            bankError,
+            bankReceiptError,
+            dateError,
+            bankBgError,
+            dateBgError,
+            moneyPaidBgError
+        )
     }
 
+    data class ValidationResult(
+        val statusPaymentError: String? = null,
+        val methodPaymentError: String? = null,
+        val methodPaymentReceiptError: String? = null,
+        val dateTransfer: String? = null,
+        val totalPaidError: String? = null,
+        val reasonError: String? = null,
+        val photoError: String? = null,
+        val bankError: String? = null,
+        val bankReceiptError: String? = null,
+        val dateError: String? = null,
+        val bankBgError: String? = null,
+        val dateBgError: String? = null,
+        val moneyPaidBgError: String? = null,
+    ) {
+        fun isValid(): Boolean {
+            return statusPaymentError == null &&
+                    methodPaymentError == null &&
+                    methodPaymentReceiptError == null &&
+                    dateTransfer == null &&
+                    totalPaidError == null &&
+                    reasonError == null &&
+                    photoError == null &&
+                    bankError == null &&
+                    bankReceiptError == null &&
+                    dateError == null &&
+                    bankBgError == null &&
+                    dateBgError == null &&
+                    moneyPaidBgError == null
+        }
+    }
 }

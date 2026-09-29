@@ -105,6 +105,7 @@ class DownloadLocalDataSourceImpl(
     }
 
     override suspend fun countDataBankReceipt(): Int = bankDao.countDataBankReceipt()
+
     override suspend fun deleteDataBankReceipt() {
         bankDao.deleteDataBankReceipt()
     }

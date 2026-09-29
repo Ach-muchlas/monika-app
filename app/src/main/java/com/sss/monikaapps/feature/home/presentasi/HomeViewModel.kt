@@ -1,7 +1,6 @@
 package com.sss.monikaapps.feature.home.presentasi
 
 import android.app.Application
-import android.location.Geocoder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sss.monikaapps.R
@@ -76,8 +75,20 @@ class HomeViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
     val menuItems: StateFlow<List<HomeMenuItem>> =
-        getCountInvoiceAndVisitUseCase().combine(_user) { (invoiceCount, visitCount), _ ->
-            createMenuBasedOnData(invoiceCount, visitCount)
+        combine(
+            getCountInvoiceAndVisitUseCase(),
+            _user,
+            configDataFlow
+        ) { (invoiceCount, visitCount), _, configs ->
+            val currentDate = getCurrentDate()
+            val lastDownloadDate = configs.firstOrNull()?.createAd ?: ""
+
+            // Logika: Tanggal harus sama DAN semua status download harus true
+            val isDownloadComplete = lastDownloadDate == currentDate &&
+                    configs.isNotEmpty() &&
+                    configs.all { it.statusTotalDownload }
+
+            createMenuBasedOnData(invoiceCount, visitCount, isDownloadComplete)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -92,12 +103,16 @@ class HomeViewModel(
     private val _navEvent = Channel<HomeNavEvent>(Channel.BUFFERED)
     val navEvent = _navEvent.receiveAsFlow()
 
-
     init {
         _user.value = sessionManager.getDataUser()
     }
 
-    private fun createMenuBasedOnData(invoiceCount: Int, visitCount: Int): List<HomeMenuItem> {
+    private fun createMenuBasedOnData(
+        invoiceCount: Int,
+        visitCount: Int,
+        isDownloadComplete: Boolean,
+    ): List<HomeMenuItem> {
+
         val items = mutableListOf<HomeMenuItem>()
 
         items.add(
@@ -149,14 +164,16 @@ class HomeViewModel(
             )
         )
 
-        items.add(
-            HomeMenuItem(
-                FEATURE_UPDATE_DATA,
-                app.getString(R.string.text_feature_update_data),
-                app.getString(R.string.text_desc_feature_update_data),
-                R.drawable.icon_update_data
+        if (isDownloadComplete) {
+            items.add(
+                HomeMenuItem(
+                    FEATURE_UPDATE_DATA,
+                    app.getString(R.string.text_feature_update_data),
+                    app.getString(R.string.text_desc_feature_update_data),
+                    R.drawable.icon_update_data
+                )
             )
-        )
+        }
 
         items.add(
             HomeMenuItem(
@@ -205,6 +222,13 @@ class HomeViewModel(
                     val totalInvoicePending =
                         invoicePendingResult.first + invoicePendingResult.second
 
+                    val pending = checkPendingDataDownloadUseCase().data ?: 0
+
+                    if (pending > 0) {
+                        _navEvent.send(HomeNavEvent.Blocked("Download data belum lengkap"))
+                        return@launch
+                    }
+
                     if (totalInvoicePending > 0) {
                         _navEvent.send(HomeNavEvent.Navigate(RouteDestination.HomeToInvoice))
                         return@launch
@@ -230,13 +254,13 @@ class HomeViewModel(
 
             val pending = checkPendingDataDownloadUseCase().data ?: 0
 
-            if (lastDownloadDate != currentDate) {
-                _navEvent.send(HomeNavEvent.Blocked("Data belum di-download untuk hari ini"))
+            if (pending > 0) {
+                _navEvent.send(HomeNavEvent.Blocked("Download data belum lengkap"))
                 return@launch
             }
 
-            if (pending > 0) {
-                _navEvent.send(HomeNavEvent.Blocked("Download data belum lengkap"))
+            if (lastDownloadDate != currentDate) {
+                _navEvent.send(HomeNavEvent.Blocked("Data belum di-download untuk hari ini"))
                 return@launch
             }
 

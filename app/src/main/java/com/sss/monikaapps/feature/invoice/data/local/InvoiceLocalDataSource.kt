@@ -39,7 +39,7 @@ interface InvoiceLocalDataSource {
     fun getCustomerInvoiceWithFilter(query: String, status: Int): Flow<List<CustomerInvoiceEntity>>
     fun getCustomerInvoiceByCustomerId(customerId: String): Flow<CustomerInvoiceEntity>
     fun getNotaInvoiceByCustomerId(customerId: String): Flow<List<InvoiceEntity>>
-    fun getPhotoNotaByIdNota(idNota: String): Flow<List<PhotoItem>>
+    fun getPhotoNotaByIdNota(idNota: String, parentType: Int): Flow<List<PhotoItem>>
 
     fun getPaymentDataInvoice(nota: String): Flow<PaymentInvoiceData>
 
@@ -55,8 +55,8 @@ interface InvoiceLocalDataSource {
         gpsLat: String,
         gpsLng: String,
         dateReceipt: String,
-        paymentMethod : String,
-        idCoa : String,
+        paymentMethod: String,
+        idCoa: String,
     ): Int
 
     suspend fun getPaymentInvoiceRequest(
@@ -80,6 +80,9 @@ interface InvoiceLocalDataSource {
     suspend fun getCustomerIdInCustomerTable(): List<String>
 
     suspend fun getCustomerIdInInvoiceTable(): List<String>
+    suspend fun getNomorNotaInInvoiceTable(): List<String>
 
     fun getBankReceipt(): Flow<List<BankReceiptEntity>>
+
+    suspend fun getBankNameById(idBank: String): String
 }

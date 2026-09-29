@@ -19,14 +19,14 @@ class ServerManager private constructor() {
     }
 
     fun getServerAddress(): String {
-        return sharePref.getString(KEY_SERVER_MONIKA, DEFAULT_SERVER_S3GO_ATOSSS)
-            ?: DEFAULT_SERVER_S3GO_ATOSSS
+        return sharePref.getString(KEY_SERVER_MONIKA, DEFAULT_SERVER)
+            ?: DEFAULT_SERVER
     }
 
     companion object {
         private const val PREF_NAME = "server_pref"
         private const val KEY_SERVER_MONIKA = "server_monika"
-        private const val DEFAULT_SERVER_S3GO_ATOSSS = ServerConstant.BASE_URL_PUBLIC
+        private const val DEFAULT_SERVER = ServerConstant.BASE_URL_PUBLIC
 
         @Volatile
         private var instance: ServerManager? = null

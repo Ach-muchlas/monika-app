@@ -38,7 +38,7 @@ import com.sss.monikaapps.common.theme.Dimens
 import com.sss.monikaapps.common.theme.Primary
 import com.sss.monikaapps.common.theme.TitlePopBold
 import com.sss.monikaapps.feature.home.data.model.HomeMenuItem
-import java.time.format.TextStyle
+
 
 @Composable
 fun HomeMenuGrid(menuItems: List<HomeMenuItem>, onMenuClick: (Int) -> Unit) {
@@ -69,7 +69,6 @@ fun HomeMenuGrid(menuItems: List<HomeMenuItem>, onMenuClick: (Int) -> Unit) {
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Top
                 ) {
-
                     Image(
                         painter = painterResource(id = item.iconRes),
                         contentDescription = item.title,
@@ -116,11 +115,8 @@ fun ResponsiveTitleText(
             if (isReady) drawContent()
         },
         onTextLayout = { result ->
-            if (result.didOverflowWidth && fontSize > minFontSize) {
-                fontSize *= 0.9f
-            } else {
-                isReady = true
-            }
+            if (result.didOverflowWidth && fontSize > minFontSize) fontSize *= 0.9f else isReady =
+                true
         }
     )
 }

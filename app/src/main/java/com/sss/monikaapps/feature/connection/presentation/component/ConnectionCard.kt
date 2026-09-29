@@ -116,6 +116,7 @@ fun ConnectionCard(
         }
 
         Spacer(Modifier.height(Dimens.MediumMargin))
+
         Text(
             text = stringResource(R.string.text_server_name),
             style = BodyPopBold,

@@ -1,5 +1,10 @@
 package com.sss.monikaapps.feature.update_data_invoice.domain.repository
 
+import android.util.Log
+import com.sss.monikaapps.common.constanta.TableIdConstant.CUSTOMER_INVOICE
+import com.sss.monikaapps.common.constanta.TableIdConstant.NOTA_INVOICE
+import com.sss.monikaapps.common.constanta.TableNameConstant.CUSTOMER_INVOICE_TABLE
+import com.sss.monikaapps.common.constanta.TableNameConstant.NOTA_INVOICE_TABLE
 import com.sss.monikaapps.common.mapper.MapperInvoice.toEntity
 import com.sss.monikaapps.common.result.Result
 import com.sss.monikaapps.feature.download.data.entity.ConfigDownloadDataEntity
@@ -44,11 +49,18 @@ class UpdateDataInvoiceRepositoryImpl(
         val invoiceData = remoteInvoice.getCustomerInvoice()
         onProgress(0.2f, "Download selesai")
 
+        Log.e("CHECK_DATA", "=======================================")
+        Log.e("CHECK_DATA_REPO", "Data Remote: ${invoiceData?.data}")
+
         val existingIds = localInvoice.getCustomerIdInCustomerTable()
+        Log.e("CHECK_DATA_REPO", "Data Remote : ${invoiceData?.data}")
 
         val entities = invoiceData?.data
             ?.filter { it.customerId !in existingIds }
             ?.map { it.toEntity() } ?: emptyList()
+
+        Log.e("CHECK_DATA_REPO", "Data Existing : ${invoiceData?.data}")
+        Log.e("CHECK_DATA", "=======================================")
 
         // 0.2 → 0.5 (insert)
         localInvoice.insertCustomerInvoiceBatch(entities) { insertProgress ->
@@ -65,6 +77,13 @@ class UpdateDataInvoiceRepositoryImpl(
             throw IllegalStateException("Mismatch data customer")
         }
 
+        updateConfigStatus(
+            CUSTOMER_INVOICE,
+            CUSTOMER_INVOICE_TABLE,
+            totalLocal,
+            invoiceData?.totalData ?: 0
+        )
+
         return entities
     }
 
@@ -77,10 +96,10 @@ class UpdateDataInvoiceRepositoryImpl(
         val notaData = remoteInvoice.getNotaInvoice()
         onProgress(0.7f, "Download nota selesai")
 
-        val existingIds = localInvoice.getCustomerIdInInvoiceTable()
+        val existingIds = localInvoice.getNomorNotaInInvoiceTable()
 
         val entities = notaData?.data
-            ?.filter { it.customerId !in existingIds }
+            ?.filter { it.nomorNota !in existingIds }
             ?.map { it.toEntity() } ?: emptyList()
 
         // 0.7 → 1.0
@@ -98,6 +117,13 @@ class UpdateDataInvoiceRepositoryImpl(
             throw IllegalStateException("Mismatch data nota")
         }
 
+        updateConfigStatus(
+            NOTA_INVOICE,
+            NOTA_INVOICE_TABLE,
+            totalLocal,
+            notaData?.totalData ?: 0
+        )
+
         return entities
     }
 
@@ -107,6 +133,7 @@ class UpdateDataInvoiceRepositoryImpl(
         totalLocal: Int,
         totalServer: Int,
     ) {
+
         local.saveConfigDownload(
             ConfigDownloadDataEntity(
                 id = featureId,
